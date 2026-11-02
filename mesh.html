@@ -1,0 +1,21 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Mountaindale – 3D textured model</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#1d2b33;font:15px -apple-system,system-ui,sans-serif;color:#fff;-webkit-user-select:none;user-select:none}
+canvas{display:block;touch-action:none}
+#top{position:fixed;top:env(safe-area-inset-top,0);left:0;right:0;padding:8px 10px;display:flex;gap:8px;align-items:center;background:rgba(0,0,0,.45);z-index:5;flex-wrap:wrap}
+#top a,#top button{color:#fff;background:rgba(255,255,255,.15);border:0;border-radius:8px;padding:7px 11px;font:inherit;text-decoration:none}
+#top a.on{background:#2a8cff}#top .t{font-weight:600;margin-right:auto}
+#loading,#error{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:80%;max-width:420px;text-align:center;background:rgba(0,0,0,.7);padding:18px;border-radius:12px;z-index:6}
+#track{height:8px;background:#444;border-radius:4px;overflow:hidden;margin-top:10px}#bar{height:100%;width:0;background:#2a8cff;transition:width .2s}
+#error{display:none;color:#ffd2d2}#error a{color:#8cf}
+#help{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);left:0;right:0;text-align:center;font-size:12px;opacity:.75;pointer-events:none}
+</style></head><body>
+<div id="top"><span class="t">Mountaindale 3D model</span><span id="quality"><a data-q="1k" href="?q=1k">Standard</a> <a data-q="2k" href="?q=2k">HD</a></span><button id="reset">Reset view</button><a href="./">Home</a></div>
+<div id="loading"><div id="pct">Starting…</div><div id="track"><div id="bar"></div></div></div>
+<div id="error"></div>
+<div id="help">1 finger: rotate · 2 fingers: zoom / pan · mouse: drag, right-drag, wheel</div>
+<script src="mesh.js"></script>
+</body></html>
