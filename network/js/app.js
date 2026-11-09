@@ -8,6 +8,7 @@ import {
   highlightForGroup,
 } from "./lib/topology-model.mjs";
 import { shownOnMap } from "./lib/map-links.mjs";
+import { classifyWirelessHops } from "./lib/wireless-hops.mjs";
 import { linksWithCoords, renderDeviceStory } from "./lib/render-card.mjs";
 import { createMap, insetsAround } from "./map.js";
 import { mountTopology } from "./topology-view.js";
@@ -130,11 +131,12 @@ function paint() {
   const { device, highlight, members } = activeHighlight();
   const memberSet = new Set(members);
   const hotLinks = new Set(highlight.linkIds);
+  const wirelessHop = classifyWirelessHops(links).hop;
   map.setPolylines(links.filter(shownOnMap).flatMap((link) => {
     const a = pixelOf(endpoint(link.parent));
     const b = pixelOf(endpoint(link.child));
     if (!a || !b) return [];
-    return [{ id: link.id, medium: link.medium, hot: hotLinks.has(link.id), points: [a, b] }];
+    return [{ id: link.id, medium: link.medium, hop: wirelessHop.get(link.id) || "", hot: hotLinks.has(link.id), points: [a, b] }];
   }));
   map.setMarkers(devices.map((item) => {
     const point = pixelOf(item.coords);

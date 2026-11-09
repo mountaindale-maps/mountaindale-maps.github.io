@@ -182,6 +182,27 @@ test("a real touch tap highlights before a second tap zooms, and the phone layou
   await context.close();
 });
 
+test("a roof wireless hop keeps its color and a downstream relay is red", async ({ page }) => {
+  await page.goto("/network/");
+  await expect(page.locator("#legend")).toContainText("Wireless link from main building roof");
+  await expect(page.locator("#legend")).toContainText("Wireless relay link (second hop)");
+  const colors = await page.evaluate(() => {
+    const stroke = (id) => getComputedStyle(document.querySelector(`#map [data-link-id="${id}"]`)).stroke;
+    return {
+      roof: stroke("lnk:NBM5-AP-80>NBM5-STA-80"),
+      relay: stroke("lnk:NB5AC-AP-91>NS5AC-STA-91"),
+      wired: stroke("lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE"),
+      roofHop: document.querySelector("#map [data-link-id='lnk:NBM5-AP-80>NBM5-STA-80']").dataset.hop,
+      relayHop: document.querySelector("#map [data-link-id='lnk:NB5AC-AP-91>NS5AC-STA-91']").dataset.hop,
+    };
+  });
+  expect(colors.roofHop).toBe("initial");
+  expect(colors.relayHop).toBe("secondary");
+  expect(colors.roof).toBe("rgb(185, 220, 255)");
+  expect(colors.relay).toBe("rgb(255, 42, 42)");
+  expect(colors.wired).not.toBe(colors.relay);
+});
+
 test("two-finger pinch zooms the map around the pinch midpoint", async ({ page }) => {
   await page.goto("/network/");
   await expect(page.locator("#map")).toHaveAttribute("data-scale", /.+/);

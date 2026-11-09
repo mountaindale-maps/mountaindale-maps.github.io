@@ -199,8 +199,9 @@ export function createMap(container, options) {
       if (points.length < 2) continue;
       const path = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
       path.setAttribute("points", points.map((point) => `${point.x},${point.y}`).join(" "));
-      path.setAttribute("class", `link medium-${line.medium || "wired"}${line.hot ? " is-hot" : ""}${line.planned ? " is-planned" : ""}`);
+      path.setAttribute("class", `link medium-${line.medium || "wired"}${line.hop === "secondary" ? " is-relay" : ""}${line.hot ? " is-hot" : ""}${line.planned ? " is-planned" : ""}`);
       path.dataset.linkId = line.id || "";
+      if (line.hop) path.dataset.hop = line.hop;
       svg.appendChild(path);
       if (line.editable) {
         points.forEach((point, index) => {

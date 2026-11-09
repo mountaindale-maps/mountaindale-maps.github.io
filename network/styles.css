@@ -83,6 +83,7 @@ button { cursor: pointer; }
 .medium-airmax-ptp { stroke: #b9dcff; stroke-dasharray: 9 6; stroke-width: 3.2; }
 .medium-airmax-ptmp { stroke: #9cf3dc; stroke-dasharray: 2 7; stroke-width: 3.2; }
 .medium-wan { stroke: var(--wan); stroke-width: 4.4; }
+.link.is-relay { stroke: #ff2a2a; }
 .link.is-hot { stroke: #fff4cc; stroke-width: 5.2; filter: drop-shadow(0 0 4px rgba(226, 177, 90, 0.9)); }
 .link.is-planned { stroke: var(--warn); stroke-dasharray: 3 6; }
 .leader { stroke: rgba(243, 240, 230, 0.55); stroke-width: 1; }
@@ -201,8 +202,9 @@ button { cursor: pointer; }
 .swatch.status-inactive { background: #667068; }
 .swatch.flag { background: var(--danger); border-radius: 50%; }
 .line { width: 28px; height: 0; border-top: 2px solid #f3f0e6; display: inline-block; }
-.line.dashed { border-top-style: dashed; border-top-color: var(--sky); }
+.line.dashed, .line.roof { border-top-style: dashed; border-top-color: #b9dcff; }
 .line.dotted { border-top-style: dotted; border-top-color: #7ddec4; }
+.line.relay { border-top-style: dashed; border-top-color: #ff2a2a; border-top-width: 3px; }
 .line.wan { border-top-color: var(--wan); border-top-width: 3px; }
 @media (max-width: 800px) {
   .app {

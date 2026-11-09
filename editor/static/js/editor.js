@@ -26,6 +26,7 @@ import {
   verticesForLink,
 } from "/js/lib/plan.mjs";
 import { shownOnMap } from "/js/lib/map-links.mjs";
+import { classifyWirelessHops } from "/js/lib/wireless-hops.mjs";
 import { linksWithCoords, renderDeviceStory } from "/js/lib/render-card.mjs";
 import { buildPublicSnapshot, describePublicEdits } from "/js/lib/sanitize.mjs";
 import { applyFocus, defaultExpandedKeys, highlightForDevice } from "/js/lib/topology-model.mjs";
@@ -138,6 +139,10 @@ function render() {
   const active = deviceById(plan, hoverId || selectedId);
   const highlight = highlightForDevice(hier, active && active.status !== "planned" ? active : null);
   const hot = new Set(highlight.linkIds);
+  const wirelessHop = classifyWirelessHops([
+    ...plan.asbuilt.links,
+    ...plan.planned_routes.map((route) => ({ id: route.id, parent: route.from, child: route.to, medium: route.medium })),
+  ]).hop;
   const lines = [];
   for (const link of plan.asbuilt.links.filter(shownOnMap)) {
     const vertices = verticesForLink(plan, link);
@@ -145,6 +150,7 @@ function render() {
     lines.push({
       id: link.id,
       medium: link.medium,
+      hop: wirelessHop.get(link.id) || "",
       hot: hot.has(link.id) || link.id === selectedLinkId,
       editable: mode === "path" && link.id === selectedLinkId,
       points: vertices.map((vertex) => pixelOf(vertex)).filter(Boolean),
@@ -154,6 +160,7 @@ function render() {
     lines.push({
       id: route.id,
       medium: route.medium,
+      hop: wirelessHop.get(route.id) || "",
       planned: true,
       points: (route.vertices || []).map((vertex) => pixelOf(vertex)).filter(Boolean),
     });
