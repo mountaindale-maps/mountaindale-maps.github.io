@@ -287,20 +287,34 @@ export function createMap(container, options) {
         } else {
           button.dataset.deviceId = item.id;
           button.append(element("span", "glyph"), element("span", "marker-caption"));
+          let touchStart = null;
           button.addEventListener("pointerenter", () => emit("markerenter", item));
           button.addEventListener("pointerleave", () => emit("markerleave", item));
-          button.addEventListener("pointerup", (event) => emit("markerpointerup", { id: item.id, pointerType: event.pointerType }));
-          button.addEventListener("touchend", (event) => {
-            event.preventDefault();
+          button.addEventListener("pointerdown", (event) => {
+            if (event.pointerType === "touch") touchStart = { x: event.clientX, y: event.clientY, moved: false };
+            const current = markers.find((marker) => marker.id === item.id);
+            if (current?.draggable) startMarkerDrag(event, current);
+          });
+          button.addEventListener("pointermove", (event) => {
+            if (!touchStart || event.pointerType !== "touch") return;
+            if (Math.hypot(event.clientX - touchStart.x, event.clientY - touchStart.y) > 10) touchStart.moved = true;
+          });
+          button.addEventListener("pointerup", (event) => {
+            if (event.pointerType !== "touch") {
+              emit("markerpointerup", { id: item.id, pointerType: event.pointerType });
+              return;
+            }
+            const start = touchStart;
+            touchStart = null;
+            if (!start || start.moved || multiTouch) return;
             emit("markerpointerup", { id: item.id, pointerType: "touch" });
+          });
+          button.addEventListener("touchend", (event) => {
+            if (event.cancelable) event.preventDefault();
           });
           button.addEventListener("click", (event) => {
             event.stopPropagation();
             emit("markerclick", { id: item.id, pointerType: event.pointerType });
-          });
-          button.addEventListener("pointerdown", (event) => {
-            const current = markers.find((marker) => marker.id === item.id);
-            if (current?.draggable) startMarkerDrag(event, current);
           });
         }
         overlayButtons.set(key, button);
@@ -363,6 +377,7 @@ export function createMap(container, options) {
 
   const pointers = new Map();
   let pinch = null;
+  let multiTouch = false;
   function touchPoints() {
     return [...pointers.values()].filter((point) => point.type === "touch");
   }
@@ -386,6 +401,7 @@ export function createMap(container, options) {
   container.addEventListener("pointerdown", (event) => {
     pointers.set(event.pointerId, { x: event.clientX, y: event.clientY, type: event.pointerType });
     if (touchPoints().length >= 2) {
+      multiTouch = true;
       drag = null;
       syncPinch(true);
       return;
@@ -416,6 +432,7 @@ export function createMap(container, options) {
       pointers.set(event.pointerId, { ...current, x: event.clientX, y: event.clientY });
     }
     if (touchPoints().length >= 2) {
+      multiTouch = true;
       drag = null;
       syncPinch(false);
       return;
@@ -441,6 +458,7 @@ export function createMap(container, options) {
   function endPointer(event) {
     pointers.delete(event.pointerId);
     if (touchPoints().length < 2) pinch = null;
+    if (touchPoints().length === 0) multiTouch = false;
     if (!drag || event.pointerId !== drag.pointer) return false;
     const finished = drag;
     drag = null;

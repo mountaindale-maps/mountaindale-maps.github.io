@@ -139,3 +139,23 @@ test("local editor saves, reloads, undoes, and refuses to publish plans", async 
   await expect(page.locator(".segment-row").first()).toContainText("Slope rise hypotenuse 4.00 m");
   await expect(page.locator(".distance-total").first()).toContainText("ground accuracy unverified");
 });
+
+test("one touch opens the editor card without a second tap", async ({ browser }) => {
+  const context = await browser.newContext({
+    viewport: { width: 393, height: 851 },
+    hasTouch: true,
+    userAgent: "Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+  });
+  const page = await context.newPage();
+  await page.goto("/");
+  const cluster = page.locator(".cluster").first();
+  await expect(cluster).toBeVisible();
+  const memberId = (await cluster.getAttribute("data-members")).split(",")[0];
+  await cluster.tap();
+  const marker = page.locator(`[data-device-id="${memberId}"]`);
+  await expect(marker).toBeVisible();
+  await marker.tap();
+  await expect(page.locator("#detail h2").first()).toHaveText(memberId);
+  await expect(page.locator("#public-preview")).toContainText(memberId);
+  await context.close();
+});

@@ -120,7 +120,7 @@ test("real clicks expand ancestor branches and show inactive gear without a path
   await expect(page.locator("#device-path")).not.toContainText("fiber");
 });
 
-test("a real touch tap highlights before a second tap zooms, and the phone layout stays on screen", async ({ browser }) => {
+test("one touch opens a device card, and the phone layout stays on screen", async ({ browser }) => {
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 },
     hasTouch: true,
@@ -150,11 +150,8 @@ test("a real touch tap highlights before a second tap zooms, and the phone layou
   await cluster.tap();
   const marker = page.locator(`[data-device-id="${memberId}"]`);
   await expect(marker).toBeVisible();
-  const zoomBefore = await page.locator("#map").getAttribute("data-tile-zoom");
   await marker.tap();
-  await expect(page.locator(`[data-key="${memberId}"]`).first()).toHaveAttribute("data-hot", "1");
-  await expect(page.locator("#map")).toHaveAttribute("data-tile-zoom", zoomBefore);
-  await marker.tap();
+  await expect(page.locator("#detail h2")).toHaveText(memberId);
   await expect.poll(() => page.locator("#map").getAttribute("data-tile-zoom")).toBe("5");
   await page.locator("#fit").tap();
   const groups = page.locator(".map-label.kind-group");
@@ -180,6 +177,33 @@ test("a real touch tap highlights before a second tap zooms, and the phone layou
   await expect(page.locator("#legend")).toContainText("airMAX");
   await expect(page.locator("#legend")).toContainText("unverified");
   await context.close();
+});
+
+test("one pointer-up opens the card on a phone without a click", async ({ browser }) => {
+  const phones = [
+    { viewport: { width: 390, height: 844 }, userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1" },
+    { viewport: { width: 393, height: 851 }, userAgent: "Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36" },
+  ];
+  for (const phone of phones) {
+    const context = await browser.newContext({ ...phone, hasTouch: true });
+    const page = await context.newPage();
+    await page.goto("/network/");
+    const cluster = page.locator(".cluster").first();
+    await expect(cluster).toBeVisible();
+    const memberId = (await cluster.getAttribute("data-members")).split(",")[0];
+    await cluster.tap();
+    const marker = page.locator(`[data-device-id="${memberId}"]`);
+    await expect(marker).toBeVisible();
+    const opened = await marker.evaluate((node) => {
+      const rect = node.getBoundingClientRect();
+      const at = { bubbles: true, cancelable: true, clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2, pointerId: 7, pointerType: "touch" };
+      node.dispatchEvent(new PointerEvent("pointerdown", at));
+      node.dispatchEvent(new PointerEvent("pointerup", at));
+      return document.querySelector("#detail h2")?.textContent || "";
+    });
+    expect(opened).toBe(memberId);
+    await context.close();
+  }
 });
 
 test("a roof wireless hop keeps its color and a downstream relay is red", async ({ page }) => {

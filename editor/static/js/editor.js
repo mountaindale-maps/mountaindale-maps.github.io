@@ -608,7 +608,17 @@ function modeLabel(value) {
   return { inspect: "Inspect", move: "Move markers", path: "Cable paths", group: "Location groups", connect: "Connections", plan: "Planned work", notes: "Change requests" }[value];
 }
 
-map.on("markerclick", (item) => { selectedId = item.id; render(); });
+function openMarker(id) {
+  selectedId = id;
+  render();
+}
+map.on("markerpointerup", (item) => {
+  if (item.pointerType === "touch") openMarker(item.id);
+});
+map.on("markerclick", (item) => {
+  if (item.pointerType === "touch") return;
+  openMarker(item.id);
+});
 map.on("markerdragstart", () => { dragOrigin = present(); });
 map.on("markerdrag", ({ id, u, v }) => {
   if (!dragOrigin) return;

@@ -49,7 +49,6 @@ let expanded = defaultExpandedKeys(hierarchy.root);
 let hoverId = null;
 let selectedId = null;
 let groupHover = null;
-let touchArmed = null;
 let lastTouch = -1;
 
 const map = createMap(document.querySelector("#map"), {
@@ -197,7 +196,6 @@ function showHover(id) {
 function selectDevice(id) {
   selectedId = id;
   hoverId = id;
-  touchArmed = null;
   groupHover = null;
   const device = byId.get(id);
   if (!device) return;
@@ -206,11 +204,6 @@ function selectDevice(id) {
   map.zoomToNative(point.u, point.v);
   paint();
   detail.querySelector("h2")?.focus?.();
-}
-
-function armTouch(id) {
-  touchArmed = id;
-  showHover(id);
 }
 
 function showGroup(label) {
@@ -361,7 +354,6 @@ map.on("markerleave", () => {
     paint();
     return;
   }
-  if (touchArmed) return;
   showHover(null);
 });
 map.on("markerpointerup", (item) => {
@@ -369,8 +361,7 @@ map.on("markerpointerup", (item) => {
   const now = performance.now();
   if (now - lastTouch < 40) return;
   lastTouch = now;
-  if (touchArmed === item.id) selectDevice(item.id);
-  else armTouch(item.id);
+  selectDevice(item.id);
 });
 map.on("markerclick", (item) => {
   if (item.pointerType === "touch" || (lastTouch > 0 && performance.now() - lastTouch < 700)) return;
