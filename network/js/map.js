@@ -1,4 +1,5 @@
 import { clusterByScreen, spiderfyOffsets } from "./lib/cluster.mjs";
+import { placeIcon } from "./lib/icon-layout.mjs";
 import {
   NATIVE_ZOOM,
   imageTileIndex,
@@ -321,7 +322,16 @@ export function createMap(container, options) {
         overlay.appendChild(button);
       }
       button.style.zIndex = item.kind === "cluster" ? "6" : "4";
-      button.style.transform = `translate(${item.x}px, ${item.y}px) translate(-50%, -50%)`;
+      if (item.kind !== "cluster" && item.icon) {
+        const placed = placeIcon(item.x, item.y, item.iconScale, view.scale, item.hotspot);
+        button.style.width = `${placed.hit}px`;
+        button.style.height = `${placed.hit}px`;
+        button.style.transform = `translate(${placed.left}px, ${placed.top}px)`;
+      } else {
+        button.style.width = "32px";
+        button.style.height = "32px";
+        button.style.transform = `translate(${item.x}px, ${item.y}px) translate(-50%, -50%)`;
+      }
       if (item.kind === "cluster") {
         button.textContent = String(item.count);
         button.dataset.members = item.memberIds.join(",");
@@ -332,6 +342,27 @@ export function createMap(container, options) {
         button.classList.toggle("is-member", Boolean(item.member));
         button.classList.toggle("is-spread", Boolean(item.spread));
         button.classList.toggle("is-planned", Boolean(item.planned));
+        button.classList.toggle("has-icon", Boolean(item.icon));
+        let icon = button.querySelector(".device-icon");
+        let glyph = button.querySelector(".glyph");
+        if (item.icon) {
+          if (!icon) {
+            icon = document.createElement("img");
+            icon.className = "device-icon";
+            icon.alt = "";
+            button.prepend(icon);
+          }
+          if (icon.getAttribute("src") !== item.icon) icon.src = item.icon;
+          const placed = placeIcon(item.x, item.y, item.iconScale, view.scale, item.hotspot);
+          icon.style.width = `${placed.size}px`;
+          icon.style.height = `${placed.size}px`;
+          icon.style.left = `${placed.imageLeft}px`;
+          icon.style.top = `${placed.imageTop}px`;
+          if (glyph) glyph.remove();
+        } else if (icon) {
+          icon.remove();
+          if (!glyph) button.prepend(element("span", "glyph"));
+        }
         button.querySelector(".marker-caption").textContent = item.caption || item.id;
         button.setAttribute("aria-label", item.caption || item.id);
         let flag = button.querySelector(".flag");

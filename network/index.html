@@ -38,26 +38,12 @@
       <h2>Whole network</h2>
       <button type="button" id="topo-collapse" aria-expanded="true">Hide</button>
     </header>
-    <ul class="link-key" aria-label="How links are drawn">
-      <li><i class="line solid"></i> Ethernet</li>
-      <li><i class="line roof"></i> Wireless link from main building roof</li>
-      <li><i class="line relay"></i> Wireless relay link (second hop)</li>
-    </ul>
+    <ul id="link-key" class="link-key" aria-label="How links are drawn"></ul>
     <div id="topo-body"></div>
   </section>
   <div id="legend" class="legend" hidden>
     <h2>Legend</h2>
-    <ul>
-      <li><i class="swatch role-router"></i> Router</li>
-      <li><i class="swatch role-switch"></i> Switch</li>
-      <li><i class="swatch role-ap"></i> Access point</li>
-      <li><i class="swatch role-radio"></i> airMAX radio</li>
-      <li><i class="swatch status-inactive"></i> Inactive, no uplink</li>
-      <li><i class="line solid"></i> Wired Ethernet</li>
-      <li><i class="line roof"></i> Wireless link from main building roof</li>
-      <li><i class="line relay"></i> Wireless relay link (second hop)</li>
-      <li><i class="swatch flag"></i> Uncertain placement or tentative tag</li>
-    </ul>
+    <ul id="legend-items"></ul>
     <p>Overlapping markers stack only on screen. Spreading them does not move the stored coordinates or the connections. A location group is a hover cluster, not a circuit.</p>
     <p>Distances sum every segment in international feet (metres ÷ 0.3048). Horizontal distance is the WGS84 geodesic between the original longitude and latitude of each vertex. The validated affine only places those markers on the crop. Ground accuracy is unverified. This is not a survey and it does not state a ground-error bound. Grid UTM length is separate. A vertical pole drop is added to that horizontal length. Only an explicit slope rise is combined as a hypotenuse. Slack and service loops are added after that.</p>
     <button type="button" id="legend-close">Close</button>

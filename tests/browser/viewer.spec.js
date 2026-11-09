@@ -191,7 +191,7 @@ test("one pointer-up opens the card on a phone without a click", async ({ browse
     const cluster = page.locator(".cluster").first();
     await expect(cluster).toBeVisible();
     const memberId = (await cluster.getAttribute("data-members")).split(",")[0];
-    await cluster.tap();
+    await cluster.click();
     const marker = page.locator(`[data-device-id="${memberId}"]`);
     await expect(marker).toBeVisible();
     const opened = await marker.evaluate((node) => {
@@ -204,6 +204,22 @@ test("one pointer-up opens the card on a phone without a click", async ({ browse
     expect(opened).toBe(memberId);
     await context.close();
   }
+});
+
+test("the editor legend lists the same entries as the public viewer", async ({ page }) => {
+  await page.goto("/network/");
+  await page.locator("#legend-btn").click();
+  await expect(page.locator("#legend-items")).toContainText("Wireless relay link (second hop)");
+  const viewerLegend = (await page.locator("#legend-items li").allTextContents()).map((text) => text.trim());
+  const viewerKey = (await page.locator("#link-key li").allTextContents()).map((text) => text.trim());
+  await page.goto("http://127.0.0.1:8766/");
+  await page.locator("#legend-btn").click();
+  const editorLegend = (await page.locator("#legend-items li").allTextContents()).map((text) => text.trim());
+  const editorKey = (await page.locator("#link-key li").allTextContents()).map((text) => text.trim());
+  expect(editorLegend).toEqual(viewerLegend);
+  expect(editorKey).toEqual(viewerKey);
+  expect(editorKey).toContain("Wireless link from main building roof");
+  expect(editorKey).toContain("Wireless relay link (second hop)");
 });
 
 test("a roof wireless hop keeps its color and a downstream relay is red", async ({ page }) => {

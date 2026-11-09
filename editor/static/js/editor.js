@@ -25,6 +25,7 @@ import {
   setSegmentExtra,
   verticesForLink,
 } from "/js/lib/plan.mjs";
+import { LINK_KEY, legendEntries, renderLegend } from "/js/lib/legend.mjs";
 import { shownOnMap } from "/js/lib/map-links.mjs";
 import { classifyWirelessHops } from "/js/lib/wireless-hops.mjs";
 import { linksWithCoords, renderDeviceStory } from "/js/lib/render-card.mjs";
@@ -39,19 +40,38 @@ const calib = document.querySelector("#calib");
 const saveState = document.querySelector("#save-state");
 const topoBody = document.querySelector("#topo-body");
 
-const [baseline, baselineHierarchy, metadata, health, stateResponse, friendlyDoc] = await Promise.all([
+const [baseline, baselineHierarchy, metadata, health, stateResponse, friendlyDoc, iconDoc] = await Promise.all([
   fetch("/api/baseline").then((response) => response.json()),
   fetch("/api/topology").then((response) => response.json()),
   fetch("/api/metadata").then((response) => response.json()),
   fetch("/api/health").then((response) => response.json()),
   fetch("/api/state"),
   fetch("/api/friendly").then((response) => response.json()),
+  fetch("/data/device_icons.json").then((response) => response.ok ? response.json() : { icons: {} }),
 ]);
 const saved = await stateResponse.json();
 
 document.querySelector("#local-banner").textContent = `Local planning editor on ${health.host}:${health.port}. Loopback only. Saves stay in ${health.dataDir}. Nothing is published.`;
 
 const baselineLinkJson = JSON.stringify(baseline.links);
+const iconById = iconDoc.icons || {};
+function iconFields(id) {
+  const icon = iconById[id];
+  if (!icon?.file) return {};
+  return { icon: `/icons/${icon.file}`, iconScale: icon.scale ?? 1, hotspot: icon.hotspot || null };
+}
+renderLegend(document.querySelector("#legend-items"), legendEntries(baseline.devices, iconById, (file) => `/icons/${file}`));
+renderLegend(document.querySelector("#link-key"), LINK_KEY);
+document.querySelector("#legend-btn").addEventListener("click", () => {
+  const legend = document.querySelector("#legend");
+  const open = legend.hidden;
+  legend.hidden = !open;
+  document.querySelector("#legend-btn").setAttribute("aria-expanded", String(open));
+});
+document.querySelector("#legend-close").addEventListener("click", () => {
+  document.querySelector("#legend").hidden = true;
+  document.querySelector("#legend-btn").setAttribute("aria-expanded", "false");
+});
 const friendlyById = friendlyDoc?.devices_by_id || {};
 let history = createHistory(saved.plan || planFromPublic(baseline, metadata));
 if (saved.code === "PLAN_CORRUPT") {
@@ -175,6 +195,7 @@ function render() {
       hot: device.id === selectedId,
       draggable: mode === "move",
       flag: (device.data_quality || []).some((item) => item.severity === "warning") ? "warning" : (device.data_quality || []).length ? "info" : "",
+      ...iconFields(device.id),
       caption: device.id,
     })),
     ...plan.planned_devices.map((device) => ({

@@ -102,6 +102,11 @@ button { cursor: pointer; }
 .status-inactive .glyph { background: #667068; outline: 1px dashed #d5d0c4; }
 .is-planned .glyph { outline: 2px dashed var(--warn); }
 .marker.is-hot .glyph, .marker.is-member .glyph { box-shadow: 0 0 0 4px rgba(255, 244, 204, 0.85); }
+.marker.has-icon.is-hot, .marker.has-icon.is-member { box-shadow: 0 0 0 3px rgba(255, 244, 204, 0.95); border-radius: 8px; }
+.marker.is-planned { outline: 2px dashed var(--warn); outline-offset: 1px; }
+.marker.is-planned.has-icon { opacity: 0.82; }
+.device-icon { position: absolute; object-fit: contain; pointer-events: none; }
+.legend-icon { width: 22px; height: 22px; object-fit: contain; }
 .marker-caption, .flag, .glyph { pointer-events: none; }
 .marker-caption {
   position: absolute; left: 50%; top: 36px; transform: translateX(-50%);

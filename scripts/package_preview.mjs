@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { cp, mkdir, readdir, readFile, rm, stat, writeFile, chmod } from "node:fs/promises";
+import { cp, mkdir, readdir, readFile, rm, stat, writeFile, chmod, access } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
@@ -50,8 +50,15 @@ python -m http.server 8765 --bind 127.0.0.1
 
 await rm(out, { recursive: true, force: true });
 await mkdir(path.join(out, "network"), { recursive: true });
-for (const name of ["index.html", "styles.css", "js", "data", "tiles", "imagery"]) {
-  await cp(path.join(root, "network", name), path.join(out, "network", name), { recursive: true });
+for (const name of ["index.html", "styles.css", "js", "data", "tiles", "imagery", "icons"]) {
+  const from = path.join(root, "network", name);
+  try {
+    await access(from);
+  } catch {
+    if (name === "icons") continue;
+    throw new Error(`Missing ${from}`);
+  }
+  await cp(from, path.join(out, "network", name), { recursive: true });
 }
 await writeFile(path.join(out, "README.txt"), readme);
 await writeFile(path.join(out, "index.html"), index);

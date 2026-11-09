@@ -7,3 +7,5 @@ dist/
 !packages/*.zip
 .mountaindale-network/
 editor-data/
+*.kml
+*.kmz

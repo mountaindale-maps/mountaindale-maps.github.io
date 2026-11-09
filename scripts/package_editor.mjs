@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { access, cp, mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
@@ -22,10 +22,18 @@ const copies = [
   ["network/data", "network/data"],
   ["network/tiles", "network/tiles"],
   ["network/imagery", "network/imagery"],
+  ["network/icons", "network/icons"],
   ["network/README.md", "network/README.md"],
 ];
 for (const [from, to] of copies) {
-  await cp(path.join(root, from), path.join(out, to), { recursive: true });
+  const source = path.join(root, from);
+  try {
+    await access(source);
+  } catch {
+    if (from === "network/icons") continue;
+    throw new Error(`Missing ${source}`);
+  }
+  await cp(source, path.join(out, to), { recursive: true });
 }
 await writeFile(path.join(out, "SHA256SUMS"), await fileSums(out));
 await rm(zip, { force: true });

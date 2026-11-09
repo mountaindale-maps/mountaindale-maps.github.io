@@ -20,6 +20,7 @@ const TYPES = {
   ".jpeg": "image/jpeg",
   ".svg": "image/svg+xml",
   ".png": "image/png",
+  ".webp": "image/webp",
   ".txt": "text/plain; charset=utf-8",
   ".md": "text/markdown; charset=utf-8",
 };
@@ -55,6 +56,8 @@ function repoFile(urlPath) {
   const clean = decodeURIComponent(urlPath.split("?")[0]);
   if (clean.startsWith("/js/lib/")) return safeJoin(path.join(repoRoot, "network", "js", "lib"), clean.slice("/js/lib/".length));
   if (clean.startsWith("/tiles/")) return safeJoin(path.join(repoRoot, "network", "tiles"), clean.slice("/tiles/".length));
+  if (clean.startsWith("/icons/")) return safeJoin(path.join(repoRoot, "network", "icons"), clean.slice("/icons/".length));
+  if (clean === "/data/device_icons.json") return path.join(repoRoot, "network", "data", "device_icons.json");
   const files = {
     "/": path.join(editorDir, "static", "index.html"),
     "/index.html": path.join(editorDir, "static", "index.html"),

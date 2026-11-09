@@ -33,6 +33,7 @@
       <button type="button" id="reload">Reload</button>
       <button type="button" id="backups">Backups</button>
       <button type="button" id="import-btn">Import</button>
+      <button type="button" id="legend-btn" aria-expanded="false" aria-controls="legend">Legend</button>
       <button type="button" id="review-export">Review public snapshot</button>
       <input id="import-file" type="file" accept="application/json,.json" hidden>
     </div>
@@ -41,8 +42,14 @@
   <div id="map" class="map" aria-label="Editable aerial map"></div>
   <section id="topology" class="topology" aria-label="Network topology">
     <header class="topo-head"><h2>Topology</h2></header>
+    <ul id="link-key" class="link-key" aria-label="How links are drawn"></ul>
     <div id="topo-body"></div>
   </section>
+  <div id="legend" class="legend" hidden>
+    <h2>Legend</h2>
+    <ul id="legend-items"></ul>
+    <button type="button" id="legend-close">Close</button>
+  </div>
   <p id="save-state" class="save-state">Not saved yet</p>
 </div>
 <dialog id="export-dialog">

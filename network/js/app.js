@@ -7,6 +7,7 @@ import {
   highlightForDevice,
   highlightForGroup,
 } from "./lib/topology-model.mjs";
+import { LINK_KEY, legendEntries, renderLegend } from "./lib/legend.mjs";
 import { shownOnMap } from "./lib/map-links.mjs";
 import { classifyWirelessHops } from "./lib/wireless-hops.mjs";
 import { linksWithCoords, renderDeviceStory } from "./lib/render-card.mjs";
@@ -21,11 +22,12 @@ const legend = document.querySelector("#legend");
 const topoSection = document.querySelector("#topology");
 const topoBody = document.querySelector("#topo-body");
 
-const [asbuilt, hierarchy, metadata, friendly] = await Promise.all([
+const [asbuilt, hierarchy, metadata, friendly, iconDoc] = await Promise.all([
   fetch("data/asbuilt_public.json").then((response) => response.json()),
   fetch("data/topology_hierarchy.json").then((response) => response.json()),
   fetch("data/metadata.json").then((response) => response.json()),
   fetch("data/public_friendly_device_details.json").then((response) => response.json()),
+  fetch("data/device_icons.json").then((response) => response.ok ? response.json() : { icons: {} }),
 ]);
 
 if (asbuilt.schema_version.split(".")[0] !== "1") {
@@ -38,6 +40,9 @@ calib.textContent = claim.distanceLabel;
 const geotransform = metadata?.candidate_georeferencing?.gdal_geotransform || JPEG_CANDIDATE_GEOTRANSFORM;
 const image = metadata.imagery;
 const devices = asbuilt.devices;
+const iconById = iconDoc.icons || {};
+renderLegend(document.querySelector("#legend-items"), legendEntries(devices, iconById, (file) => `icons/${file}`));
+renderLegend(document.querySelector("#link-key"), LINK_KEY);
 const byId = new Map(devices.map((device) => [device.id, device]));
 const groups = new Map(asbuilt.location_groups.map((group) => [group.id, group]));
 const links = asbuilt.links;
@@ -118,6 +123,12 @@ function flagOf(device) {
   return "";
 }
 
+function iconFields(id) {
+  const icon = iconById[id];
+  if (!icon?.file) return {};
+  return { icon: `icons/${icon.file}`, iconScale: icon.scale ?? 1, hotspot: icon.hotspot || null };
+}
+
 function activeHighlight() {
   const id = hoverId || selectedId;
   const device = id ? byId.get(id) : null;
@@ -146,6 +157,7 @@ function paint() {
       role: item.role,
       status: item.status,
       flag: flagOf(item),
+      ...iconFields(item.id),
       hot: item.id === (hoverId || selectedId),
       member: memberSet.has(item.id),
       caption: item.id,
