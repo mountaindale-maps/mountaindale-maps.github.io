@@ -31,7 +31,7 @@ function renderNode(node, state, handlers, depth) {
   if (depth > 0 && (medium || node.wireless_hop)) {
     const wireless = node.wireless_hop || /airmax|wireless|radio/i.test(medium);
     const mark = h("span", wireless ? "uplink is-radio" : "uplink is-wire", "");
-    mark.title = wireless ? "Radio link" : "Ethernet link";
+    mark.title = wireless ? "Wireless link" : "Ethernet cable";
     row.appendChild(mark);
   }
   const label = h("button", "topo-label", node.label || node.key);
@@ -47,7 +47,7 @@ function renderNode(node, state, handlers, depth) {
     else handlers.onToggle(node.key);
   });
   row.appendChild(label);
-  if (node.wireless_hop) row.appendChild(h("span", "hop", "radio"));
+  if (node.wireless_hop) row.appendChild(h("span", "hop", "wireless"));
   const wrap = h("div", "topo-node");
   wrap.appendChild(row);
   if (expanded && node.wan_sources) {
@@ -75,7 +75,7 @@ export function mountTopology(container, { hierarchy, devices, handlers }) {
     const tree = h("div", "topo-tree");
     tree.appendChild(renderNode(hierarchy.root, { ...state, devices: devicesMap }, handlers, 0));
     if (hierarchy.unconnected?.length) {
-      const title = h("p", "topo-unconnected", "No uplink");
+      const title = h("p", "topo-unconnected", "No connection recorded");
       tree.appendChild(title);
       for (const item of hierarchy.unconnected) {
         const button = h("button", "topo-label is-inactive", item.label || item.device_id);

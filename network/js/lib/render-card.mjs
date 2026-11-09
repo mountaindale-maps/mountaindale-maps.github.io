@@ -97,10 +97,10 @@ function renderDetails({ device, card, route, claim, links, geotransform, image,
   }
   const point = pixelOf(device.coords, geotransform);
   technical.appendChild(el("p", null, `Longitude ${device.coords.lon}, latitude ${device.coords.lat}.`));
-  if (point) technical.appendChild(el("p", null, `Image pixel ${point.u.toFixed(1)}, ${point.v.toFixed(1)}.`));
+  if (point) technical.appendChild(el("p", null, `On the photo: ${point.u.toFixed(1)}, ${point.v.toFixed(1)}.`));
   technical.appendChild(el("p", null, device.coords.alt_m == null
-    ? "No aerial altitude is recorded. Altitude is not a mounting height."
-    : `Aerial altitude ${device.coords.alt_m} m is unvalidated and is not a mounting height.`));
+    ? "No height above sea level is recorded. That height is not how high the equipment is mounted."
+    : `The photo lists a height above sea level of ${formatFeet(device.coords.alt_m)}. That figure was not checked, and it is not how high the equipment is mounted.`));
   const place = canvasPlace(device, point, image, nearEdgeIds);
   if (place === "outside") technical.appendChild(el("p", null, "Outside the crop canvas. The stored longitude and latitude were not moved."));
   else if (place === "near-edge") technical.appendChild(el("p", null, "Near the crop edge. Shown at the source coordinates."));
@@ -113,7 +113,7 @@ function renderDetails({ device, card, route, claim, links, geotransform, image,
     });
     pieces.forEach(({ hop, metrics }) => {
       const list = el("div", null);
-      fillDistanceList(list, metrics, `${hop.from} to ${hop.to}`);
+      fillDistanceList(list, metrics, `${hop.from} to ${hop.to}`, { plain: true });
       technical.appendChild(list);
     });
     if (pieces.length) {

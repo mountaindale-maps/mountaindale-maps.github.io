@@ -244,10 +244,10 @@
     "registration_residual_interpretation": "Crop-to-full correlation residuals are not a ground-error bound."
   },
   "blockers": [
-    "Ground survey is not validated. Approximate horizontal distance only.",
-    "The white crop margin is not a property boundary. Bright roofs can look like empty canvas.",
-    "The validated affine does not move disputed equipment pins. Site 96 stays unresolved.",
-    "No equipment in the public set falls outside the crop canvas. Seven devices are near the edge and stay at their source coordinates."
+    "This is not a survey. Cable lengths are approximate, in feet.",
+    "The white margin is not a property boundary. A bright roof can look like empty ground.",
+    "Lining up the photo does not move disputed equipment pins. Site 96 stays unresolved.",
+    "No equipment sits outside the photo. Seven devices are near the edge and stay where they were recorded."
   ],
   "provenance": {
     "display": "Unchanged GIMP crop, 5980 by 8062, registered to the validated full JPEG.",

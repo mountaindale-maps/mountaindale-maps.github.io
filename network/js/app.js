@@ -94,12 +94,12 @@ function outsideSummary() {
   const outside = devices.filter((device) => canvasPlace(device) === "outside");
   const near = devices.filter((device) => canvasPlace(device) === "near-edge");
   const outsideText = outside.length
-    ? `Outside the crop canvas, still at source coordinates: ${outside.map((device) => device.id).join(", ")}.`
-    : "No equipment is outside the crop canvas.";
+    ? `Outside the photo, still where they were recorded: ${outside.map((device) => device.id).join(", ")}.`
+    : "No equipment sits outside the photo.";
   const nearText = near.length
-    ? `${near.length} devices are near the crop edge and stay at their source coordinates.`
+    ? `${near.length} devices are near the edge of the photo and stay where they were recorded.`
     : "";
-  return `${outsideText} ${nearText} Live Earth has not been re-exported. Site 96 placement is still unresolved. One inactive AP has no uplink.`.trim();
+  return `${outsideText} ${nearText} Live Earth has not been re-exported. Site 96 placement is still unresolved. One inactive access point has no connection back to the main router.`.trim();
 }
 
 function pixelOf(coords) {
@@ -278,7 +278,7 @@ function renderDetail(device) {
     const summary = document.createElement("summary");
     summary.textContent = "About and data quality";
     about.appendChild(summary);
-    about.appendChild(el("p", null, "The background is the registered crop of the Oct 31 aerial, not the full frame. Horizontal distance is the geodesic on the original longitude and latitude. The sampled image transform is validated. This is not a survey. The white margin is not a property boundary, and bright pixels are not used to hide equipment."));
+    about.appendChild(el("p", null, "The photo is the Oct 31 aerial, cropped to the resort. Cable lengths are approximate, measured along the drawn route, in feet. The photo was lined up with the equipment, but this is not a survey. The white margin is not a property boundary, and a bright roof is not empty ground."));
     about.appendChild(el("p", "muted", outsideSummary()));
     const list = el("ul", "review");
     for (const item of asbuilt.pending_review) {

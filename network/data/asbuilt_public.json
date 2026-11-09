@@ -53,7 +53,7 @@
     {
       "id": "site96-placement",
       "owner": "Atlas/D",
-      "item": "Site 96 pins unresolved: NB5AC-STA-96 37.512 m and NSL5AC-AP-57-75-98 19.725 m from 096-USW-Flex-East (radios 17.933 m apart). Needs ground truth. The validated image transform does not move these pins."
+      "item": "Site 96 pins are still unresolved: NB5AC-STA-96 is about 123 ft from 096-USW-Flex-East, and NSL5AC-AP-57-75-98 is about 65 ft away (the radios are about 59 ft apart). This needs a check on the ground. Lining up the photo does not move these pins."
     },
     {
       "id": "049-survey-altitude",
@@ -73,7 +73,7 @@
     {
       "id": "aerial-calibration-gate",
       "owner": "Atlas",
-      "item": "Image transform is validated for approximate horizontal distance. Ground accuracy is unverified. That affine is not used to correct disputed equipment pins."
+      "item": "Cable lengths are approximate, in feet, measured along the drawn route. This is not a survey. Disputed equipment pins were not moved."
     }
   ],
   "wan": [

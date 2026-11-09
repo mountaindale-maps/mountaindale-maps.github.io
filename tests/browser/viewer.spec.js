@@ -41,7 +41,13 @@ test("loads the real network, low-resolution tiles first, then a real marker cli
     return copy.innerText;
   });
   expect(visibleStatus).toMatch(/approximate, measured along the drawn route, in feet/i);
-  expect(visibleStatus).not.toMatch(/WGS84|affine|UTM/i);
+  expect(visibleStatus).not.toMatch(/WGS84|affine|UTM|geodesic/i);
+  await page.locator("#about summary").click();
+  await expect(page.locator("#about")).not.toContainText("affine");
+  await expect(page.locator("#about")).not.toContainText("geodesic");
+  await expect(page.locator("#about")).not.toContainText("UTM");
+  await expect(page.locator("#about")).not.toContainText("WGS84");
+  await expect(page.locator("#about")).toContainText("in feet");
   expect(visibleStatus).not.toMatch(/calibration gate/i);
   expect(visibleStatus).not.toMatch(/Open review/);
   await expect(page.locator("#map .link").first()).toBeVisible();
@@ -61,8 +67,10 @@ test("loads the real network, low-resolution tiles first, then a real marker cli
   await expect(page.locator("#detail")).toContainText("Selected");
   await expect(page.locator("#detail")).not.toContainText("WGS84");
   await expect(page.locator("#detail")).not.toContainText("affine");
+  await expect(page.locator("#detail")).not.toContainText("Grid UTM");
+  await expect(page.locator("#detail")).not.toContainText("geodesic");
+  await expect(page.locator(".segment-row").first()).toContainText("Along the drawn route");
   await expect(page.locator(".segment-row").first()).toContainText("ft");
-  await expect(page.locator(".segment-row").first()).toContainText("m");
   await expect.poll(() => page.locator("#map").getAttribute("data-tile-zoom")).toBe("5");
   await expect(page.locator('#map img.tile[data-z="5"]').first()).toBeAttached();
 });
@@ -345,4 +353,38 @@ test("two-finger pinch zooms the map around the pinch midpoint", async ({ page }
   expect(Math.abs(zoomedOut.v - zoomedIn.v)).toBeLessThan(24);
   const outside = await page.evaluate(() => getComputedStyle(document.body).touchAction);
   expect(outside).not.toBe("none");
+});
+
+test("the legend fits on phones and tablets without clipping the last sentence", async ({ page }) => {
+  const sizes = [
+    [393, 851],
+    [851, 393],
+    [412, 915],
+    [915, 412],
+    [390, 844],
+    [844, 390],
+    [375, 667],
+    [667, 375],
+    [768, 1024],
+    [1024, 768],
+  ];
+  for (const [width, height] of sizes) {
+    await page.setViewportSize({ width, height });
+    await page.goto("/network/");
+    await page.locator("#legend-btn").click();
+    const fit = await page.evaluate(() => {
+      const legend = document.querySelector("#legend");
+      const last = [...legend.querySelectorAll("p")].at(-1);
+      const box = last.getBoundingClientRect();
+      const panel = legend.getBoundingClientRect();
+      return {
+        overflow: legend.scrollHeight - legend.clientHeight,
+        clipped: box.bottom > panel.bottom + 1 || box.top < panel.top - 1,
+        text: last.textContent,
+      };
+    });
+    expect(fit.overflow, `${width}x${height}`).toBeLessThanOrEqual(1);
+    expect(fit.clipped, `${width}x${height}`).toBe(false);
+    expect(fit.text).toContain("in feet");
+  }
 });
