@@ -135,9 +135,13 @@ test("local editor saves, reloads, undoes, and refuses to publish plans", async 
   await page.locator("#segment-rise-0").fill("3");
   await page.locator("#segment-slope-0").fill("4");
   await page.getByRole("button", { name: "Apply allowances" }).click();
+  await expect(page.locator(".segment-row").first()).toContainText("Piece 1 of this cable");
   await expect(page.locator(".segment-row").first()).toContainText("Vertical drop added 3 ft");
   await expect(page.locator(".segment-row").first()).toContainText("Slope rise hypotenuse 4 ft");
-  await expect(page.locator(".distance-total").first()).toContainText("ground accuracy unverified");
+  const summary = page.locator(".distance-total").first();
+  await expect(summary).toContainText(/^This cable: \d+ ft along the drawn route \(straight line between the two ends: \d+ ft\)\.$/);
+  await expect(page.locator("#detail")).not.toContainText("Sum");
+  await expect(page.locator("#detail")).not.toContainText(/total/i);
 });
 
 test("a cable bend can be added, moved, removed, and reset", async ({ page }) => {

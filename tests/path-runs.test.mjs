@@ -5,6 +5,7 @@ import { evaluateCalibration } from "../network/js/lib/calibration.mjs";
 import { formatFeet } from "../network/js/lib/distance.mjs";
 import { measureLink, planFromPublic, setCablePath } from "../network/js/lib/plan.mjs";
 import { verifiedRoute } from "../network/js/lib/plain-path.mjs";
+import { cableSummary } from "../network/js/format-distance.js";
 import { ethernetRunFeet, linksWithCoords, routeLines } from "../network/js/lib/render-card.mjs";
 
 const asbuilt = JSON.parse(readFileSync(new URL("../network/data/asbuilt_public.json", import.meta.url)));
@@ -17,6 +18,14 @@ function shownLines(plan, deviceId) {
   const route = verifiedRoute(friendly.devices_by_id[deviceId], links);
   return { claim, links, route, lines: routeLines(route, links, claim) };
 }
+
+test("a cable summary names one cable and does not add the runs together", () => {
+  const plan = planFromPublic(asbuilt, metadata);
+  const link = plan.asbuilt.links.find((item) => item.id === "lnk:100-USW-Flex-Wilderness>102-UAP-M");
+  const text = cableSummary(measureLink(plan, link, null));
+  assert.match(text, /^This cable: \d+ ft along the drawn route \(straight line between the two ends: \d+ ft\)\.$/);
+  assert.equal(/sum|total|horizontal/i.test(text), false);
+});
 
 test("102-UAP-M shows each Ethernet run and no wireless length or path total", () => {
   const plan = planFromPublic(asbuilt, metadata);

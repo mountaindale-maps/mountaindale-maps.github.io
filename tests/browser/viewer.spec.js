@@ -124,6 +124,8 @@ test("real clicks expand ancestor branches and show inactive gear without a path
   await expect(page.locator("#device-path")).toContainText("ft");
   await expect(page.locator("#device-path")).not.toContainText("Ethernet cable length");
   await expect(page.locator("#device-path")).not.toContainText("Total Ethernet");
+  await expect(page.locator("#detail")).not.toContainText("Sum");
+  await expect(page.locator("#detail")).not.toContainText(/total/i);
   await expect(page.locator("#device-path")).not.toContainText("Cable type");
   await expect(page.locator(".path-note")).toHaveCount(0);
   await expect(page.locator("[data-field='mounting']")).toHaveText("Not recorded");
