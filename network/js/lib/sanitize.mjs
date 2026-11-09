@@ -15,6 +15,7 @@ export const DEVICE_PUBLIC_KEYS = Object.freeze([
   "service_area_tag",
   "data_quality",
   "public_summary",
+  "public_profile",
 ]);
 
 export const COORDS_PUBLIC_KEYS = Object.freeze(["lon", "lat", "alt_m", "alt_source"]);
@@ -138,12 +139,18 @@ export function canonicalizePublicText(text) {
   return [...normalized].map((char) => CONFUSABLES[char] || char).join("");
 }
 
+function rulesForPath(path) {
+  const approvedDescription = /\.public_profile\.(?:supply|mounting)(?:\.|$)/.test(path);
+  if (!approvedDescription) return STRING_RULES;
+  return STRING_RULES.filter(([code]) => code !== "power-wiring");
+}
+
 export function scanPublicValue(text, path) {
   const findings = [];
   if (typeof text !== "string" || !text) return findings;
   const canonical = canonicalizePublicText(text);
   if (MAC_DOTTED.test(canonical)) findings.push({ code: "mac-dotted", path, sample: canonical.slice(0, 80) });
-  for (const [code, re] of STRING_RULES) {
+  for (const [code, re] of rulesForPath(path)) {
     if (re.test(canonical)) findings.push({ code, path, sample: canonical.slice(0, 80) });
   }
   if (familyViolation(canonical)) findings.push({ code: "family", path, sample: canonical.slice(0, 80) });
@@ -286,6 +293,35 @@ export function sanitizeDevice(device, allowedRefs = null) {
     : [];
   const summary = publicText(device.public_summary, 600);
   if (summary) out.public_summary = summary;
+  const profile = sanitizeProfile(device.public_profile, allowed);
+  if (profile) out.public_profile = profile;
+  return out;
+}
+
+function sanitizeProfile(profile, allowed) {
+  if (!profile || typeof profile !== "object" || Array.isArray(profile)) return null;
+  const out = {};
+  const purpose = publicText(profile.purpose, 600);
+  const exact = publicText(profile.exact_location, 240);
+  const mounting = publicText(profile.mounting, 240);
+  const connection = publicText(profile.connection, 800);
+  if (purpose) out.purpose = purpose;
+  if (exact) out.exact_location = exact;
+  if (mounting) out.mounting = mounting;
+  if (connection) out.connection = connection;
+  const supply = profile.supply;
+  if (supply && typeof supply === "object" && !Array.isArray(supply)) {
+    const cleaned = {};
+    const description = publicText(supply.description, 400);
+    const outlet = publicText(supply.outlet, 160);
+    const deviceId = typeof supply.device_id === "string" && allowed.has(supply.device_id) ? supply.device_id : null;
+    if (description) cleaned.description = description;
+    if (outlet) cleaned.outlet = outlet;
+    if (deviceId) cleaned.device_id = deviceId;
+    if (Object.keys(cleaned).length) out.supply = cleaned;
+  }
+  if (!Object.keys(out).length) return null;
+  out.provenance = "user-edited";
   return out;
 }
 
@@ -450,7 +486,7 @@ export function describePublicEdits(baseline, plan) {
     const edited = planDevices.get(device.id);
     if (!edited) continue;
     if (edited.coords.lon !== device.coords.lon || edited.coords.lat !== device.coords.lat) coordinates.push(device.id);
-    if (edited.model !== device.model || edited.public_summary !== device.public_summary || edited.ports !== device.ports || edited.mount_height !== device.mount_height || edited.status !== device.status) {
+    if (edited.model !== device.model || edited.public_summary !== device.public_summary || edited.ports !== device.ports || edited.mount_height !== device.mount_height || edited.status !== device.status || JSON.stringify(edited.public_profile || null) !== JSON.stringify(device.public_profile || null)) {
       metadata.push(device.id);
     }
   }

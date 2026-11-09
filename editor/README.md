@@ -35,6 +35,7 @@ The package contains the public baseline, the map code, and the image tiles. It 
 - Draw extra vertices on a cable and set a vertical pole drop, an explicit slope rise, slack, and a service loop per segment. The drop, slack, and loop are added. Only the slope rise is a hypotenuse. Lengths update immediately and stay marked unverified.
 - Add planned devices and planned routes. They draw in a separate style.
 - Edit a public summary or replace a LAN parent on purpose. A second LAN parent is rejected.
+- Write a public description, exact location, mounting, and power wording for one device. Empty fields clear that wording. The source notes stay as they were. Private notes stay under Change requests and are not part of the public wording.
 - Write change-request notes.
 - Undo, redo, save, reload, and restore a backup.
 

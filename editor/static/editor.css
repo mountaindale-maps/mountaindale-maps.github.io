@@ -9,7 +9,8 @@
 .modes button.is-on { background: #e2b15a; color: #241a0a; }
 .save-state { position: absolute; left: 12px; bottom: 12px; margin: 0; z-index: 4; color: #d5dece; font-size: 13px; }
 .tool-block { display: grid; gap: 8px; margin: 12px 0; padding: 10px; border: 1px solid rgba(232,224,204,0.16); border-radius: 12px; }
-.tool-block label { display: grid; gap: 4px; font-size: 13px; color: #b7c0b4; }
+.tool-block label, #detail label { display: grid; gap: 4px; font-size: 13px; color: #b7c0b4; }
+#public-preview { border: 1px solid rgba(232,224,204,0.2); border-radius: 10px; padding: 8px 10px; margin: 8px 0 12px; }
 .tool-block input, .tool-block select, .tool-block textarea { background: #101614; color: #f3f0e6; border: 1px solid rgba(232,224,204,0.2); border-radius: 8px; padding: 8px; min-height: 40px; }
 .row-actions { display: flex; flex-wrap: wrap; gap: 6px; }
 .row-actions button, .dialog-actions button { min-height: 40px; padding: 0 10px; background: #243028; color: #f3f0e6; border: 1px solid rgba(232,224,204,0.16); border-radius: 8px; }

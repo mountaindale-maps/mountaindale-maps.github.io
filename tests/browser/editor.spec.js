@@ -6,6 +6,15 @@ test("local editor saves, reloads, undoes, and refuses to publish plans", async 
   await expect(page.locator("#local-banner")).toContainText("Loopback only");
   await expect(page.locator("#calib")).toContainText("Approximate horizontal distance");
   await expect(page.locator("#calib")).toContainText("ground accuracy unverified");
+  const firstDevice = page.locator("[data-device-id='045-UAP-U7O']");
+  if (!(await firstDevice.count())) await page.locator("[data-members*='045-UAP-U7O']").click();
+  await page.locator("[data-device-id='045-UAP-U7O']").click();
+  await page.locator("#purpose-input").fill("Outdoor Wi-Fi for the recorded place group.");
+  await page.locator("#save-public-details").click();
+  await expect(page.locator("#public-preview")).toContainText("Outdoor Wi-Fi for the recorded place group.");
+  await expect(page.locator("#public-preview")).toContainText("source record is unchanged");
+  await page.locator("#undo").click();
+  await expect(page.locator("#public-preview")).not.toContainText("Outdoor Wi-Fi for the recorded place group.");
   const health = await page.request.get("/api/health");
   const body = await health.json();
   expect(body.host).toBe("127.0.0.1");

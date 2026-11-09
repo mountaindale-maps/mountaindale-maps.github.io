@@ -160,6 +160,11 @@ button { cursor: pointer; }
 .segment-row { padding: 8px 0; border-top: 1px solid var(--line); }
 .segment-row p, .distance-total { font-variant-numeric: tabular-nums; line-height: 1.45; }
 .unverified { color: #f3d7a1; font-weight: 700; letter-spacing: 0.04em; }
+.topology[hidden] { display: none; }
+.route { list-style: none; padding: 0; margin: 8px 0 12px; display: grid; gap: 6px; }
+.route li { display: flex; gap: 8px; align-items: baseline; }
+.via { flex: none; min-width: 4.5rem; color: var(--brass); font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; }
+.unknown { color: var(--muted); }
 .topology {
   position: absolute; right: 12px; bottom: 12px; width: min(260px, 32vw);
   max-height: min(46vh, 460px); z-index: 5; border-radius: 16px;

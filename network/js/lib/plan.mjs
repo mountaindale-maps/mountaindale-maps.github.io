@@ -295,6 +295,62 @@ export function setSegmentExtra(plan, linkId, index, patch) {
   return next;
 }
 
+function blankText(value) {
+  if (value == null) return null;
+  const text = String(value).trim();
+  return text || null;
+}
+
+export function cleanPublicProfile(input, knownIds) {
+  if (input == null) return null;
+  if (typeof input !== "object" || Array.isArray(input)) {
+    const error = new Error("Public details must be an object");
+    error.code = "PROFILE";
+    throw error;
+  }
+  const purpose = blankText(input.purpose);
+  const exactLocation = blankText(input.exact_location);
+  const mounting = blankText(input.mounting);
+  const connection = blankText(input.connection);
+  const supplyIn = input.supply && typeof input.supply === "object" && !Array.isArray(input.supply) ? input.supply : {};
+  const description = blankText(supplyIn.description);
+  const outlet = blankText(supplyIn.outlet);
+  const deviceId = blankText(supplyIn.device_id);
+  if (deviceId && knownIds && !knownIds.has(deviceId)) {
+    const error = new Error("The supplying device is not in the as-built record");
+    error.code = "PROFILE";
+    throw error;
+  }
+  const out = {};
+  if (purpose) out.purpose = purpose;
+  if (exactLocation) out.exact_location = exactLocation;
+  if (mounting) out.mounting = mounting;
+  if (connection) out.connection = connection;
+  const supply = {};
+  if (description) supply.description = description;
+  if (outlet) supply.outlet = outlet;
+  if (deviceId) supply.device_id = deviceId;
+  if (Object.keys(supply).length) out.supply = supply;
+  if (!Object.keys(out).length) return null;
+  out.provenance = "user-edited";
+  return out;
+}
+
+export function setPublicProfile(plan, deviceId, patch) {
+  const next = clone(plan);
+  const device = next.asbuilt.devices.find((item) => item.id === deviceId);
+  if (!device) throw new Error(`Unknown device ${deviceId}`);
+  const known = new Set(next.asbuilt.devices.map((item) => item.id));
+  const merged = { ...(device.public_profile || {}), ...(patch || {}) };
+  if (patch && Object.prototype.hasOwnProperty.call(patch, "supply")) {
+    merged.supply = { ...(device.public_profile?.supply || {}), ...(patch.supply || {}) };
+  }
+  const cleaned = cleanPublicProfile(merged, known);
+  if (cleaned) device.public_profile = cleaned;
+  else delete device.public_profile;
+  return next;
+}
+
 export function measureLink(plan, link, claim) {
   const vertices = verticesForLink(plan, link);
   if (!vertices) return null;
@@ -338,7 +394,7 @@ const PRIVATE_DEVICE_KEYS = new Set(DEVICE_KEEP());
 function DEVICE_KEEP() {
   return new Set([
     "id", "role", "model", "location_group", "coords", "status", "ports",
-    "mount_height", "service_area_tag", "data_quality", "public_summary", "baseline_coords",
+    "mount_height", "service_area_tag", "data_quality", "public_summary", "public_profile", "baseline_coords",
   ]);
 }
 

@@ -8,6 +8,7 @@ import {
   highlightForDevice,
   highlightForGroup,
 } from "./lib/topology-model.mjs";
+import { hopCaption, publicCard, verifiedRoute } from "./lib/plain-path.mjs";
 import { fillDistanceList } from "./format-distance.js";
 import { createMap, insetsAround } from "./map.js";
 import { mountTopology } from "./topology-view.js";
@@ -20,10 +21,11 @@ const legend = document.querySelector("#legend");
 const topoSection = document.querySelector("#topology");
 const topoBody = document.querySelector("#topo-body");
 
-const [asbuilt, hierarchy, metadata] = await Promise.all([
+const [asbuilt, hierarchy, metadata, friendly] = await Promise.all([
   fetch("data/asbuilt_public.json").then((response) => response.json()),
   fetch("data/topology_hierarchy.json").then((response) => response.json()),
   fetch("data/metadata.json").then((response) => response.json()),
+  fetch("data/public_friendly_device_details.json").then((response) => response.json()),
 ]);
 
 if (asbuilt.schema_version.split(".")[0] !== "1") {
@@ -32,13 +34,16 @@ if (asbuilt.schema_version.split(".")[0] !== "1") {
 }
 
 const claim = evaluateCalibration(metadata);
-calib.textContent = claim.banner;
+calib.textContent = claim.distanceLabel;
 const geotransform = metadata?.candidate_georeferencing?.gdal_geotransform || JPEG_CANDIDATE_GEOTRANSFORM;
 const image = metadata.imagery;
 const devices = asbuilt.devices;
 const byId = new Map(devices.map((device) => [device.id, device]));
 const groups = new Map(asbuilt.location_groups.map((group) => [group.id, group]));
 const links = asbuilt.links;
+const friendlyById = friendly?.schema === "mountaindale-public-friendly-device-details"
+  ? friendly.devices_by_id || {}
+  : {};
 
 let expanded = defaultExpandedKeys(hierarchy.root);
 let hoverId = null;
@@ -236,9 +241,9 @@ function showGroup(label) {
 
 function renderGroupDetail(group) {
   detail.append(
-    el("p", "kicker", "Location"),
+    el("p", "kicker", "Place"),
     title(group.label || group.id),
-    el("p", null, "These devices share a place. A location group is not a connection."),
+    el("p", null, "These devices are recorded at this place. Being in the same place is not a connection."),
   );
   const list = el("ul", "group-members");
   const ids = group.device_ids || [];
@@ -247,10 +252,11 @@ function renderGroupDetail(group) {
     const item = byId.get(id);
     if (!item) continue;
     const row = document.createElement("li");
-    const button = el("button", "result", id);
+    const button = el("button", "result", `${id}`);
     button.type = "button";
     button.addEventListener("click", () => selectDevice(id));
-    row.append(button, document.createTextNode(` ${item.role} · ${item.model}`));
+    const word = item.role === "ap" ? "access point" : item.role === "radio" ? "radio" : item.role === "switch" ? "switch" : item.role === "router" ? "router" : "equipment";
+    row.append(button, document.createTextNode(` ${word}. ${item.model}`));
     list.append(row);
   }
   detail.append(list);
@@ -269,8 +275,7 @@ function renderDetail(device) {
       el("h2", null, asbuilt.title),
       el("p", null, `${devices.length} devices, ${active} active, ${links.length} links.`),
       el("p", "status-line", claim.distanceLabel),
-      el("p", null, "The background is the registered crop of the Oct 31 aerial, not the full frame. Horizontal distance is the geodesic on the original longitude and latitude. This is not a survey."),
-      el("p", "muted", outsideSummary()),
+      el("p", null, "Select a place or a piece of equipment to see what it is and how it connects back to the main router."),
     );
     const about = document.createElement("details");
     about.id = "about";
@@ -278,7 +283,8 @@ function renderDetail(device) {
     const summary = document.createElement("summary");
     summary.textContent = "About and data quality";
     about.appendChild(summary);
-    about.appendChild(el("p", null, "The crop is registered to the validated full image. The white margin is not a property boundary, and bright pixels are not used to hide equipment. Ground accuracy is still unverified. Source notes below do not change the drawn links."));
+    about.appendChild(el("p", null, "The background is the registered crop of the Oct 31 aerial, not the full frame. Horizontal distance is the geodesic on the original longitude and latitude. The sampled image transform is validated. This is not a survey. The white margin is not a property boundary, and bright pixels are not used to hide equipment."));
+    about.appendChild(el("p", "muted", outsideSummary()));
     const list = el("ul", "review");
     for (const item of asbuilt.pending_review) {
       const li = document.createElement("li");
@@ -296,55 +302,81 @@ function renderDetail(device) {
     detail.appendChild(about);
     return;
   }
-  const point = pixelOf(device.coords);
+  const source = friendlyById[device.id] || null;
+  const card = publicCard(device, source, device.public_profile);
+  const route = verifiedRoute(source, links);
   detail.append(
     el("p", "kicker", selectedId === device.id ? "Selected" : "Highlighted"),
     title(device.id),
-    el("p", null, `${device.role} · ${device.model} · ${device.status}`),
-    el("p", null, `Group ${groups.get(device.location_group)?.label || device.location_group}. Grouping is not a connection.`),
+    el("p", null, `${device.model} · ${device.status === "inactive" ? "Inactive" : "In service"}`),
+    el("p", null, `Place group ${groups.get(device.location_group)?.label || device.location_group || "not recorded"}. A place group is not a connection.`),
   );
   const facts = el("dl", "facts");
-  addFact(facts, "Ports", device.ports || "Not stated");
-  addFact(facts, "Labelled mount height", device.mount_height || "No labelled height in the source");
-  addFact(facts, "Raw KML altitude", device.coords.alt_m == null ? "None in the source. Not filled in." : `${device.coords.alt_m} m, unvalidated, not a mount height`);
-  addFact(facts, "Longitude, latitude", `${device.coords.lon}, ${device.coords.lat}`);
-  addFact(facts, "Image pixel", `${point.u.toFixed(1)}, ${point.v.toFixed(1)}`);
+  for (const item of [card.purpose, card.location, card.mounting, card.height, card.power]) {
+    addFact(facts, item.label, item.text);
+    if (item.note) addFact(facts, "", item.note);
+  }
   detail.appendChild(facts);
-  const place = canvasPlace(device);
-  if (place === "outside") {
-    detail.appendChild(el("p", "flag-note", `Outside the crop canvas at image pixel ${point.u.toFixed(1)}, ${point.v.toFixed(1)}. The stored longitude and latitude were not moved.`));
-  } else if (place === "near-edge") {
-    detail.appendChild(el("p", "flag-note", "Near the crop edge. Shown at the source coordinates. The white-pixel mask is not used to move or drop this device."));
-  }
-  if (device.public_summary) detail.appendChild(el("p", null, device.public_summary));
-  if (device.service_area_tag?.tentative) {
-    detail.appendChild(el("p", "flag-note", `Tentative service area from ${device.service_area_tag.group}. Not a shared mounting.`));
-  }
-  for (const flag of device.data_quality || []) {
-    const note = el("p", `flag-note severity-${flag.severity || "info"}`, flag.message);
-    detail.appendChild(note);
-  }
+  if (card.connection) detail.appendChild(el("p", null, card.connection));
   if (device.status === "inactive") {
-    detail.appendChild(el("p", "flag-note", "Inactive AP with no uplink. No path is drawn and no route length is invented."));
-    return;
+    detail.appendChild(el("p", "flag-note", "Inactive, no uplink is recorded, and no path is drawn."));
   }
-  const block = el("div", "distances");
-  const pieces = pathMetrics(device);
-  if (!pieces.length) {
-    block.appendChild(el("p", null, "No mapped path."));
-  } else {
+  renderRoute(route);
+  const technical = document.createElement("details");
+  technical.className = "about";
+  const technicalSummary = document.createElement("summary");
+  technicalSummary.textContent = "Map position and distance estimate";
+  technical.appendChild(technicalSummary);
+  const point = pixelOf(device.coords);
+  const place = canvasPlace(device);
+  technical.appendChild(el("p", null, `Longitude ${device.coords.lon}, latitude ${device.coords.lat}.`));
+  if (point) technical.appendChild(el("p", null, `Image pixel ${point.u.toFixed(1)}, ${point.v.toFixed(1)}.`));
+  technical.appendChild(el("p", null, device.coords.alt_m == null
+    ? "No aerial altitude is recorded. Altitude is not a mounting height."
+    : `Aerial altitude ${device.coords.alt_m} m is unvalidated and is not a mounting height.`));
+  if (place === "outside") technical.appendChild(el("p", "flag-note", "Outside the crop canvas. The stored longitude and latitude were not moved."));
+  else if (place === "near-edge") technical.appendChild(el("p", "flag-note", "Near the crop edge. Shown at the source coordinates."));
+  if (device.status !== "inactive" && route.reachesRouter && route.hops.length) {
+    const pieces = pathMetrics(device);
     pieces.forEach(({ link, metrics }) => {
-      const wrap = el("section", "hop");
-      wrap.appendChild(el("h3", null, `${link.parent} → ${link.child}`));
-      wrap.appendChild(el("p", "muted", link.medium));
       const list = el("div", null);
-      fillDistanceList(list, metrics, "Segment");
-      wrap.appendChild(list);
-      block.appendChild(wrap);
+      fillDistanceList(list, metrics, `${link.parent} to ${link.child}`);
+      technical.appendChild(list);
     });
     const sum = pieces.reduce((total, piece) => total + piece.metrics.totals.horizontal_ellipsoidal_m, 0);
-    block.appendChild(el("p", "distance-total", `Path horizontal sum ${sum.toFixed(2)} m · ${(sum / 0.3048).toFixed(2)} ft. ${claim.distanceLabel}.`));
+    technical.appendChild(el("p", "distance-total", `Path horizontal sum ${sum.toFixed(2)} m · ${(sum / 0.3048).toFixed(2)} ft. ${claim.distanceLabel}.`));
   }
+  detail.appendChild(technical);
+}
+
+function renderRoute(route) {
+  const block = el("section", "route-block");
+  block.appendChild(el("h3", null, "Path back to the main router"));
+  if (!route.reachesRouter) {
+    block.appendChild(el("p", "flag-note", route.text || "No recorded path to the main router."));
+    detail.appendChild(block);
+    return;
+  }
+  if (route.reason === "router") {
+    block.appendChild(el("p", null, route.text));
+    block.appendChild(el("p", "muted", "Internet connections are separate from the resort equipment path. Private family networks stay separate and are not this path."));
+    detail.appendChild(block);
+    return;
+  }
+  const list = el("ol", "route");
+  list.id = "device-path";
+  route.deviceIds.forEach((id, index) => {
+    const item = document.createElement("li");
+    if (index === 0) {
+      item.append(el("span", "via", "This device"), document.createTextNode(id));
+    } else {
+      const hop = route.hops[index - 1];
+      const word = hop?.connection === "wireless" ? "Wireless" : "Cable";
+      item.append(el("span", "via", word), document.createTextNode(`${id}. ${hopCaption(hop)}`));
+    }
+    list.appendChild(item);
+  });
+  block.append(list, el("p", "muted", "This path stops at the main router. Private family networks are separate connections and are not added here. Cable material is not recorded."));
   detail.appendChild(block);
 }
 
@@ -379,7 +411,8 @@ function runSearch() {
   }
   const found = devices.filter((device) => {
     const group = groups.get(device.location_group)?.label || "";
-    return [device.id, device.model, device.role, group, device.public_summary].join(" ").toLowerCase().includes(text);
+    const friendlyText = friendlyById[device.id]?.purpose?.text || "";
+    return [device.id, device.model, device.role, group, device.public_summary, friendlyText].join(" ").toLowerCase().includes(text);
   }).slice(0, 12);
   if (!found.length) {
     results.hidden = false;
@@ -456,6 +489,15 @@ document.querySelector("#legend-btn").addEventListener("click", () => {
 document.querySelector("#legend-close").addEventListener("click", () => {
   legend.hidden = true;
   document.querySelector("#legend-btn").setAttribute("aria-expanded", "false");
+});
+document.querySelector("#show-network").addEventListener("click", () => {
+  const section = document.querySelector("#topology");
+  const button = document.querySelector("#show-network");
+  const show = section.hidden;
+  section.hidden = !show;
+  button.textContent = show ? "Hide whole network" : "Show whole network";
+  button.setAttribute("aria-expanded", String(show));
+  refit();
 });
 document.querySelector("#topo-collapse").addEventListener("click", () => {
   const hidden = topoBody.hidden;

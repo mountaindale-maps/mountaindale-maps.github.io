@@ -121,6 +121,7 @@ export async function startEditorServer(options = {}) {
   const baseline = () => readJson(path.join(roots.baselineDir, "asbuilt_public.json"));
   const topology = () => readJson(path.join(roots.baselineDir, "topology_hierarchy.json"));
   const metadata = () => readJson(path.join(roots.baselineDir, "metadata.json"));
+  const friendly = () => readJson(path.join(roots.baselineDir, "public_friendly_device_details.json"));
 
   const server = createServer(async (request, response) => {
     try {
@@ -150,6 +151,7 @@ export async function startEditorServer(options = {}) {
         if (request.method === "GET" && url.pathname === "/api/baseline") return send(response, 200, baseline());
         if (request.method === "GET" && url.pathname === "/api/topology") return send(response, 200, topology());
         if (request.method === "GET" && url.pathname === "/api/metadata") return send(response, 200, metadata());
+        if (request.method === "GET" && url.pathname === "/api/friendly") return send(response, 200, friendly());
         if (request.method === "GET" && url.pathname === "/api/state") return send(response, 200, { plan: await loadPlan(dataDir) });
         if (request.method === "PUT" && url.pathname === "/api/state") {
           const plan = await readBody(request);
@@ -183,7 +185,7 @@ export async function startEditorServer(options = {}) {
       const bytes = await readFile(file);
       send(response, 200, bytes, type);
     } catch (error) {
-      const known = new Set(["SANITIZER", "REVIEW_REQUIRED", "SCHEMA", "DUAL_UPLINK", "CYCLE", "IMPORT", "PLANNED_EXCLUDED", "SEGMENT", "PLAN_ALIASED"]);
+      const known = new Set(["SANITIZER", "REVIEW_REQUIRED", "SCHEMA", "DUAL_UPLINK", "CYCLE", "IMPORT", "PLANNED_EXCLUDED", "SEGMENT", "PLAN_ALIASED", "PROFILE"]);
       if (error.code === "PLAN_CORRUPT") {
         return send(response, 409, {
           error: error.message,

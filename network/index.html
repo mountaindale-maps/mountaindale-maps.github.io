@@ -15,7 +15,7 @@
       <a class="home" href="../">Mountaindale</a>
       <h1>Network map</h1>
     </div>
-    <p id="calib" class="calib" role="status">Approximate horizontal distance; ground accuracy unverified. The sampled image transform is validated. This is not a survey.</p>
+    <p id="calib" class="calib" role="status">Approximate horizontal distance; ground accuracy unverified.</p>
     <form id="search-form" class="search" role="search">
       <label class="sr" for="q">Search equipment</label>
       <input id="q" name="q" type="search" placeholder="Search id, model, role, or group" autocomplete="off" enterkeyhint="search">
@@ -25,6 +25,7 @@
       <button type="button" id="zoom-out" aria-label="Zoom out">−</button>
       <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
       <button type="button" id="fit">Fit</button>
+      <button type="button" id="show-network" aria-expanded="false" aria-controls="topology">Show whole network</button>
       <button type="button" id="legend-btn" aria-expanded="false" aria-controls="legend">Legend</button>
     </div>
   </header>
@@ -32,9 +33,9 @@
     <p class="muted">Loading the as-built network…</p>
   </aside>
   <div id="map" class="map" aria-label="Aerial map with network equipment"></div>
-  <section id="topology" class="topology" aria-label="Network topology">
+  <section id="topology" class="topology" aria-label="Whole network" hidden>
     <header class="topo-head">
-      <h2>Topology</h2>
+      <h2>Whole network</h2>
       <button type="button" id="topo-collapse" aria-expanded="true">Hide</button>
     </header>
     <ul class="link-key" aria-label="How links are drawn">

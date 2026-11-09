@@ -21,9 +21,11 @@ import {
   removePlanned,
   restoreBaselineCoords,
   setCablePath,
+  setPublicProfile,
   setSegmentExtra,
   verticesForLink,
 } from "/js/lib/plan.mjs";
+import { publicCard, verifiedRoute } from "/js/lib/plain-path.mjs";
 import { buildPublicSnapshot, describePublicEdits } from "/js/lib/sanitize.mjs";
 import { applyFocus, defaultExpandedKeys, highlightForDevice } from "/js/lib/topology-model.mjs";
 import { fillDistanceList } from "/js/format-distance.js";
@@ -35,18 +37,20 @@ const calib = document.querySelector("#calib");
 const saveState = document.querySelector("#save-state");
 const topoBody = document.querySelector("#topo-body");
 
-const [baseline, baselineHierarchy, metadata, health, stateResponse] = await Promise.all([
+const [baseline, baselineHierarchy, metadata, health, stateResponse, friendlyDoc] = await Promise.all([
   fetch("/api/baseline").then((response) => response.json()),
   fetch("/api/topology").then((response) => response.json()),
   fetch("/api/metadata").then((response) => response.json()),
   fetch("/api/health").then((response) => response.json()),
   fetch("/api/state"),
+  fetch("/api/friendly").then((response) => response.json()),
 ]);
 const saved = await stateResponse.json();
 
 document.querySelector("#local-banner").textContent = `Local planning editor on ${health.host}:${health.port}. Loopback only. Saves stay in ${health.dataDir}. Nothing is published.`;
 
 const baselineLinkJson = JSON.stringify(baseline.links);
+const friendlyById = friendlyDoc?.devices_by_id || {};
 let history = createHistory(saved.plan || planFromPublic(baseline, metadata));
 if (saved.code === "PLAN_CORRUPT") {
   const names = (saved.backups || []).join(", ") || "none";
@@ -509,21 +513,64 @@ function deviceCard(plan, hier) {
     return card;
   }
   card.append(el("h2", null, device.id), el("p", null, `${device.role} · ${device.model || "model unset"} · ${device.status}`));
-  if (device.local_private) card.append(el("p", "flag-note", "Private fields are stored only in this local plan."));
-  if (device.public_summary) card.append(el("p", null, device.public_summary));
-  const summary = textField("Public summary", "summary-input");
-  summary.input.value = device.public_summary || "";
-  if (device.status !== "planned") {
-    const saveSummary = el("button", null, "Save summary on this device");
-    saveSummary.type = "button";
-    saveSummary.addEventListener("click", () => tryUpdate((current) => {
-      const next = structuredClone(current);
-      const target = next.asbuilt.devices.find((item) => item.id === device.id);
-      target.public_summary = summary.input.value;
-      return next;
-    }));
-    card.append(summary.label, saveSummary);
+  if (device.local_private) card.append(el("p", "flag-note", "Private fields stay on this computer and are not part of the public description."));
+  card.append(el("p", null, "Private notes stay under Change requests. They are not published with these details."));
+  const source = friendlyById[device.id] || null;
+  const cardLines = publicCard(device, source, device.public_profile);
+  const preview = el("div", "public-preview");
+  preview.id = "public-preview";
+  for (const item of [cardLines.purpose, cardLines.location, cardLines.mounting, cardLines.height, cardLines.power]) {
+    preview.append(el("p", null, `${item.label}: ${item.text}`));
+    if (item.note) preview.append(el("p", "muted", item.note));
   }
+  const route = verifiedRoute(source, plan.asbuilt.links);
+  if (!route.reachesRouter) preview.append(el("p", null, route.text));
+  else if (route.reason === "router") preview.append(el("p", null, route.text));
+  else {
+    const pathText = route.hops.map((hop) => `${hop.connection === "wireless" ? "Wireless" : "Cable"} to ${hop.to}`).join(", then ");
+    preview.append(el("p", null, `Path: ${route.deviceIds[0]}, then ${pathText}.`));
+  }
+  card.append(el("h3", null, "Public preview"), preview);
+  const profile = device.public_profile || {};
+  const purpose = textField("What it does, public wording", "purpose-input");
+  purpose.input.value = profile.purpose || "";
+  const location = textField("Exact location, public wording", "location-input");
+  location.input.value = profile.exact_location || "";
+  const mounting = textField("Mounting, public wording", "mounting-input");
+  mounting.input.value = profile.mounting || "";
+  const power = textField("Power source, public wording", "power-input");
+  power.input.value = profile.supply?.description || "";
+  const supplyDevice = textField("Supplying device id, if recorded", "supply-device-input");
+  supplyDevice.input.value = profile.supply?.device_id || "";
+  const outlet = textField("Outlet, if recorded", "outlet-input");
+  outlet.input.value = profile.supply?.outlet || "";
+  const connection = textField("Connection note, public wording", "connection-input");
+  connection.input.value = profile.connection || "";
+  const saveDetails = el("button", null, "Save public details");
+  saveDetails.type = "button";
+  saveDetails.id = "save-public-details";
+  saveDetails.addEventListener("click", () => tryUpdate((current) => setPublicProfile(current, device.id, {
+    purpose: purpose.input.value,
+    exact_location: location.input.value,
+    mounting: mounting.input.value,
+    connection: connection.input.value,
+    supply: {
+      description: power.input.value,
+      device_id: supplyDevice.input.value,
+      outlet: outlet.input.value,
+    },
+  })));
+  const clearDetails = el("button", null, "Clear public wording");
+  clearDetails.type = "button";
+  clearDetails.id = "clear-public-details";
+  clearDetails.addEventListener("click", () => tryUpdate((current) => setPublicProfile(current, device.id, {
+    purpose: "",
+    exact_location: "",
+    mounting: "",
+    connection: "",
+    supply: { description: "", device_id: "", outlet: "" },
+  })));
+  card.append(purpose.label, location.label, mounting.label, power.label, supplyDevice.label, outlet.label, connection.label, saveDetails, clearDetails);
   const link = plan.asbuilt.links.find((item) => item.child === device.id && item.medium !== "wan");
   if (link) {
     const metrics = measureLink(plan, link, claim());
