@@ -12,6 +12,8 @@ await rm(out, { recursive: true, force: true });
 await mkdir(out, { recursive: true });
 const copies = [
   ["editor/server.mjs", "editor/server.mjs"],
+  ["editor/quality.mjs", "editor/quality.mjs"],
+  ["editor/quality_flags.json", "editor/quality_flags.json"],
   ["editor/store.mjs", "editor/store.mjs"],
   ["editor/README.md", "editor/README.md"],
   ["editor/start.sh", "start.sh"],

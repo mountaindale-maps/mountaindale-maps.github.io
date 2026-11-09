@@ -50,6 +50,7 @@ test("loads the real network, low-resolution tiles first, then a real marker cli
   await expect(page.locator("#about")).toContainText("in feet");
   expect(visibleStatus).not.toMatch(/calibration gate/i);
   expect(visibleStatus).not.toMatch(/Open review/);
+  await expect(page.locator("#map .flag")).toHaveCount(0);
   await expect(page.locator("#map .link").first()).toBeVisible();
   await expect(page.locator("#map [data-link-id='lnk:SECOM>0000-MD-UDM-Pro-2']")).toHaveCount(0);
   await expect(page.locator("#legend")).not.toContainText("SECOM WAN");

@@ -12,6 +12,7 @@ import { evaluateCalibration, importCalibration } from "../network/js/lib/calibr
 import { createHistory, undo } from "../network/js/lib/history.mjs";
 import { addLink, addPlannedDevice, importDocument, linksUnchanged, measureLink, planFromPublic, setSegmentExtra, ungroupDevice, validateImport } from "../network/js/lib/plan.mjs";
 import { buildPublicSnapshot, scanPublicTree } from "../network/js/lib/sanitize.mjs";
+import { mergeQualityFlags } from "../editor/quality.mjs";
 import { readFileSync } from "node:fs";
 
 const asbuilt = JSON.parse(readFileSync(new URL("../network/data/asbuilt_public.json", import.meta.url)));
@@ -26,7 +27,7 @@ test("nested private fields and disguised secrets do not publish", () => {
   const plan = planFromPublic(asbuilt, metadata);
   const device = plan.asbuilt.devices.find((item) => item.id === "045-UAP-U7O");
   device.ports = { serialNumber: "ABC12345", count: 2 };
-  device.data_quality = [...device.data_quality, { code: "note", severity: "info", message: "Checked on site", assetTag: "AT-7781" }];
+  device.data_quality = [...(device.data_quality || []), { code: "note", severity: "info", message: "Checked on site", assetTag: "AT-7781" }];
   device.service_area_tag = { ...device.service_area_tag, household: "Smith" };
   const group = plan.asbuilt.location_groups.find((item) => item.id === "site-45");
   group.device_ids = [...group.device_ids, "PLAN-SHED-AP"];
@@ -38,9 +39,10 @@ test("nested private fields and disguised secrets do not publish", () => {
   const published = clean.snapshot.devices.find((item) => item.id === "045-UAP-U7O");
   assert.equal(published.ports, null);
   assert.equal(published.service_area_tag.group, "propane-shed");
+  assert.equal(published.service_area_tag.tentative, undefined);
   assert.equal(published.service_area_tag.household, undefined);
-  assert.equal(published.data_quality.some((item) => item.assetTag), false);
-  assert.equal(published.data_quality.some((item) => item.message === "Checked on site"), true);
+  assert.equal(published.data_quality, undefined);
+  assert.equal(JSON.stringify(published).includes("Checked on site"), false);
   assert.equal(clean.snapshot.location_groups.find((item) => item.id === "site-45").device_ids.includes("PLAN-SHED-AP"), false);
   assert.equal(clean.snapshot.location_groups.find((item) => item.id === "site-45").device_ids.includes("045-UAP-U7O"), true);
 
@@ -52,6 +54,28 @@ test("nested private fields and disguised secrets do not publish", () => {
   assert.throws(() => buildPublicSnapshot(asbuilt, plan, selection(["045-UAP-U7O"])), /sanitizer/i);
 });
 
+test("the public file has no quality flags and the editor sidecar restores them", () => {
+  for (const device of asbuilt.devices) {
+    assert.equal(device.data_quality, undefined);
+    assert.equal(device.service_area_tag?.tentative, undefined);
+  }
+  const flags = JSON.parse(readFileSync(new URL("../editor/quality_flags.json", import.meta.url)));
+  const merged = mergeQualityFlags(asbuilt, flags);
+  const site = merged.devices.find((item) => item.id === "045-UAP-U7O");
+  assert.equal(site.service_area_tag.tentative, true);
+  assert.equal(site.data_quality[0].code, "service-area-tentative");
+  const east = merged.devices.find((item) => item.id === "096-USW-Flex-East");
+  assert.equal(east.data_quality[0].severity, "warning");
+  const plan = planFromPublic(merged, metadata);
+  const clean = buildPublicSnapshot(asbuilt, plan, selection(["045-UAP-U7O", "096-USW-Flex-East"]));
+  for (const device of clean.snapshot.devices) {
+    assert.equal(device.data_quality, undefined);
+    assert.equal(device.service_area_tag?.tentative, undefined);
+  }
+  assert.equal(JSON.stringify(clean.snapshot.devices).includes("data_quality"), false);
+  assert.equal(JSON.stringify(clean.snapshot.devices).includes("service-area-tentative"), false);
+});
+
 test("legitimate public fields round-trip through the allowlist", () => {
   const plan = planFromPublic(asbuilt, metadata);
   const clean = buildPublicSnapshot(asbuilt, plan, selection(["045-UAP-U7O", "096-USW-Flex-East"]));
@@ -60,12 +84,12 @@ test("legitimate public fields round-trip through the allowlist", () => {
   assert.equal(site.ports, source.ports);
   assert.equal(site.mount_height, source.mount_height);
   assert.equal(site.service_area_tag.group, source.service_area_tag.group);
-  assert.equal(site.service_area_tag.tentative, true);
-  assert.equal(site.data_quality[0].code, source.data_quality[0].code);
-  assert.equal(site.data_quality[0].message, source.data_quality[0].message);
+  assert.equal(site.service_area_tag.tentative, undefined);
+  assert.equal(site.data_quality, undefined);
+  assert.equal(source.data_quality, undefined);
   const flex = clean.snapshot.devices.find((item) => item.id === "096-USW-Flex-East");
   assert.equal(flex.ports, 5);
-  assert.equal(flex.data_quality[0].separation_m["NSL5AC-AP-57-75-98"], 19.725);
+  assert.equal(flex.data_quality, undefined);
   assert.deepEqual(scanPublicTree(clean.snapshot), []);
   assert.equal(asbuilt.provenance.atlas_review.image_transform_validated, true);
   assert.equal(asbuilt.provenance.atlas_review.survey_accuracy_validated, false);
@@ -414,10 +438,9 @@ test("planned references in quality notes do not publish, and look-alike secrets
   device.public_summary = asbuilt.devices.find((item) => item.id === device.id).public_summary;
   const clean = buildPublicSnapshot(asbuilt, plan, selection([device.id]));
   const published = clean.snapshot.devices.find((item) => item.id === device.id);
-  assert.deepEqual(published.data_quality[0].related, ["NB5AC-STA-96"]);
-  assert.equal(published.data_quality[0].separation_m["PLAN-SHED-AP"], undefined);
-  assert.equal(published.data_quality[0].separation_m.radio_to_radio, 17.933);
+  assert.equal(published.data_quality, undefined);
   assert.equal(JSON.stringify(published).includes("PLAN-SHED-AP"), false);
+  assert.equal(JSON.stringify(published).includes("Placement unresolved"), false);
 });
 
 test("a link to planned equipment is marked planned and cannot be published", () => {

@@ -5,6 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import os from "node:os";
 import { buildPublicSnapshot } from "../network/js/lib/sanitize.mjs";
+import { mergeQualityFlags } from "./quality.mjs";
 import { importDocument, validateImport } from "../network/js/lib/plan.mjs";
 import { listBackups, loadPlan, readBackup, resolveAllowedDataDir, savePlan } from "./store.mjs";
 
@@ -121,7 +122,12 @@ export async function startEditorServer(options = {}) {
     roots.forbidden,
   );
   const host = "127.0.0.1";
-  const baseline = () => readJson(path.join(roots.baselineDir, "asbuilt_public.json"));
+  const baseline = () => {
+    const doc = readJson(path.join(roots.baselineDir, "asbuilt_public.json"));
+    const flagFile = path.join(editorDir, "quality_flags.json");
+    if (!existsSync(flagFile)) return doc;
+    return mergeQualityFlags(doc, readJson(flagFile));
+  };
   const topology = () => readJson(path.join(roots.baselineDir, "topology_hierarchy.json"));
   const metadata = () => readJson(path.join(roots.baselineDir, "metadata.json"));
   const friendly = () => readJson(path.join(roots.baselineDir, "public_friendly_device_details.json"));

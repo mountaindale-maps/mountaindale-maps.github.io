@@ -114,13 +114,6 @@ function endpoint(id) {
   return wan?.map_pin?.coords || null;
 }
 
-function flagOf(device) {
-  const codes = device.data_quality || [];
-  if (codes.some((item) => item.severity === "warning")) return "warning";
-  if (codes.length || device.service_area_tag?.tentative) return "info";
-  return "";
-}
-
 function linkPoints(link) {
   const start = pixelOf(endpoint(link.parent));
   const end = pixelOf(endpoint(link.child));
@@ -162,7 +155,7 @@ function paint() {
       v: point.v,
       role: item.role,
       status: item.status,
-      flag: flagOf(item),
+      flag: "",
       ...iconFields(item.id),
       hot: item.id === (hoverId || selectedId),
       member: memberSet.has(item.id),

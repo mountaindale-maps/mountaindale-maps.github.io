@@ -13,7 +13,6 @@ export const DEVICE_PUBLIC_KEYS = Object.freeze([
   "ports",
   "mount_height",
   "service_area_tag",
-  "data_quality",
   "public_summary",
   "public_profile",
 ]);
@@ -210,45 +209,6 @@ function sanitizePorts(value) {
   return null;
 }
 
-const SEPARATION_LABELS = new Set(["radio_to_radio"]);
-
-function sanitizeRelated(value, allowed) {
-  if (typeof value === "string") return allowed.has(value) ? value : null;
-  if (!Array.isArray(value)) return null;
-  const items = value.filter((item) => allowed.has(item));
-  return items.length ? items.slice(0, 12) : null;
-}
-
-function sanitizeSeparation(value, allowed) {
-  if (finiteNumber(value)) return value;
-  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
-  const out = {};
-  for (const [key, entry] of Object.entries(value)) {
-    if (!finiteNumber(entry)) continue;
-    if (!allowed.has(key) && !SEPARATION_LABELS.has(key)) continue;
-    out[key] = entry;
-  }
-  return Object.keys(out).length ? out : null;
-}
-
-function sanitizeQualityItem(item, allowed) {
-  if (!item || typeof item !== "object" || Array.isArray(item)) return null;
-  const out = {};
-  const code = publicText(item.code, 80);
-  if (code && /^[a-z0-9-]{1,80}$/.test(code)) out.code = code;
-  if (item.severity === "info" || item.severity === "warning" || item.severity === "error") out.severity = item.severity;
-  const related = sanitizeRelated(item.related, allowed);
-  if (related) out.related = related;
-  const message = publicText(item.message, 600);
-  if (message) out.message = message;
-  const by = publicText(item.by, 120);
-  if (by) out.by = by;
-  const separation = sanitizeSeparation(item.separation_m, allowed);
-  if (separation != null) out.separation_m = separation;
-  if (!out.code && !out.message) return null;
-  return out;
-}
-
 function sanitizeServiceTag(value, allowed) {
   if (value == null) return null;
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
@@ -288,10 +248,9 @@ export function sanitizeDevice(device, allowedRefs = null) {
     const height = publicText(device.mount_height, 40);
     out.mount_height = height;
   }
-  out.service_area_tag = sanitizeServiceTag(device.service_area_tag, allowed);
-  out.data_quality = Array.isArray(device.data_quality)
-    ? device.data_quality.map((item) => sanitizeQualityItem(item, allowed)).filter(Boolean).slice(0, 12)
-    : [];
+  const tag = sanitizeServiceTag(device.service_area_tag, allowed);
+  if (tag) delete tag.tentative;
+  out.service_area_tag = tag && Object.keys(tag).length ? tag : null;
   const summary = publicText(device.public_summary, 600);
   if (summary) out.public_summary = summary;
   const profile = sanitizeProfile(device.public_profile, allowed);
