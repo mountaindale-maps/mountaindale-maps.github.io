@@ -17,7 +17,7 @@ Start
 2. From this folder run ./start.sh (macOS or Linux) or start.cmd (Windows).
 3. Open http://127.0.0.1:8765/network/
 
-The page is static. Distances are labeled "Approximate horizontal distance; ground accuracy unverified." The image alignment was checked. This is not a survey.
+The page is static. Cable lengths are approximate, measured along the drawn route, in feet.
 
 SHA256SUMS lists every file in this folder except itself. The zip file's own hash is printed when the package is built.
 `;
@@ -31,7 +31,7 @@ const index = `<!doctype html>
 </head>
 <body>
 <p><a href="network/">Open the Mountaindale network map</a></p>
-<p>Approximate horizontal distance; ground accuracy unverified.</p>
+<p>Cable lengths are approximate, measured along the drawn route, in feet.</p>
 </body>
 </html>
 `;

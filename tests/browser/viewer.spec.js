@@ -31,8 +31,7 @@ test("loads the real network, low-resolution tiles first, then a real marker cli
     if (request.url().includes("/tiles/")) tiles.push(new URL(request.url()).pathname);
   });
   await page.goto("/network/");
-  await expect(page.locator("#calib")).toContainText("Approximate horizontal distance");
-  await expect(page.locator("#calib")).toContainText("ground accuracy unverified");
+  await expect(page.locator("#calib")).toHaveCount(0);
   await expect(page.locator("#detail")).toContainText("70 devices");
   await expect(page.locator("#detail")).toContainText("69 active");
   await expect(page.locator("#about")).not.toHaveAttribute("open");
@@ -41,7 +40,8 @@ test("loads the real network, low-resolution tiles first, then a real marker cli
     copy.querySelector("#about")?.remove();
     return copy.innerText;
   });
-  expect(visibleStatus).toMatch(/ground accuracy unverified/i);
+  expect(visibleStatus).toMatch(/approximate, measured along the drawn route, in feet/i);
+  expect(visibleStatus).not.toMatch(/WGS84|affine|UTM/i);
   expect(visibleStatus).not.toMatch(/calibration gate/i);
   expect(visibleStatus).not.toMatch(/Open review/);
   await expect(page.locator("#map .link").first()).toBeVisible();
@@ -59,7 +59,8 @@ test("loads the real network, low-resolution tiles first, then a real marker cli
   const marker = await openMarker(page, "045-UAP-U7O");
   await marker.click();
   await expect(page.locator("#detail")).toContainText("Selected");
-  await expect(page.locator("#detail")).toContainText("Approximate horizontal distance; ground accuracy unverified");
+  await expect(page.locator("#detail")).not.toContainText("WGS84");
+  await expect(page.locator("#detail")).not.toContainText("affine");
   await expect(page.locator(".segment-row").first()).toContainText("ft");
   await expect(page.locator(".segment-row").first()).toContainText("m");
   await expect.poll(() => page.locator("#map").getAttribute("data-tile-zoom")).toBe("5");
@@ -175,7 +176,8 @@ test("one touch opens a device card, and the phone layout stays on screen", asyn
   expect(touchedGroup).toBeTruthy();
   await page.locator("#legend-btn").tap();
   await expect(page.locator("#legend")).toContainText("airMAX");
-  await expect(page.locator("#legend")).toContainText("unverified");
+  await expect(page.locator("#legend")).toContainText("Cable lengths are approximate");
+  await expect(page.locator("#legend")).not.toContainText("WGS84");
   await context.close();
 });
 
@@ -217,7 +219,22 @@ test("a device marker uses its Google Earth icon at a tappable size", async ({ p
   expect(iconBox.width).toBeGreaterThanOrEqual(20);
   expect(iconBox.width).toBeLessThanOrEqual(36);
   await page.locator("#legend-btn").click();
-  await expect(page.locator("#legend-items img.legend-icon").first()).toBeVisible();
+  const legend = page.locator("#legend");
+  await expect(legend.locator("img.legend-icon").first()).toBeVisible();
+  await expect(legend).toContainText("Numbered circles are groups");
+  await expect(legend).toContainText("Cable lengths are approximate, measured along the drawn route, in feet.");
+  await expect(legend).not.toContainText("WGS84");
+  await expect(legend).not.toContainText("affine");
+  const layer = await page.evaluate(() => {
+    const legendBox = document.querySelector("#legend").getBoundingClientRect();
+    const detailBox = document.querySelector("#detail").getBoundingClientRect();
+    const overlaps = legendBox.left < detailBox.right && legendBox.right > detailBox.left && legendBox.top < detailBox.bottom && legendBox.bottom > detailBox.top;
+    const color = getComputedStyle(document.querySelector("#legend")).backgroundColor;
+    return { overlaps, color, icons: document.querySelectorAll("#map img.device-icon").length };
+  });
+  expect(layer.overlaps).toBe(false);
+  expect(layer.color).toBe("rgb(22, 32, 27)");
+  expect(layer.icons).toBeGreaterThan(4);
 });
 
 test("a published cable bend is drawn as more than a straight line", async ({ page }) => {

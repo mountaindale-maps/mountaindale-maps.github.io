@@ -17,7 +17,6 @@ import { mountTopology } from "./topology-view.js";
 const detail = document.querySelector("#detail");
 const results = document.querySelector("#results");
 const query = document.querySelector("#q");
-const calib = document.querySelector("#calib");
 const legend = document.querySelector("#legend");
 const topoSection = document.querySelector("#topology");
 const topoBody = document.querySelector("#topo-body");
@@ -36,7 +35,6 @@ if (asbuilt.schema_version.split(".")[0] !== "1") {
 }
 
 const claim = evaluateCalibration(metadata);
-calib.textContent = claim.distanceLabel;
 const geotransform = metadata?.candidate_georeferencing?.gdal_geotransform || JPEG_CANDIDATE_GEOTRANSFORM;
 const image = metadata.imagery;
 const devices = asbuilt.devices;
@@ -271,7 +269,7 @@ function renderDetail(device) {
       el("p", "kicker", "As-built public view"),
       el("h2", null, asbuilt.title),
       el("p", null, `${devices.length} devices, ${active} active, ${links.length} links.`),
-      el("p", "status-line", claim.distanceLabel),
+      el("p", null, "Cable lengths are approximate, measured along the drawn route, in feet."),
       el("p", null, "Select a place or a piece of equipment to see what it is and how it connects back to the main router."),
     );
     const about = document.createElement("details");

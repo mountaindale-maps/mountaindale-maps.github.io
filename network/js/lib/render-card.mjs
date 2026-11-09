@@ -118,7 +118,7 @@ function renderDetails({ device, card, route, claim, links, geotransform, image,
     });
     if (pieces.length) {
       const sum = pieces.reduce((total, piece) => total + piece.metrics.totals.horizontal_ellipsoidal_m, 0);
-      technical.appendChild(el("p", "distance-total", `Path length ${formatFeet(sum)}. ${claim.distanceLabel}.`));
+      technical.appendChild(el("p", "distance-total", `Path length ${formatFeet(sum)}.`));
     }
   }
   return technical;

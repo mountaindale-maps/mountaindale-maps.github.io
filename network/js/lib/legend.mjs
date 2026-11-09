@@ -12,41 +12,29 @@ const ROLE_LABEL = {
   radio: "airMAX radio",
 };
 
-function roleIndex(role) {
-  const index = ROLE_ORDER.indexOf(role);
-  return index === -1 ? ROLE_ORDER.length : index;
-}
-
-/** Device icons, then the shared link colors. Roles with no icon keep a shape. */
+/** One Google Earth icon per device type, then the shared link colors. */
 export function legendEntries(devices, icons, iconUrl) {
-  const byFile = new Map();
-  const missing = new Set();
+  const counts = new Map();
   for (const device of devices || []) {
     if (!device || device.status === "planned" || device.record_class === "planned") continue;
     const icon = icons?.[device.id];
-    if (!icon?.file) {
-      missing.add(device.role || "device");
-      continue;
-    }
-    if (!byFile.has(icon.file)) byFile.set(icon.file, { file: icon.file, roles: new Set() });
-    byFile.get(icon.file).roles.add(device.role || "device");
+    if (!icon?.file) continue;
+    const role = device.role || "device";
+    if (!counts.has(role)) counts.set(role, new Map());
+    const files = counts.get(role);
+    files.set(icon.file, (files.get(icon.file) || 0) + 1);
   }
-  const entries = [...byFile.values()]
-    .sort((a, b) => Math.min(...[...a.roles].map(roleIndex)) - Math.min(...[...b.roles].map(roleIndex)) || a.file.localeCompare(b.file))
-    .map((item) => ({
-      kind: "icon",
-      src: iconUrl(item.file),
-      label: [...item.roles].sort((a, b) => roleIndex(a) - roleIndex(b)).map((role) => ROLE_LABEL[role] || role).join(", "),
-    }));
+  const entries = [];
   for (const role of ROLE_ORDER) {
-    if (missing.has(role)) entries.push({ kind: "swatch", mark: `role-${role}`, label: ROLE_LABEL[role] });
+    const files = counts.get(role);
+    if (!files) continue;
+    const file = [...files.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0][0];
+    entries.push({ kind: "icon", src: iconUrl(file), label: ROLE_LABEL[role] });
   }
   entries.push(
-    { kind: "swatch", mark: "status-inactive", label: "Inactive, no uplink" },
     { kind: "line", mark: "solid", label: "Wired Ethernet" },
     { kind: "line", mark: "roof", label: "Wireless link from main building roof" },
     { kind: "line", mark: "relay", label: "Wireless relay link (second hop)" },
-    { kind: "swatch", mark: "flag", label: "Uncertain placement or tentative tag" },
   );
   return entries;
 }

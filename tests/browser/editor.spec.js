@@ -90,7 +90,7 @@ test("local editor saves, reloads, undoes, and refuses to publish plans", async 
   const saved = page.waitForEvent("download");
   await download.click();
   expect((await saved).suggestedFilename()).toBe("mountaindale-public-snapshot.json");
-  await page.getByRole("button", { name: "Close" }).click();
+  await page.locator("#export-dialog").getByRole("button", { name: "Close" }).click();
 
   await page.route("**/api/export", async (route) => {
     await new Promise((resolve) => setTimeout(resolve, 500));
@@ -104,7 +104,7 @@ test("local editor saves, reloads, undoes, and refuses to publish plans", async 
   await expect(page.locator("#download-snapshot")).toBeDisabled();
   await expect(page.locator("#export-result")).not.toContainText("Valid public snapshot");
   await page.unroute("**/api/export");
-  await page.getByRole("button", { name: "Close" }).click();
+  await page.locator("#export-dialog").getByRole("button", { name: "Close" }).click();
 
   await page.locator("#modes [data-mode='move']").click();
   const moved = page.locator("[data-device-id='045-UAP-U7O']");
@@ -122,7 +122,7 @@ test("local editor saves, reloads, undoes, and refuses to publish plans", async 
   await expect(page.locator("#download-snapshot")).toBeDisabled();
   await expect(page.locator("#download-snapshot")).not.toHaveAttribute("data-snapshot");
   await expect(page.locator("#export-result")).toContainText("Selection changed");
-  await page.getByRole("button", { name: "Close" }).click();
+  await page.locator("#export-dialog").getByRole("button", { name: "Close" }).click();
   await page.locator("#modes [data-mode='group']").click();
   await page.locator("#ungroup-device").click();
   await page.locator("#undo").click();
@@ -147,14 +147,15 @@ test("a cable bend can be added, moved, removed, and reset", async ({ page }) =>
   if (!(await device.count())) await page.locator("[data-members*='098-UAP-M']").click();
   await device.click();
   await page.getByRole("button", { name: "lnk:NanoSwitch>098-UAP-M" }).click();
-  const midpoint = page.locator(".midpoint").first();
-  await expect(midpoint).toBeVisible();
-  const box = await midpoint.boundingBox();
+  await expect(page.locator(".midpoint").first()).toBeVisible();
+  const beforeView = await page.locator("#map").getAttribute("data-view-u");
+  const box = await page.locator(".midpoint").first().boundingBox();
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   await page.mouse.down();
   await page.mouse.move(box.x + box.width / 2 + 48, box.y + box.height / 2 + 36, { steps: 6 });
   await page.mouse.up();
   await expect(page.locator(".vertex")).toHaveCount(1);
+  expect(Math.abs(Number(await page.locator("#map").getAttribute("data-view-u")) - Number(beforeView))).toBeLessThan(0.01);
   await expect(page.locator("#path-length")).toContainText(/\d+ ft/);
   const bend = await page.getByText(/Bend 1:/).textContent();
   await page.locator(".vertex").evaluate((node) => {
@@ -172,11 +173,13 @@ test("a cable bend can be added, moved, removed, and reset", async ({ page }) =>
   await page.locator(".vertex").evaluate((node) => node.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, cancelable: true })));
   await expect(page.locator(".vertex")).toHaveCount(0);
   const again = await page.locator(".midpoint").first().boundingBox();
+  const viewAfterRemove = await page.locator("#map").getAttribute("data-view-u");
   await page.mouse.move(again.x + again.width / 2, again.y + again.height / 2);
   await page.mouse.down();
   await page.mouse.move(again.x + again.width / 2 + 28, again.y + again.height / 2 - 22, { steps: 4 });
   await page.mouse.up();
   await expect(page.locator(".vertex")).toHaveCount(1);
+  expect(Math.abs(Number(await page.locator("#map").getAttribute("data-view-u")) - Number(viewAfterRemove))).toBeLessThan(0.01);
   await page.locator("#reset-cable").click();
   await expect(page.locator(".vertex")).toHaveCount(0);
   await page.locator("#undo").click();

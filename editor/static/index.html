@@ -40,17 +40,26 @@
     </div>
   </header>
   <aside id="detail" class="panel"></aside>
-  <div id="map" class="map" aria-label="Editable aerial map"></div>
+  <div id="map" class="map" aria-label="Editable aerial map">
+    <div id="legend" class="legend" hidden>
+      <div class="legend-head">
+        <h2>Legend</h2>
+        <button type="button" id="legend-close">Close</button>
+      </div>
+      <ul id="legend-items"></ul>
+      <p>Numbered circles are groups of equipment. Tap a circle to spread them.</p>
+      <p>Cable lengths are approximate, measured along the drawn route, in feet.</p>
+      <details class="about">
+        <summary>About measurements</summary>
+        <p>Stored lengths stay metres (feet × 0.3048). Horizontal distance is the WGS84 geodesic along the cable, including each bend. Grid UTM length is separate. A vertical pole drop is added to that horizontal length. Only an explicit slope rise is combined as a hypotenuse. Slack and service loops are added after that. The sampled image transform is validated. This is not a survey and it does not state a ground-error bound.</p>
+      </details>
+    </div>
+  </div>
   <section id="topology" class="topology" aria-label="Network topology">
     <header class="topo-head"><h2>Topology</h2></header>
     <ul id="link-key" class="link-key" aria-label="How links are drawn"></ul>
     <div id="topo-body"></div>
   </section>
-  <div id="legend" class="legend" hidden>
-    <h2>Legend</h2>
-    <ul id="legend-items"></ul>
-    <button type="button" id="legend-close">Close</button>
-  </div>
   <p id="save-state" class="save-state">Not saved yet</p>
 </div>
 <dialog id="export-dialog">

@@ -157,7 +157,8 @@ export function createMap(container, options) {
       const point = screenPoint(marker.u, marker.v);
       return { ...marker, x: point.x, y: point.y, trueX: point.x, trueY: point.y };
     });
-    const clusters = clusterByScreen(screenMarkers, CLUSTER_RADIUS);
+    const clusterRadius = view.width >= 720 ? 10 : CLUSTER_RADIUS;
+    const clusters = clusterByScreen(screenMarkers, clusterRadius);
     const visual = [];
     for (const cluster of clusters) {
       if (cluster.clustered && spider.has(cluster.id)) {
@@ -196,6 +197,7 @@ export function createMap(container, options) {
       line.setAttribute("class", "leader");
       svg.appendChild(line);
     }
+    const bendHandles = [];
     for (const line of polylines) {
       const points = line.points.map((point) => screenPoint(point.u, point.v));
       if (points.length < 2) continue;
@@ -216,27 +218,27 @@ export function createMap(container, options) {
       const showVertices = bendCables && line.medium === "wired-ethernet" && (line.editable || points.length > 2);
       if (line.editable) {
         for (let index = 0; index < points.length - 1; index += 1) {
-          const handle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-          handle.setAttribute("cx", (points[index].x + points[index + 1].x) / 2);
-          handle.setAttribute("cy", (points[index].y + points[index + 1].y) / 2);
-          handle.setAttribute("r", "8");
-          handle.setAttribute("class", "midpoint");
-          handle.dataset.linkId = line.id;
-          handle.dataset.insertAt = String(index);
-          svg.appendChild(handle);
+          bendHandles.push({
+            kind: "midpoint",
+            x: (points[index].x + points[index + 1].x) / 2,
+            y: (points[index].y + points[index + 1].y) / 2,
+            linkId: line.id,
+            insertAt: String(index),
+            label: "Drag to add a bend",
+          });
         }
       }
       if (showVertices) {
         points.forEach((point, index) => {
           if (index === 0 || index === points.length - 1) return;
-          const handle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-          handle.setAttribute("cx", point.x);
-          handle.setAttribute("cy", point.y);
-          handle.setAttribute("r", "8");
-          handle.setAttribute("class", "vertex");
-          handle.dataset.linkId = line.id;
-          handle.dataset.vertex = String(index - 1);
-          svg.appendChild(handle);
+          bendHandles.push({
+            kind: "vertex",
+            x: point.x,
+            y: point.y,
+            linkId: line.id,
+            vertex: String(index - 1),
+            label: "Cable bend",
+          });
         });
       }
     }
@@ -404,6 +406,17 @@ export function createMap(container, options) {
         overlayButtons.delete(key);
       }
     }
+    overlay.querySelectorAll(".vertex, .midpoint").forEach((node) => node.remove());
+    for (const handle of bendHandles) {
+      const button = element("button", handle.kind);
+      button.type = "button";
+      button.setAttribute("aria-label", handle.label);
+      button.dataset.linkId = handle.linkId;
+      if (handle.kind === "midpoint") button.dataset.insertAt = handle.insertAt;
+      else button.dataset.vertex = handle.vertex;
+      button.style.transform = `translate(${handle.x}px, ${handle.y}px) translate(-50%, -50%)`;
+      overlay.appendChild(button);
+    }
   }
 
   function render() {
@@ -482,6 +495,9 @@ export function createMap(container, options) {
   function beginHandleDrag(event, handle) {
     event.preventDefault();
     event.stopPropagation();
+    if (container.setPointerCapture && !container.hasPointerCapture?.(event.pointerId)) {
+      try { container.setPointerCapture(event.pointerId); } catch { /* the pointer may already be gone */ }
+    }
     const vertex = handle.closest?.(".vertex");
     const midpoint = handle.closest?.(".midpoint");
     const stroke = handle.closest?.(".cable-hit");
@@ -678,7 +694,9 @@ export function createMap(container, options) {
     measure();
     const availW = Math.max(80, view.width - insets.left - insets.right);
     const availH = Math.max(80, view.height - insets.top - insets.bottom);
-    placeInClear(imageWidth / 2, imageHeight / 2, clampScale(Math.min(availW / imageWidth, availH / imageHeight)));
+    let scale = Math.min(availW / imageWidth, availH / imageHeight);
+    if (view.width >= 720) scale *= 1.28;
+    placeInClear(imageWidth / 2, imageHeight / 2, clampScale(scale));
     fitted = true;
     render();
   }

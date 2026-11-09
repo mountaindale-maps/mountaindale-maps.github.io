@@ -24,9 +24,21 @@ test("the hotSpot sits on the map point and the hit target is at least 32 pixels
 });
 
 test("the legend names both wireless colors from one list", () => {
-  const labels = legendEntries([], {}, (file) => file).map((entry) => entry.label);
+  const labels = legendEntries([
+    { id: "r", role: "router", status: "active" },
+    { id: "s1", role: "switch", status: "active" },
+    { id: "s2", role: "switch", status: "active" },
+  ], {
+    r: { file: "router.png" },
+    s1: { file: "switch-rare.png" },
+    s2: { file: "switch.png" },
+  }, (file) => file).map((entry) => entry.label);
+  assert.equal(labels.filter((label) => label === "Switch").length, 1);
+  assert.equal(labels[0], "Router");
+  assert.equal(labels[1], "Switch");
   assert.ok(labels.includes("Wireless link from main building roof"));
   assert.ok(labels.includes("Wireless relay link (second hop)"));
+  assert.equal(labels.some((label) => label.includes("square")), false);
   assert.deepEqual(LINK_KEY.map((entry) => entry.label), [
     "Ethernet",
     "Wireless link from main building roof",
