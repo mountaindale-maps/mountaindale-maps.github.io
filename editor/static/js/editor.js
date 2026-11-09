@@ -83,6 +83,15 @@ if (saved.code === "PLAN_CORRUPT") {
 let mode = "inspect";
 let selectedId = null;
 let selectedLinkId = null;
+let linkDraft = { parent: "", child: "", medium: "wired-ethernet" };
+let linkNotice = null;
+let linkPickField = null;
+const LINK_MEDIUMS = [
+  ["wired-ethernet", "Ethernet cable"],
+  ["airmax-ptp", "Wireless airMAX PtP"],
+  ["airmax-ptmp", "Wireless airMAX PtMP"],
+  ["wan", "WAN"],
+];
 let hoverId = null;
 let expanded = defaultExpandedKeys(baselineHierarchy.root);
 let topoApi = null;
@@ -409,19 +418,192 @@ function groupTools(plan) {
   return box;
 }
 
+function deviceRecords(plan) {
+  const groups = new Map((plan.asbuilt.location_groups || []).map((group) => [group.id, group.label]));
+  const rows = [];
+  for (const device of plan.asbuilt.devices || []) {
+    const place = groups.get(device.location_group) || "";
+    rows.push({ id: device.id, friendly: [device.model || device.role || "Device", place].filter(Boolean).join(" · ") });
+  }
+  for (const device of plan.planned_devices || []) {
+    rows.push({ id: device.id, friendly: [device.model || device.role || "Planned device", "Planned"].join(" · ") });
+  }
+  for (const wan of plan.asbuilt.wan || []) {
+    rows.push({ id: wan.id, friendly: wan.label || "WAN" });
+  }
+  return rows.sort((a, b) => a.id.localeCompare(b.id));
+}
+
+function resolveDeviceId(plan, typed) {
+  const query = String(typed || "").trim().toLowerCase();
+  if (!query) return { id: "", reason: "empty" };
+  const rows = deviceRecords(plan);
+  const exact = rows.find((row) => row.id.toLowerCase() === query);
+  if (exact) return { id: exact.id, reason: "exact" };
+  const matches = rows.filter((row) => `${row.id} ${row.friendly}`.toLowerCase().includes(query));
+  if (matches.length === 1) return { id: matches[0].id, reason: "unique" };
+  if (matches.length > 1) return { id: "", reason: "many" };
+  return { id: "", reason: "none" };
+}
+
+function endpointMessage(which, reason) {
+  const name = which === "parent" ? "parent" : "child";
+  if (reason === "empty") return `Pick a ${name} device`;
+  if (reason === "many") return `More than one device matches the ${name}. Pick one from the list.`;
+  return `No device matches the ${name}`;
+}
+
+function explainLinkError(error, childId) {
+  if (error?.code === "DUAL_UPLINK") return `${childId} already has a parent; tick Replace to swap it`;
+  const text = error?.message || "That link could not be added";
+  if (text === "Link endpoint is missing") return "Pick a parent device and a child device that are on the map";
+  if (/^Link .+ exists$/.test(text)) return "That link is already on the map";
+  return text;
+}
+
+function showLinkNotice(kind, text) {
+  linkNotice = { kind, text };
+  const node = document.querySelector("#link-message");
+  if (!node) return;
+  node.className = `link-message is-${kind}`;
+  node.textContent = text;
+}
+
+function devicePicker(plan, label, field) {
+  const input = document.createElement("input");
+  input.type = "text";
+  input.id = field === "parent" ? "link-parent" : "link-child";
+  input.autocomplete = "off";
+  input.placeholder = "Search id or name";
+  input.setAttribute("role", "combobox");
+  input.setAttribute("aria-autocomplete", "list");
+  input.value = linkDraft[field] || "";
+  const listId = `${input.id}-list`;
+  input.setAttribute("aria-controls", listId);
+  const list = el("ul", "picker-list");
+  list.id = listId;
+  list.hidden = true;
+  list.setAttribute("role", "listbox");
+  const hint = el("span", "picker-hint", "");
+  const use = el("button", null, "Use selected device");
+  use.type = "button";
+  use.id = `use-selected-${field}`;
+  let suppressFocus = false;
+  function paintHint() {
+    const row = deviceRecords(plan).find((item) => item.id === input.value.trim());
+    hint.textContent = row ? row.friendly : "";
+  }
+  function closeList() {
+    list.hidden = true;
+    list.replaceChildren();
+    input.setAttribute("aria-expanded", "false");
+  }
+  function choose(id) {
+    suppressFocus = true;
+    input.value = id;
+    linkDraft[field] = id;
+    paintHint();
+    closeList();
+    input.focus();
+    suppressFocus = false;
+  }
+  function openMatches(matches) {
+    list.replaceChildren();
+    for (const row of matches.slice(0, 12)) {
+      const item = document.createElement("li");
+      const button = el("button", "picker-option");
+      button.type = "button";
+      button.dataset.id = row.id;
+      button.append(el("span", null, row.id), el("small", null, row.friendly));
+      button.addEventListener("mousedown", (event) => {
+        event.preventDefault();
+        choose(row.id);
+      });
+      item.append(button);
+      list.append(item);
+    }
+    list.hidden = matches.length === 0;
+    input.setAttribute("aria-expanded", String(!list.hidden));
+  }
+  function matchesFor(value) {
+    const query = value.trim().toLowerCase();
+    if (!query) return [];
+    return deviceRecords(plan)
+      .filter((row) => `${row.id} ${row.friendly}`.toLowerCase().includes(query))
+      .sort((a, b) => Number(b.id.toLowerCase() === query) - Number(a.id.toLowerCase() === query) || a.id.localeCompare(b.id));
+  }
+  input.addEventListener("focus", () => {
+    linkPickField = field;
+    if (suppressFocus) return;
+    const matches = matchesFor(input.value);
+    if (matches.length) openMatches(matches);
+  });
+  input.addEventListener("input", () => {
+    linkDraft[field] = input.value;
+    paintHint();
+    const matches = matchesFor(input.value);
+    if (matches.length) openMatches(matches);
+    else closeList();
+  });
+  input.addEventListener("keydown", (event) => {
+    const buttons = [...list.querySelectorAll("button")];
+    if (event.key === "ArrowDown" && buttons.length) {
+      event.preventDefault();
+      buttons[0].focus();
+    } else if (event.key === "Enter" && !list.hidden && buttons[0]) {
+      event.preventDefault();
+      choose(buttons[0].dataset.id);
+    } else if (event.key === "Escape") closeList();
+  });
+  list.addEventListener("keydown", (event) => {
+    const buttons = [...list.querySelectorAll("button")];
+    const current = buttons.indexOf(document.activeElement);
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      buttons[Math.min(buttons.length - 1, current + 1)]?.focus();
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      if (current <= 0) input.focus();
+      else buttons[current - 1].focus();
+    } else if (event.key === "Enter" && document.activeElement?.dataset?.id) {
+      event.preventDefault();
+      choose(document.activeElement.dataset.id);
+    } else if (event.key === "Escape") {
+      input.focus();
+      closeList();
+    }
+  });
+  use.addEventListener("click", () => {
+    linkPickField = field;
+    if (!selectedId) {
+      showLinkNotice("error", "Select a device on the map first.");
+      return;
+    }
+    choose(selectedId);
+  });
+  paintHint();
+  const wrap = el("label", "device-picker");
+  wrap.append(document.createTextNode(label), input, hint, use, list);
+  return { wrap, input };
+}
+
 function connectTools(plan) {
   const box = el("div", null);
-  box.append(el("p", null, "Adding a LAN link is refused when the child already has a parent, unless you explicitly replace that parent. This does not invent a second uplink. A link that touches planned equipment is marked planned and is left out of the public snapshot."));
-  const parent = textField("Parent id", "link-parent");
-  const child = textField("Child id", "link-child");
+  box.append(el("p", null, "Search for the parent and child, or focus a box and click the device on the map. A child keeps one LAN parent unless you tick Replace. A link that touches planned equipment stays off the public map."));
+  const parent = devicePicker(plan, "Parent", "parent");
+  const child = devicePicker(plan, "Child", "child");
   const medium = document.createElement("select");
   medium.id = "link-medium";
-  for (const value of ["wired-ethernet", "airmax-ptp", "airmax-ptmp", "wan"]) {
+  for (const [value, label] of LINK_MEDIUMS) {
     const option = document.createElement("option");
     option.value = value;
-    option.textContent = value;
+    option.textContent = label;
+    if (value === (linkDraft.medium || "wired-ethernet")) option.selected = true;
     medium.append(option);
   }
+  medium.addEventListener("change", () => { linkDraft.medium = medium.value; });
+  const mediumLabel = el("label", null, "Link type");
+  mediumLabel.append(medium);
   const replace = document.createElement("input");
   replace.type = "checkbox";
   replace.id = "replace-parent";
@@ -430,25 +612,71 @@ function connectTools(plan) {
   const add = el("button", null, "Add link");
   add.type = "button";
   add.id = "add-link";
-  add.addEventListener("click", () => tryUpdate((current) => addLink(current, {
-    parent: parent.input.value.trim(),
-    child: child.input.value.trim(),
-    medium: medium.value,
-  }, { replaceParent: replace.checked })));
+  const message = el("p", `link-message${linkNotice ? ` is-${linkNotice.kind}` : ""}`, linkNotice?.text || "");
+  message.id = "link-message";
+  message.setAttribute("role", "status");
+  add.addEventListener("click", () => {
+    const parentPick = resolveDeviceId(present(), parent.input.value);
+    const childPick = resolveDeviceId(present(), child.input.value);
+    if (!parentPick.id) {
+      showLinkNotice("error", endpointMessage("parent", parentPick.reason));
+      return;
+    }
+    if (!childPick.id) {
+      showLinkNotice("error", endpointMessage("child", childPick.reason));
+      return;
+    }
+    if (parentPick.id === childPick.id) {
+      showLinkNotice("error", "Pick two different devices");
+      return;
+    }
+    try {
+      const next = addLink(present(), {
+        parent: parentPick.id,
+        child: childPick.id,
+        medium: medium.value,
+      }, { replaceParent: replace.checked });
+      const id = `lnk:${parentPick.id}>${childPick.id}`;
+      selectedLinkId = id;
+      linkDraft = { parent: parentPick.id, child: childPick.id, medium: medium.value };
+      const label = LINK_MEDIUMS.find((item) => item[0] === medium.value)?.[1] || "link";
+      linkNotice = { kind: "ok", text: `Added ${label} ${parentPick.id} → ${childPick.id}` };
+      setStatus(linkNotice.text);
+      update(next);
+    } catch (error) {
+      showLinkNotice("error", explainLinkError(error, childPick.id));
+      setStatus(linkNotice.text);
+    }
+  });
   const remove = el("button", null, "Remove selected link");
   remove.type = "button";
   remove.id = "remove-link";
   let armed = false;
   remove.addEventListener("click", () => {
-    if (!selectedLinkId) return setStatus("Select a link in Paths first.");
+    if (!selectedLinkId) {
+      showLinkNotice("error", "Select a link on the map or in Paths first.");
+      return;
+    }
     if (!armed) {
       armed = true;
       remove.textContent = `Confirm removal of ${selectedLinkId}`;
+      showLinkNotice("info", `Click again to remove ${selectedLinkId}`);
       return;
     }
-    tryUpdate((current) => removeLink(current, selectedLinkId));
+    try {
+      const id = selectedLinkId;
+      const next = removeLink(present(), id);
+      selectedLinkId = null;
+      linkNotice = { kind: "ok", text: `Removed ${id}` };
+      setStatus(linkNotice.text);
+      update(next);
+    } catch (error) {
+      showLinkNotice("error", error.message);
+    }
   });
-  box.append(parent.label, child.label, medium, replaceLabel, add, remove);
+  const actions = el("div", "link-actions");
+  actions.append(add, message);
+  box.append(parent.wrap, child.wrap, mediumLabel, replaceLabel, actions, remove);
   if (plan) box.append(el("p", "muted", `${plan.asbuilt.links.length} as-built links`));
   return box;
 }
@@ -676,6 +904,7 @@ map.on("markerpointerup", (item) => {
 });
 map.on("markerclick", (item) => {
   if (item.pointerType === "touch") return;
+  if (mode === "connect" && (linkPickField === "parent" || linkPickField === "child")) linkDraft[linkPickField] = item.id;
   openMarker(item.id);
 });
 map.on("markerdragstart", () => { dragOrigin = present(); });

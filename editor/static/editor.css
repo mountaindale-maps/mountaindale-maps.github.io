@@ -13,6 +13,23 @@
 .tool-block label, #detail label { display: grid; gap: 4px; font-size: 13px; color: #b7c0b4; }
 #public-preview { border: 1px solid rgba(232,224,204,0.2); border-radius: 10px; padding: 8px 10px; margin: 8px 0 12px; }
 .tool-block input, .tool-block select, .tool-block textarea { background: #101614; color: #f3f0e6; border: 1px solid rgba(232,224,204,0.2); border-radius: 8px; padding: 8px; min-height: 40px; }
+.device-picker { position: relative; }
+.picker-hint { min-height: 1.2em; color: #b7c0b4; }
+.picker-list {
+  list-style: none; margin: 0; padding: 4px; max-height: 180px; overflow: auto;
+  background: #101614; border: 1px solid rgba(232,224,204,0.2); border-radius: 8px;
+}
+.picker-option {
+  display: flex; flex-direction: column; align-items: flex-start; width: 100%;
+  text-align: left; background: transparent; border: 0; color: inherit; padding: 6px 8px; min-height: 40px;
+}
+.picker-option small { color: #b7c0b4; }
+.picker-option:hover, .picker-option:focus { background: #2c3a31; }
+.link-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.link-message { margin: 0; font-size: 14px; }
+.link-message.is-error { color: #e7a15a; }
+.link-message.is-info { color: #f3d7a1; }
+.link-message.is-ok { color: #b7e0a8; }
 .row-actions { display: flex; flex-wrap: wrap; gap: 6px; }
 .row-actions button, .dialog-actions button { min-height: 40px; padding: 0 10px; background: #243028; color: #f3f0e6; border: 1px solid rgba(232,224,204,0.16); border-radius: 8px; }
 button:disabled { opacity: 0.38; filter: grayscale(0.7); cursor: not-allowed; }
