@@ -214,6 +214,16 @@ button { cursor: pointer; }
   background: #16201b;
 }
 #map .legend[hidden] { display: none; }
+@media (max-width: 800px) {
+  #map .legend {
+    left: 8px; bottom: 8px; width: calc(100% - 16px);
+    max-height: calc(100% - 16px);
+    gap: 6px; padding: 8px 10px 10px;
+  }
+  .legend-head h2 { font-size: 18px; }
+  .legend ul { gap: 4px; }
+  .legend p { font-size: 13px; }
+}
 .legend-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .legend-head h2 { font-size: 22px; }
 .legend p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.4; }
