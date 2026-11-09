@@ -1,0 +1,246 @@
+{
+  "crop_source_requested_accessible": false,
+  "crop_bytes": 9960257,
+  "crop_sha256": "d14b661ef72be0bc94018a8fe5fe2dc77ce41841a3e5bc0f5fb05386fcca0b27",
+  "full_sha256": "0d4567a7ff0a6009b42c8c43fc8c5e588dabc903ae7ad17a20070bfe78bad8ad",
+  "crop_width": 5980,
+  "crop_height": 8062,
+  "full_width": 8000,
+  "full_height": 10592,
+  "pixel_convention": "outer-corner origin (0,0) upper-left; OpenCV SIFT keypoints treated as continuous pixel coordinates equivalent to centers of local features; transforms map corner coordinates consistently with GDAL PixelIsArea when converting to UTM via full affine",
+  "matching": {
+    "detector": "SIFT",
+    "processing_scale": 0.25,
+    "ratio_test": 0.75,
+    "good_matches": 4527,
+    "ransac_inliers": 4509,
+    "reproj_threshold_full_px": 3.0
+  },
+  "affine_crop_corner_to_full_corner_2x3": [
+    [
+      0.9999991596955672,
+      1.4140207693376454e-07,
+      816.0019847720412
+    ],
+    [
+      5.650120773051301e-07,
+      0.9999997876577029,
+      999.9998094143633
+    ]
+  ],
+  "affine_full_corner_to_crop_corner_2x3": [
+    [
+      1.000000840305219,
+      -1.414022257803412e-07,
+      -816.0025290605688
+    ],
+    [
+      -5.650126720638161e-07,
+      1.000000212342422,
+      -999.9995607052831
+    ]
+  ],
+  "affine_crop_corner_to_utm_epsg32613_2x3": [
+    [
+      0.08311034507721696,
+      1.1751985283845679e-08,
+      504147.9785894955
+    ],
+    [
+      -4.6958629368407625e-08,
+      -0.0831108241457019,
+      4271485.575357983
+    ]
+  ],
+  "transform_decomposition": {
+    "rotation_deg_x_axis": 3.237283460653634e-05,
+    "scale_x": 0.9999991596957268,
+    "scale_y": 0.9999997876577129,
+    "shear_deg_from_orthogonal": -4.0474578546345826e-05,
+    "translation_full_px": [
+      816.0019847720412,
+      999.9998094143633
+    ]
+  },
+  "train_residual_full_px": {
+    "n": 3151,
+    "rmse": 0.22471811738833597,
+    "p50": 0.03394856229841373,
+    "p95": 0.14707040307893998,
+    "max": 2.955734898925183
+  },
+  "holdout_residual_full_px": {
+    "n": 1358,
+    "rmse": 0.18120039479615863,
+    "p50": 0.0341025001231708,
+    "p95": 0.14506045342019958,
+    "max": 2.4688398829758396
+  },
+  "all_inlier_residual_full_px": {
+    "n": 4509,
+    "rmse": 0.21242227337587238,
+    "p50": 0.03441570662904972,
+    "p95": 0.15059433981579176,
+    "max": 2.9629778874239605
+  },
+  "crop_rectangle_corners_full_px": [
+    [
+      816.0019847720412,
+      999.9998094143633
+    ],
+    [
+      6795.996959751533,
+      1000.0031881865856
+    ],
+    [
+      6795.998099735077,
+      9062.001476282987
+    ],
+    [
+      816.0031247555854,
+      9061.998097510765
+    ]
+  ],
+  "crop_rectangle_corners_utm_en": [
+    [
+      504147.9785894955,
+      4271485.575357983
+    ],
+    [
+      504644.9784530573,
+      4271485.5750771705
+    ],
+    [
+      504644.9785478018,
+      4270815.535612907
+    ],
+    [
+      504147.97868424,
+      4270815.535893721
+    ]
+  ],
+  "inlier_coverage": {
+    "crop_xy_min": [
+      34.347965240478516,
+      114.87079620361328
+    ],
+    "crop_xy_max": [
+      5810.0703125,
+      7931.7783203125
+    ],
+    "full_xy_min": [
+      850.3456420898438,
+      1114.87060546875
+    ],
+    "full_xy_max": [
+      6626.0732421875,
+      8931.810546875
+    ]
+  },
+  "distributed_holdout_examples": [
+    {
+      "crop_xy": [
+        1289.9608154296875,
+        1493.260009765625
+      ],
+      "full_xy": [
+        2105.928955078125,
+        2493.21337890625
+      ],
+      "pred_full_xy": [
+        2105.9619273920043,
+        2493.2602309411677
+      ],
+      "residual_full_px": 0.05729124416948969,
+      "utm_en": [
+        504255.18769555073,
+        4271361.469227333
+      ]
+    },
+    {
+      "crop_xy": [
+        3554.185791015625,
+        3568.3603515625
+      ],
+      "full_xy": [
+        4370.2236328125,
+        4568.3642578125
+      ],
+      "pred_full_xy": [
+        4370.185293763156,
+        4568.361411420926
+      ],
+      "residual_full_px": 0.03844456593099529,
+      "utm_en": [
+        504443.3682389907,
+        4271189.005821416
+      ]
+    },
+    {
+      "crop_xy": [
+        3038.581787109375,
+        4004.931640625
+      ],
+      "full_xy": [
+        3854.516357421875,
+        5004.92236328125
+      ],
+      "pred_full_xy": [
+        3854.5817848533234,
+        5004.932316458387
+      ],
+      "residual_full_px": 0.06618016712764929,
+      "utm_en": [
+        504400.51621743344,
+        4271152.722045996
+      ]
+    },
+    {
+      "crop_xy": [
+        1374.3790283203125,
+        5714.22705078125
+      ],
+      "full_xy": [
+        2190.385009765625,
+        6714.17431640625
+      ],
+      "pred_full_xy": [
+        2190.3806661991366,
+        6714.2264233642645
+      ],
+      "residual_full_px": 0.0522876815642646,
+      "utm_en": [
+        504262.20377195964,
+        4271010.661173898
+      ]
+    },
+    {
+      "crop_xy": [
+        4769.3896484375,
+        6314.42529296875
+      ],
+      "full_xy": [
+        5585.3623046875,
+        7314.45166015625
+      ],
+      "pred_full_xy": [
+        5585.388518343129,
+        7314.426456326294
+      ],
+      "residual_full_px": 0.036364663973432854,
+      "utm_en": [
+        504544.3642831919,
+        4270960.778043914
+      ]
+    }
+  ],
+  "footprint": {
+    "method": "Strict RGB>250 classified as background white; 5x5 morphological open+close. White canvas clearly present around irregular ortho footprint.",
+    "mask_file": "footprint_mask.png",
+    "valid_pixel_fraction": 0.5199666630436857,
+    "limits": "Near-white rooftops/vehicles may be eroded if >250; thin valid fingers may be opened away. Mask is image-space only, not a surveyed property boundary. Boundary margin for device-in-crop tests should use interior valid pixels, not merely the rectangular canvas."
+  },
+  "readiness": "CROP_IMAGE_TRANSFORM_READY_FOR_DISPLAY_AND_APPROXIMATE_HORIZONTAL_ESTIMATES_NOT_SURVEY",
+  "image_transform_validated": true,
+  "survey_accuracy_validated": false
+}

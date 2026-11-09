@@ -63,6 +63,20 @@ test("local editor saves, reloads, undoes, and refuses to publish plans", async 
   expect((await saved).suggestedFilename()).toBe("mountaindale-public-snapshot.json");
   await page.getByRole("button", { name: "Close" }).click();
 
+  await page.route("**/api/export", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    await route.continue();
+  });
+  await page.locator("#review-export").click();
+  await page.locator("#confirm-review").check();
+  await page.locator("#validate-export").click();
+  await page.locator("#confirm-review").uncheck();
+  await page.waitForTimeout(800);
+  await expect(page.locator("#download-snapshot")).toBeDisabled();
+  await expect(page.locator("#export-result")).not.toContainText("Valid public snapshot");
+  await page.unroute("**/api/export");
+  await page.getByRole("button", { name: "Close" }).click();
+
   await page.locator("#modes [data-mode='move']").click();
   const moved = page.locator("[data-device-id='045-UAP-U7O']");
   if (!(await moved.count())) await page.locator("[data-members*='045-UAP-U7O']").click();

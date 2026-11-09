@@ -35,18 +35,23 @@ const calib = document.querySelector("#calib");
 const saveState = document.querySelector("#save-state");
 const topoBody = document.querySelector("#topo-body");
 
-const [baseline, baselineHierarchy, metadata, health, saved] = await Promise.all([
+const [baseline, baselineHierarchy, metadata, health, stateResponse] = await Promise.all([
   fetch("/api/baseline").then((response) => response.json()),
   fetch("/api/topology").then((response) => response.json()),
   fetch("/api/metadata").then((response) => response.json()),
   fetch("/api/health").then((response) => response.json()),
-  fetch("/api/state").then((response) => response.json()),
+  fetch("/api/state"),
 ]);
+const saved = await stateResponse.json();
 
 document.querySelector("#local-banner").textContent = `Local planning editor on ${health.host}:${health.port}. Loopback only. Saves stay in ${health.dataDir}. Nothing is published.`;
 
 const baselineLinkJson = JSON.stringify(baseline.links);
 let history = createHistory(saved.plan || planFromPublic(baseline, metadata));
+if (saved.code === "PLAN_CORRUPT") {
+  const names = (saved.backups || []).join(", ") || "none";
+  queueMicrotask(() => setStatus(`${saved.error} Backups left untouched: ${names}`));
+}
 let mode = "inspect";
 let selectedId = null;
 let selectedLinkId = null;
@@ -56,6 +61,7 @@ let topoApi = null;
 let topoSource = null;
 let dragOrigin = null;
 let exportReady = false;
+let exportGeneration = 0;
 
 const map = createMap(document.querySelector("#map"), {
   imageWidth: metadata.imagery.width,
@@ -274,7 +280,7 @@ function pathTools(plan) {
   const metrics = measureLink(plan, link, claim());
   if (metrics) {
     metrics.segments.forEach((segment, index) => {
-      const rise = numberField(`Segment ${index + 1} vertical rise m`, segment.vertical_rise_m, index === 0 ? "segment-rise-0" : "");
+      const rise = numberField(`Segment ${index + 1} vertical drop m, added`, segment.vertical_drop_m ?? segment.vertical_rise_m, index === 0 ? "segment-rise-0" : "");
       const slack = numberField("Slack m", segment.slack_m, "");
       const loop = numberField("Service loop m", segment.service_loop_m, "");
       const apply = el("button", null, "Apply allowances");
@@ -707,6 +713,7 @@ function syncDownload() {
   button.setAttribute("aria-disabled", ready ? "false" : "true");
 }
 function invalidateExport() {
+  exportGeneration += 1;
   const hadSnapshot = exportReady || Boolean(document.querySelector("#download-snapshot")?.dataset.snapshot);
   exportReady = false;
   const button = document.querySelector("#download-snapshot");
@@ -715,11 +722,13 @@ function invalidateExport() {
   if (hadSnapshot) document.querySelector("#export-result").textContent = "Selection changed. Validate again before download.";
 }
 document.querySelector("#validate-export").addEventListener("click", async () => {
+  const generation = exportGeneration;
   const response = await fetch("/api/export", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ plan: present(), selection: selectionFromDialog() }),
   });
+  if (generation !== exportGeneration) return;
   const body = await response.json();
   const result = document.querySelector("#export-result");
   if (!response.ok) {

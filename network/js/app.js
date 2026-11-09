@@ -73,6 +73,28 @@ const topology = mountTopology(topoBody, {
   },
 });
 
+const NEAR_EDGE = new Set(metadata.near_edge_device_ids || []);
+
+function canvasPlace(device) {
+  const point = pixelOf(device?.coords);
+  if (!point) return "unprojected";
+  if (point.u < 0 || point.v < 0 || point.u > image.width || point.v > image.height) return "outside";
+  if (NEAR_EDGE.has(device.id)) return "near-edge";
+  return "inside";
+}
+
+function outsideSummary() {
+  const outside = devices.filter((device) => canvasPlace(device) === "outside");
+  const near = devices.filter((device) => canvasPlace(device) === "near-edge");
+  const outsideText = outside.length
+    ? `Outside the crop canvas, still at source coordinates: ${outside.map((device) => device.id).join(", ")}.`
+    : "No equipment is outside the crop canvas.";
+  const nearText = near.length
+    ? `${near.length} devices are near the crop edge and stay at their source coordinates.`
+    : "";
+  return `${outsideText} ${nearText} Live Earth has not been re-exported. Site 96 placement is still unresolved. One inactive AP has no uplink.`.trim();
+}
+
 function pixelOf(coords) {
   if (!coords || !Number.isFinite(coords.lon) || !Number.isFinite(coords.lat)) return null;
   const [u, v] = lonLatToImage(coords.lon, coords.lat, geotransform);
@@ -247,8 +269,8 @@ function renderDetail(device) {
       el("h2", null, asbuilt.title),
       el("p", null, `${devices.length} devices, ${active} active, ${links.length} links.`),
       el("p", "status-line", claim.distanceLabel),
-      el("p", null, "The image alignment was checked on the full frame. This is not a survey."),
-      el("p", "muted", "Live Earth has not been re-exported. Site 96 placement is still unresolved. One inactive AP has no uplink."),
+      el("p", null, "The background is the registered crop of the Oct 31 aerial, not the full frame. Horizontal distance is the geodesic on the original longitude and latitude. This is not a survey."),
+      el("p", "muted", outsideSummary()),
     );
     const about = document.createElement("details");
     about.id = "about";
@@ -256,7 +278,7 @@ function renderDetail(device) {
     const summary = document.createElement("summary");
     summary.textContent = "About and data quality";
     about.appendChild(summary);
-    about.appendChild(el("p", null, "Source notes from the equipment export. Image alignment has since been checked. Ground accuracy is still unverified. These notes do not change the drawn links."));
+    about.appendChild(el("p", null, "The crop is registered to the validated full image. The white margin is not a property boundary, and bright pixels are not used to hide equipment. Ground accuracy is still unverified. Source notes below do not change the drawn links."));
     const list = el("ul", "review");
     for (const item of asbuilt.pending_review) {
       const li = document.createElement("li");
@@ -288,6 +310,12 @@ function renderDetail(device) {
   addFact(facts, "Longitude, latitude", `${device.coords.lon}, ${device.coords.lat}`);
   addFact(facts, "Image pixel", `${point.u.toFixed(1)}, ${point.v.toFixed(1)}`);
   detail.appendChild(facts);
+  const place = canvasPlace(device);
+  if (place === "outside") {
+    detail.appendChild(el("p", "flag-note", `Outside the crop canvas at image pixel ${point.u.toFixed(1)}, ${point.v.toFixed(1)}. The stored longitude and latitude were not moved.`));
+  } else if (place === "near-edge") {
+    detail.appendChild(el("p", "flag-note", "Near the crop edge. Shown at the source coordinates. The white-pixel mask is not used to move or drop this device."));
+  }
   if (device.public_summary) detail.appendChild(el("p", null, device.public_summary));
   if (device.service_area_tag?.tentative) {
     detail.appendChild(el("p", "flag-note", `Tentative service area from ${device.service_area_tag.group}. Not a shared mounting.`));

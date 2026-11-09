@@ -3,7 +3,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { evaluateCalibration, importCalibration } from "../network/js/lib/calibration.mjs";
-import { JPEG_CANDIDATE_GEOTRANSFORM, ORIGINAL_GEOTRANSFORM } from "../network/js/lib/projection.mjs";
+import { FULL_JPEG_GEOTRANSFORM, JPEG_CANDIDATE_GEOTRANSFORM, ORIGINAL_GEOTRANSFORM } from "../network/js/lib/projection.mjs";
 
 const metadata = JSON.parse(readFileSync(new URL("../network/data/metadata.json", import.meta.url)));
 const registration = JSON.parse(readFileSync(new URL("../network/data/registration_summary.json", import.meta.url)));
@@ -32,7 +32,7 @@ test("public readiness flags stay split between image transform and survey", () 
   assert.equal(metadata.horizontal_estimates_ready, true);
   assert.equal(metadata.safe_for_authoritative_measurement, false);
   assert.equal(metadata.survey_accuracy_validated, false);
-  assert.equal(metadata.readiness, "READY_FOR_APPROXIMATE_HORIZONTAL_CABLE_ESTIMATES_NOT_SURVEY");
+  assert.equal(metadata.readiness, "CROP_IMAGE_TRANSFORM_READY_FOR_DISPLAY_AND_APPROXIMATE_HORIZONTAL_ESTIMATES_NOT_SURVEY");
   assert.equal(registration.accepted, 32);
   assert.equal(registration.rejected, 1);
   assert.equal(registration.holdout_expected_resize_residual_jpeg_px.n, 16);
@@ -45,16 +45,17 @@ test("public readiness flags stay split between image transform and survey", () 
 });
 
 test("horizontal and vertical affine scales are independent", () => {
-  const gt = metadata.candidate_georeferencing.gdal_geotransform;
-  assert.deepEqual(gt, [...JPEG_CANDIDATE_GEOTRANSFORM]);
-  assert.notEqual(gt[1], Math.abs(gt[5]));
-  assert.equal(gt[1], 0.08311041491526702);
-  assert.equal(gt[5], -0.08311084179364896);
+  const display = metadata.candidate_georeferencing.gdal_geotransform;
+  assert.deepEqual(display, [...JPEG_CANDIDATE_GEOTRANSFORM]);
+  assert.notEqual(display[2], 0);
+  assert.notEqual(display[4], 0);
+  const full = metadata.full_jpeg.gdal_geotransform;
+  assert.deepEqual(full, [...FULL_JPEG_GEOTRANSFORM]);
+  assert.notEqual(full[1], Math.abs(full[5]));
   const widthOnlyHeight = 22008 * (8000 / 16623);
   assert.ok(Math.abs(widthOnlyHeight - 10591.5899657) < 1e-4);
-  assert.ok(Math.abs(gt[1] - ORIGINAL_GEOTRANSFORM[1] * (16623 / 8000)) < 1e-12);
-  assert.ok(Math.abs(gt[5] - ORIGINAL_GEOTRANSFORM[5] * (22008 / 10592)) < 1e-12);
-  assert.deepEqual(metadata.candidate_georeferencing.native_preview_m_per_pixel, [gt[1], Math.abs(gt[5])]);
+  assert.ok(Math.abs(full[1] - ORIGINAL_GEOTRANSFORM[1] * (16623 / 8000)) < 1e-12);
+  assert.ok(Math.abs(full[5] - ORIGINAL_GEOTRANSFORM[5] * (22008 / 10592)) < 1e-12);
 });
 
 test("public calibration files do not carry private workstation paths", () => {

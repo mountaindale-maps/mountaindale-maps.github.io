@@ -60,7 +60,7 @@
       <li><i class="swatch flag"></i> Uncertain placement or tentative tag</li>
     </ul>
     <p>Overlapping markers stack only on screen. Spreading them does not move the stored coordinates or the connections. A location group is a hover cluster, not a circuit.</p>
-    <p>Distances sum every segment in international feet (metres ÷ 0.3048). Horizontal distance is the WGS84 geodesic between the original longitude and latitude of each vertex. The validated affine only places those markers on the image. Ground accuracy is unverified. This is not a survey and it does not state a ground-error bound. Grid UTM length is separate. A vertical pole drop is not part of that horizontal figure: enter it as rise or slack. Rise is combined with the horizontal length as a hypotenuse, then slack and service loops are added.</p>
+    <p>Distances sum every segment in international feet (metres ÷ 0.3048). Horizontal distance is the WGS84 geodesic between the original longitude and latitude of each vertex. The validated affine only places those markers on the crop. Ground accuracy is unverified. This is not a survey and it does not state a ground-error bound. Grid UTM length is separate. A vertical pole drop is added to that horizontal length. Only an explicit slope rise is combined as a hypotenuse. Slack and service loops are added after that.</p>
     <button type="button" id="legend-close">Close</button>
   </div>
 </div>

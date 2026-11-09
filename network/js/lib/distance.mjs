@@ -4,7 +4,8 @@
  *
  * Horizontal ellipsoidal metres use the WGS84 inverse. Grid metres are the
  * straight UTM zone 13N length of the same segment and are labelled as grid,
- * not ground. Terrain/physical length adds an adjustable vertical rise in
+ * not ground. A vertical pole drop is added to the horizontal length. An explicit
+ * slope rise is the only allowance combined as a hypotenuse.
  * quadrature, then slack and service loop as extra cable. None of these
  * numbers become surveyed just because they are numerically consistent.
  */
@@ -84,34 +85,44 @@ export function gridDistanceM(lon1, lat1, lon2, lat2) {
   return Math.hypot(e2 - e1, n2 - n1);
 }
 
-function num(value) {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : 0;
+function allowance(value, name) {
+  if (value == null || value === "") return 0;
+  const number = Number(value);
+  if (!Number.isFinite(number) || number < 0) {
+    const error = new Error(`${name} must be zero or positive`);
+    error.code = "SEGMENT";
+    throw error;
+  }
+  return number;
 }
 
 /**
- * Combine one already-measured horizontal segment with field allowances.
- * vertical rise is a separate vertical component, not a substitute for the
- * mapped horizontal distance. Slack and service loop are added after the
- * slope length.
+ * Horizontal length stays the mapped geodesic. A vertical pole drop, slack,
+ * and a service loop are added afterwards. Only an explicit slope rise is
+ * combined with the horizontal length as a hypotenuse.
  */
 export function composeSegment(input) {
-  const horizontal = num(input.horizontal_ellipsoidal_m);
-  const grid = num(input.horizontal_grid_utm_m);
-  const rise = num(input.vertical_rise_m);
-  const slack = num(input.slack_m);
-  const loop = num(input.service_loop_m);
-  const terrain = Math.hypot(horizontal, rise);
-  const physical = terrain + slack + loop;
+  const horizontal = allowance(input.horizontal_ellipsoidal_m, "Horizontal");
+  const grid = allowance(input.horizontal_grid_utm_m, "Grid");
+  const drop = allowance(input.vertical_drop_m ?? input.vertical_rise_m, "Vertical drop");
+  const slope = allowance(input.slope_rise_m, "Slope rise");
+  const slack = allowance(input.slack_m, "Slack");
+  const loop = allowance(input.service_loop_m, "Service loop");
+  const sloped = slope > 0 ? Math.hypot(horizontal, slope) : horizontal;
+  const physical = sloped + drop + slack + loop;
   return {
     horizontal_ellipsoidal_m: horizontal,
     horizontal_ellipsoidal_ft: metersToFeet(horizontal),
     horizontal_grid_utm_m: grid,
     horizontal_grid_utm_ft: metersToFeet(grid),
-    vertical_rise_m: rise,
-    vertical_rise_ft: metersToFeet(rise),
-    terrain_slope_m: terrain,
-    terrain_slope_ft: metersToFeet(terrain),
+    vertical_drop_m: drop,
+    vertical_drop_ft: metersToFeet(drop),
+    vertical_rise_m: drop,
+    vertical_rise_ft: metersToFeet(drop),
+    slope_rise_m: slope,
+    slope_rise_ft: metersToFeet(slope),
+    terrain_slope_m: sloped,
+    terrain_slope_ft: metersToFeet(sloped),
     slack_m: slack,
     slack_ft: metersToFeet(slack),
     service_loop_m: loop,

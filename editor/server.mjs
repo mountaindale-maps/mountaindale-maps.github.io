@@ -184,6 +184,13 @@ export async function startEditorServer(options = {}) {
       send(response, 200, bytes, type);
     } catch (error) {
       const known = new Set(["SANITIZER", "REVIEW_REQUIRED", "SCHEMA", "DUAL_UPLINK", "CYCLE", "IMPORT", "PLANNED_EXCLUDED"]);
+      if (error.code === "PLAN_CORRUPT") {
+        return send(response, 409, {
+          error: error.message,
+          code: "PLAN_CORRUPT",
+          backups: error.backups || [],
+        });
+      }
       if (error.code === "BACKUP") return send(response, 400, { error: "Unknown backup", code: "BACKUP" });
       if (error.code === "DATA_DIR") return send(response, 400, { error: "Refusing to store plans inside public files", code: "DATA_DIR" });
       if (known.has(error.code)) {

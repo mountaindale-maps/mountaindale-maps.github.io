@@ -33,11 +33,12 @@ export function fillDistanceList(container, metrics, heading) {
     body.textContent = [
       `Horizontal mapped ${formatMetersFeet(segment.horizontal_ellipsoidal_m)}`,
       `Grid UTM ${formatMetersFeet(segment.horizontal_grid_utm_m)}`,
-      `Vertical rise ${formatMetersFeet(segment.vertical_rise_m)}`,
+      `Vertical drop added ${formatMetersFeet(segment.vertical_drop_m ?? segment.vertical_rise_m)}`,
+      segment.slope_rise_m > 0 ? `Slope rise hypotenuse ${formatMetersFeet(segment.slope_rise_m)}` : null,
       `Terrain/physical cable ${formatMetersFeet(segment.physical_cable_m)}`,
       `Slack ${formatMetersFeet(segment.slack_m)}`,
       `Service loop ${formatMetersFeet(segment.service_loop_m)}`,
-    ].join(" · ");
+    ].filter(Boolean).join(" · ");
     row.append(name, body);
     container.appendChild(row);
   });

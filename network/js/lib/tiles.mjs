@@ -1,7 +1,7 @@
 /** Image-local tile pyramid. These indices are not EPSG:3857 XYZ tiles. */
 
 export const TILE_SIZE = 256;
-export const NATIVE_ZOOM = 6;
+export const NATIVE_ZOOM = 5;
 export const MIN_ZOOM = 0;
 
 export function sourcePixelsPerTilePixel(zoom) {
@@ -55,11 +55,11 @@ export function visibleTileRange(view, zoom, width, height, buffer = 1) {
 }
 
 function widthLimit(view) {
-  return view.imageWidth || 8000;
+  return view.imageWidth || 5980;
 }
 
 function heightLimit(view) {
-  return view.imageHeight || 10592;
+  return view.imageHeight || 8062;
 }
 
 export function projectToScreen(u, v, view) {

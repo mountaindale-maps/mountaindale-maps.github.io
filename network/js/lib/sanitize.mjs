@@ -122,10 +122,20 @@ function plannedViolation(text) {
 
 const MAC_DOTTED = /\b[0-9a-f]{4}[.\uFF0E][0-9a-f]{4}[.\uFF0E][0-9a-f]{4}\b/i;
 
+const CONFUSABLES = {
+  "\u0430": "a", "\u0435": "e", "\u043e": "o", "\u0440": "p", "\u0441": "c", "\u0443": "y", "\u0445": "x",
+  "\u0456": "i", "\u0455": "s", "\u04bb": "h", "\u0501": "d", "\u0454": "e", "\u0458": "j",
+  "\u0410": "A", "\u0415": "E", "\u041e": "O", "\u0420": "P", "\u0421": "C", "\u0425": "X",
+  "\u0391": "A", "\u0392": "B", "\u0395": "E", "\u0397": "H", "\u0399": "I", "\u039a": "K",
+  "\u039c": "M", "\u039d": "N", "\u039f": "O", "\u03a1": "P", "\u03a4": "T", "\u03a7": "X",
+  "\u03b1": "a", "\u03b5": "e", "\u03b9": "i", "\u03bf": "o", "\u03c1": "p", "\u03c4": "t", "\u03c5": "u",
+};
+
 export function canonicalizePublicText(text) {
-  return String(text)
+  const normalized = String(text)
     .normalize("NFKC")
     .replace(/[\u200B-\u200D\uFEFF\u2060\u180E]/g, "");
+  return [...normalized].map((char) => CONFUSABLES[char] || char).join("");
 }
 
 export function scanPublicValue(text, path) {
@@ -192,47 +202,50 @@ function sanitizePorts(value) {
   return null;
 }
 
-function sanitizeRelated(value) {
-  if (typeof value === "string") return publicText(value, 80);
+const SEPARATION_LABELS = new Set(["radio_to_radio"]);
+
+function sanitizeRelated(value, allowed) {
+  if (typeof value === "string") return allowed.has(value) ? value : null;
   if (!Array.isArray(value)) return null;
-  const items = value.filter((item) => typeof item === "string").map((item) => publicText(item, 80)).filter(Boolean);
+  const items = value.filter((item) => allowed.has(item));
   return items.length ? items.slice(0, 12) : null;
 }
 
-function sanitizeSeparation(value) {
+function sanitizeSeparation(value, allowed) {
   if (finiteNumber(value)) return value;
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const out = {};
   for (const [key, entry] of Object.entries(value)) {
-    if (!/^[A-Za-z0-9_-]{1,80}$/.test(key) || !finiteNumber(entry)) continue;
+    if (!finiteNumber(entry)) continue;
+    if (!allowed.has(key) && !SEPARATION_LABELS.has(key)) continue;
     out[key] = entry;
   }
   return Object.keys(out).length ? out : null;
 }
 
-function sanitizeQualityItem(item) {
+function sanitizeQualityItem(item, allowed) {
   if (!item || typeof item !== "object" || Array.isArray(item)) return null;
   const out = {};
   const code = publicText(item.code, 80);
   if (code && /^[a-z0-9-]{1,80}$/.test(code)) out.code = code;
   if (item.severity === "info" || item.severity === "warning" || item.severity === "error") out.severity = item.severity;
-  const related = sanitizeRelated(item.related);
+  const related = sanitizeRelated(item.related, allowed);
   if (related) out.related = related;
   const message = publicText(item.message, 600);
   if (message) out.message = message;
   const by = publicText(item.by, 120);
   if (by) out.by = by;
-  const separation = sanitizeSeparation(item.separation_m);
+  const separation = sanitizeSeparation(item.separation_m, allowed);
   if (separation != null) out.separation_m = separation;
   if (!out.code && !out.message) return null;
   return out;
 }
 
-function sanitizeServiceTag(value) {
+function sanitizeServiceTag(value, allowed) {
   if (value == null) return null;
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const out = {};
-  const group = publicText(value.group, 80);
+  const group = allowed.has(value.group) ? publicText(value.group, 80) : null;
   const basis = publicText(value.basis, 160);
   if (group) out.group = group;
   if (basis) out.basis = basis;
@@ -240,7 +253,8 @@ function sanitizeServiceTag(value) {
   return Object.keys(out).length ? out : null;
 }
 
-export function sanitizeDevice(device) {
+export function sanitizeDevice(device, allowedRefs = null) {
+  const allowed = allowedRefs || new Set();
   if (device?.status === "planned" || device?.record_class === "planned") {
     const error = new Error(`Planned device ${device?.id || ""} cannot be published`);
     error.code = "PLANNED_EXCLUDED";
@@ -266,9 +280,9 @@ export function sanitizeDevice(device) {
     const height = publicText(device.mount_height, 40);
     out.mount_height = height;
   }
-  out.service_area_tag = sanitizeServiceTag(device.service_area_tag);
+  out.service_area_tag = sanitizeServiceTag(device.service_area_tag, allowed);
   out.data_quality = Array.isArray(device.data_quality)
-    ? device.data_quality.map(sanitizeQualityItem).filter(Boolean).slice(0, 12)
+    ? device.data_quality.map((item) => sanitizeQualityItem(item, allowed)).filter(Boolean).slice(0, 12)
     : [];
   const summary = publicText(device.public_summary, 600);
   if (summary) out.public_summary = summary;
@@ -357,12 +371,18 @@ export function buildPublicSnapshot(baseline, plan, selection) {
   const selectedDevices = new Set(selection.deviceIds || []);
   const includeGroups = selection.includeGroups === true;
   const includeConnectivity = selection.includeConnectivity === true;
+  const allowedRefs = new Set([
+    ...(baseline.devices || []).map((device) => device.id),
+    ...(baseline.location_groups || []).map((group) => group.id),
+    ...(baseline.landmarks || []).map((landmark) => landmark.id),
+    ...(baseline.wan || []).map((entry) => entry.id),
+  ]);
   const snapshot = cloneJson(baseline);
   const planDevices = new Map((plan?.asbuilt?.devices || []).map((device) => [device.id, device]));
   snapshot.devices = baseline.devices.map((device) => {
     const edited = selectedDevices.has(device.id) ? planDevices.get(device.id) : null;
     const source = edited || device;
-    const sanitized = sanitizeDevice(source);
+    const sanitized = sanitizeDevice(source, allowedRefs);
     if (!sanitized) return null;
     if (includeGroups && planDevices.has(device.id)) {
       const groupId = planDevices.get(device.id).location_group;

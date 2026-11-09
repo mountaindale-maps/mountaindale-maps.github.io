@@ -1,0 +1,137 @@
+{
+  "method": "lonlat->EPSG:32613->full JPEG corner pixels via validated full GDAL geotransform->crop via measured inverse affine. Footprint: footprint_mask.png. Margin: 12 crop pixels (~1.0 m). Lon/lat NOT modified; devices not dropped/moved.",
+  "margin_px": 12,
+  "margin_approx_m": 0.99732,
+  "counts": {
+    "devices_total": 70,
+    "inside_confident": 63,
+    "uncertain_near_edge": 7,
+    "outside_rect_or_mask": 0
+  },
+  "outside_or_invalid_footprint_ids": [],
+  "uncertain_near_edge_ids": [
+    "000-USW-Flex-Mini",
+    "000-UAP-IW",
+    "000-USW-Flex-Roof",
+    "NBM5-AP-80",
+    "NSL5AC-AP-89",
+    "NB5AC-AP-93",
+    "016-USW-Flex"
+  ],
+  "outside_details": [],
+  "uncertain_details": [
+    {
+      "id": "000-USW-Flex-Mini",
+      "lon": -104.9486090395773,
+      "lat": 38.58694828386479,
+      "full_xy": [
+        4760.29476852401,
+        7532.333581214486
+      ],
+      "crop_xy": [
+        3944.2951744752445,
+        6532.332930316292
+      ],
+      "in_crop_rectangle": true,
+      "in_footprint_mask": true,
+      "near_mask_or_canvas_edge_12px": true
+    },
+    {
+      "id": "000-UAP-IW",
+      "lon": -104.9486139230207,
+      "lat": 38.58694585737437,
+      "full_xy": [
+        4755.179129143472,
+        7535.5761077453235
+      ],
+      "crop_xy": [
+        3939.1795303375084,
+        6535.575460426056
+      ],
+      "in_crop_rectangle": true,
+      "in_footprint_mask": true,
+      "near_mask_or_canvas_edge_12px": true
+    },
+    {
+      "id": "000-USW-Flex-Roof",
+      "lon": -104.9485838298845,
+      "lat": 38.58694569664048,
+      "full_xy": [
+        4786.7144098728795,
+        7535.773062366227
+      ],
+      "crop_xy": [
+        3970.7148375383267,
+        6535.772397270949
+      ],
+      "in_crop_rectangle": true,
+      "in_footprint_mask": true,
+      "near_mask_or_canvas_edge_12px": true
+    },
+    {
+      "id": "NBM5-AP-80",
+      "lon": -104.9485835010911,
+      "lat": 38.58697436679208,
+      "full_xy": [
+        4787.037534156148,
+        7497.494682813727
+      ],
+      "crop_xy": [
+        3971.0379675057657,
+        6497.494009407756
+      ],
+      "in_crop_rectangle": true,
+      "in_footprint_mask": true,
+      "near_mask_or_canvas_edge_12px": true
+    },
+    {
+      "id": "NSL5AC-AP-89",
+      "lon": -104.9485174140516,
+      "lat": 38.5870533336397,
+      "full_xy": [
+        4856.232266419109,
+        7392.025419306405
+      ],
+      "crop_xy": [
+        4040.23277282701,
+        6392.024684408934
+      ],
+      "in_crop_rectangle": true,
+      "in_footprint_mask": true,
+      "near_mask_or_canvas_edge_12px": true
+    },
+    {
+      "id": "NB5AC-AP-93",
+      "lon": -104.9485689356765,
+      "lat": 38.58698358707787,
+      "full_xy": [
+        4802.294006617452,
+        7485.17592049467
+      ],
+      "crop_xy": [
+        3986.2944545290648,
+        6485.175235852803
+      ],
+      "in_crop_rectangle": true,
+      "in_footprint_mask": true,
+      "near_mask_or_canvas_edge_12px": true
+    },
+    {
+      "id": "016-USW-Flex",
+      "lon": -104.9481131173146,
+      "lat": 38.58661145715672,
+      "full_xy": [
+        5280.234975656239,
+        7981.746619736943
+      ],
+      "crop_xy": [
+        4464.23575496794,
+        6981.745770495398
+      ],
+      "in_crop_rectangle": true,
+      "in_footprint_mask": true,
+      "near_mask_or_canvas_edge_12px": true
+    }
+  ],
+  "limits": "Mask uses RGB>250 white classification with morphology; bright rooftops could be false-invalid, and thin valid regions false-removed. Classification near irregular white fringe is uncertain. Transform residuals mean devices near the mathematical crop edge may be misclassified by a fraction of a pixel."
+}

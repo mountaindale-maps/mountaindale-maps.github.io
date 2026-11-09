@@ -50,7 +50,7 @@ python -m http.server 8765 --bind 127.0.0.1
 
 await rm(out, { recursive: true, force: true });
 await mkdir(path.join(out, "network"), { recursive: true });
-for (const name of ["index.html", "styles.css", "js", "data", "tiles"]) {
+for (const name of ["index.html", "styles.css", "js", "data", "tiles", "imagery"]) {
   await cp(path.join(root, "network", name), path.join(out, "network", name), { recursive: true });
 }
 await writeFile(path.join(out, "README.txt"), readme);

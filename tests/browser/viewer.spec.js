@@ -48,18 +48,18 @@ test("loads the real network, low-resolution tiles first, then a real marker cli
   await expect(page.locator(".uplink").first()).toBeVisible();
   await expect(page.locator(".link-key")).toContainText("Ethernet");
   await expect(page.getByText("Save locally")).toHaveCount(0);
-  await expect.poll(() => page.locator("#map").getAttribute("data-tile-zoom")).not.toBe("6");
-  await expect.poll(() => tiles.some((path) => /\/tiles\/[0-5]\/\d+\/\d+\.jpg$/.test(path))).toBeTruthy();
-  expect(tiles.every((path) => /\/tiles\/[0-6]\/\d+\/\d+\.jpg$/.test(path))).toBeTruthy();
-  expect(tiles.some((path) => path.includes("/6/"))).toBeFalsy();
+  await expect.poll(() => page.locator("#map").getAttribute("data-tile-zoom")).not.toBe("5");
+  await expect.poll(() => tiles.some((path) => /\/tiles\/[0-4]\/\d+\/\d+\.jpg$/.test(path))).toBeTruthy();
+  expect(tiles.every((path) => /\/tiles\/[0-5]\/\d+\/\d+\.jpg$/.test(path))).toBeTruthy();
+  expect(tiles.some((path) => /\/tiles\/5\//.test(path))).toBeFalsy();
   const marker = await openMarker(page, "045-UAP-U7O");
   await marker.click();
   await expect(page.locator("#detail")).toContainText("Selected");
   await expect(page.locator("#detail")).toContainText("Approximate horizontal distance; ground accuracy unverified");
   await expect(page.locator(".segment-row").first()).toContainText("ft");
   await expect(page.locator(".segment-row").first()).toContainText("m");
-  await expect.poll(() => page.locator("#map").getAttribute("data-tile-zoom")).toBe("6");
-  await expect(page.locator('#map img.tile[data-z="6"]').first()).toBeAttached();
+  await expect.poll(() => page.locator("#map").getAttribute("data-tile-zoom")).toBe("5");
+  await expect(page.locator('#map img.tile[data-z="5"]').first()).toBeAttached();
 });
 
 test("real mouse hover highlights topology and a group hover does not invent links", async ({ page }) => {
@@ -113,6 +113,14 @@ test("a real touch tap highlights before a second tap zooms, and the phone layou
   expect(box.x).toBeGreaterThanOrEqual(0);
   expect(box.x + box.width).toBeLessThanOrEqual(390);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBeTruthy();
+  const covered = await page.evaluate(() => [...document.querySelectorAll(".map-label.kind-group")].filter((label) => {
+    const box = label.getBoundingClientRect();
+    if (box.width < 2 || box.height < 2) return false;
+    const node = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2);
+    const owner = node?.closest?.("[data-group-id]");
+    return owner && owner !== label;
+  }).length);
+  expect(covered).toBe(0);
   const cluster = page.locator(".cluster").first();
   await expect(cluster).toBeVisible();
   const memberId = (await cluster.getAttribute("data-members")).split(",")[0];
@@ -124,7 +132,7 @@ test("a real touch tap highlights before a second tap zooms, and the phone layou
   await expect(page.locator(`[data-key="${memberId}"]`).first()).toHaveAttribute("data-hot", "1");
   await expect(page.locator("#map")).toHaveAttribute("data-tile-zoom", zoomBefore);
   await marker.tap();
-  await expect.poll(() => page.locator("#map").getAttribute("data-tile-zoom")).toBe("6");
+  await expect.poll(() => page.locator("#map").getAttribute("data-tile-zoom")).toBe("5");
   await page.locator("#fit").tap();
   const groups = page.locator(".map-label.kind-group");
   const groupCount = await groups.count();

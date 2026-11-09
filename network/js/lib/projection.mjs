@@ -5,14 +5,14 @@
  * u increases right, v increases down, and pixel centers are (i+0.5, j+0.5).
  * Geographic pairs are always [longitude, latitude].
  *
- * The JPEG affine is the deterministic full-frame resize. Sampled registration
- * supports that image transform. It is not a surveyed ground calibration.
+ * The display affine is the composed crop-to-EPSG:32613 transform. It places
+ * markers on the registered GIMP cutout. It is not a surveyed ground calibration.
  * Callers must not treat a roundtrip or a correlation residual as
  * safe_for_authoritative_measurement.
  */
 
-export const IMAGE_WIDTH = 8000;
-export const IMAGE_HEIGHT = 10592;
+export const IMAGE_WIDTH = 5980;
+export const IMAGE_HEIGHT = 8062;
 export const ORIGINAL_WIDTH = 16623;
 export const ORIGINAL_HEIGHT = 22008;
 
@@ -27,16 +27,29 @@ export const ORIGINAL_GEOTRANSFORM = Object.freeze([
 ]);
 
 /**
- * Candidate GDAL geotransform for the 8000×10592 JPEG.
- * Deterministic full-frame resize. Sampled image-transform validated; not a survey.
+ * Validated full-frame JPEG affine, 8000×10592. Kept for provenance.
+ * The network map does not use this as its display canvas.
  */
-export const JPEG_CANDIDATE_GEOTRANSFORM = Object.freeze([
+export const FULL_JPEG_GEOTRANSFORM = Object.freeze([
   504080.16032596945,
   0.08311041491526702,
   0,
   4271568.686183937,
   0,
   -0.08311084179364896,
+]);
+
+/**
+ * Composed crop-corner to EPSG:32613 affine for the 5980×8062 display image.
+ * Rotation terms are tiny and are inverted exactly. Not a survey.
+ */
+export const JPEG_CANDIDATE_GEOTRANSFORM = Object.freeze([
+  504147.9785894955,
+  0.08311034507721696,
+  1.1751985283845679e-08,
+  4271485.575357983,
+  -4.6958629368407625e-08,
+  -0.0831108241457019,
 ]);
 
 const A = 6378137;
@@ -131,13 +144,19 @@ export function imageToUtm(u, v, geotransform = JPEG_CANDIDATE_GEOTRANSFORM) {
   ];
 }
 
-/** UTM → outer-corner pixel. Requires a non-zero axis-aligned scale. */
+/** UTM → outer-corner pixel. Inverts the full 2×3 affine, including shear. */
 export function utmToImage(easting, northing, geotransform = JPEG_CANDIDATE_GEOTRANSFORM) {
   const gt = geotransform;
-  if (gt[2] !== 0 || gt[4] !== 0) {
-    throw new Error("Rotated geotransforms are not inverted by this viewer");
+  const det = gt[1] * gt[5] - gt[2] * gt[4];
+  if (!Number.isFinite(det) || Math.abs(det) < 1e-18) {
+    throw new Error("Geotransform cannot be inverted");
   }
-  return [(easting - gt[0]) / gt[1], (northing - gt[3]) / gt[5]];
+  const de = easting - gt[0];
+  const dn = northing - gt[3];
+  return [
+    (gt[5] * de - gt[2] * dn) / det,
+    (-gt[4] * de + gt[1] * dn) / det,
+  ];
 }
 
 /** Image pixel → [longitude, latitude]. */

@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""Build the image-local JPEG tile pyramid for the Oct 31 8000x10592 aerial.
+"""Build the image-local JPEG tile pyramid for the registered 5980x8062 crop.
 
-Tiles are NOT geographic XYZ. At zoom z, one tile pixel covers 2**(6-z)
-source pixels. Origin is the top-left of the full image. White padding fills
-tiles that extend past the image. Valid features stay inside [0,8000] x [0,10592].
+Tiles are not geographic XYZ. Zoom 5 is native: one tile pixel is one crop pixel.
+The committed tiles are the registered pyramid. Rebuild only from the crop JPEG.
 """
 from __future__ import annotations
 
@@ -13,10 +12,10 @@ from pathlib import Path
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
-SRC = ROOT / "orthophoto_8000px.jpg"
+SRC = ROOT / "network" / "imagery" / "oct31_gimp_crop.jpg"
 OUT = ROOT / "network" / "tiles"
-WIDTH, HEIGHT = 8000, 10592
-NATIVE_ZOOM = 6
+WIDTH, HEIGHT = 5980, 8062
+NATIVE_ZOOM = 5
 TILE = 256
 
 

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
-import { mkdtemp, rm, symlink } from "node:fs/promises";
+import { mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -115,6 +115,47 @@ test("ungroup removes the device from every group and keeps links", () => {
   assert.equal(history.present.asbuilt.devices.find((item) => item.id === "045-UAP-U7O").location_group, "site-45");
 });
 
+test("a backups symlink cannot receive a saved plan outside the allowed directory", async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), "md-root-"));
+  const outside = await mkdtemp(path.join(tmpdir(), "md-outside-"));
+  const plan = planFromPublic(asbuilt, metadata);
+  try {
+    await savePlan(dir, plan, forbidden);
+    await rm(path.join(dir, "backups"), { recursive: true, force: true });
+    await symlink(outside, path.join(dir, "backups"));
+    await assert.rejects(() => savePlan(dir, plan, forbidden), (error) => error.code === "DATA_DIR");
+    assert.equal((await readFile(path.join(dir, "current.json"), "utf8")).includes("mountaindale.local_plan"), true);
+    const leaked = await readFile(path.join(outside, "current.json"), "utf8").then(() => true, () => false);
+    assert.equal(leaked, false);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+    await rm(outside, { recursive: true, force: true });
+  }
+});
+
+test("a corrupt plan is reported with its backups and is not overwritten", async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), "md-corrupt-"));
+  const plan = planFromPublic(asbuilt, metadata);
+  const started = await startEditorServer({ port: 0, dataDir: dir, roots: { kind: "repo", publicDir: null, baselineDir: path.resolve("network/data"), forbidden } });
+  try {
+    await savePlan(dir, plan, forbidden);
+    plan.notes.push({ id: "n", kind: "change-request", text: "keep", created: "2026-11-09T00:00:00Z", device_ids: [] });
+    await savePlan(dir, plan, forbidden);
+    const current = path.join(dir, "current.json");
+    await writeFile(current, "{not json");
+    const response = await fetch(`http://127.0.0.1:${started.port}/api/state`);
+    const body = await response.json();
+    assert.equal(response.status, 409);
+    assert.equal(body.code, "PLAN_CORRUPT");
+    assert.ok(body.backups.length >= 1);
+    assert.equal(await readFile(current, "utf8"), "{not json");
+    assert.equal(JSON.stringify(body).includes(dir), false);
+  } finally {
+    await new Promise((resolve) => started.server.close(resolve));
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
 test("a symlink ancestor cannot redirect saves into the public tree", async () => {
   const parent = await mkdtemp(path.join(tmpdir(), "md-link-"));
   const plan = planFromPublic(asbuilt, metadata);
@@ -164,6 +205,27 @@ test("calibration import scrubs private paths from nested notes", () => {
   assert.equal(text.includes(piece("127", "707", ".txt")), false);
   assert.match(text, /one rejected patch remains/);
   assert.equal(imported.safe_for_authoritative_measurement, false);
+});
+
+test("planned references in quality notes do not publish, and look-alike secrets are refused", () => {
+  const plan = planFromPublic(asbuilt, metadata);
+  const device = plan.asbuilt.devices.find((item) => item.id === "096-USW-Flex-East");
+  device.data_quality = [{
+    code: "site96-placement-unresolved",
+    severity: "warning",
+    related: ["NB5AC-STA-96", "PLAN-SHED-AP"],
+    separation_m: { "NB5AC-STA-96": 37.512, "PLAN-SHED-AP": 4, radio_to_radio: 17.933 },
+    message: "Placement unresolved.",
+  }];
+  device.public_summary = `gate p${"\u0430"}ssword`;
+  assert.throws(() => buildPublicSnapshot(asbuilt, plan, selection([device.id])), /sanitizer/i);
+  device.public_summary = asbuilt.devices.find((item) => item.id === device.id).public_summary;
+  const clean = buildPublicSnapshot(asbuilt, plan, selection([device.id]));
+  const published = clean.snapshot.devices.find((item) => item.id === device.id);
+  assert.deepEqual(published.data_quality[0].related, ["NB5AC-STA-96"]);
+  assert.equal(published.data_quality[0].separation_m["PLAN-SHED-AP"], undefined);
+  assert.equal(published.data_quality[0].separation_m.radio_to_radio, 17.933);
+  assert.equal(JSON.stringify(published).includes("PLAN-SHED-AP"), false);
 });
 
 test("a link to planned equipment is marked planned and cannot be published", () => {

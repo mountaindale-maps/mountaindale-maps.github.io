@@ -219,23 +219,25 @@ export function createMap(container, options) {
     const seen = new Set();
     const detailed = view.scale >= 0.22;
     const named = new Set();
+    const placed = new Set();
     const occupied = [];
     const ranked = [...labels].sort((a, b) => Number(Boolean(b.priority)) - Number(Boolean(a.priority)));
     for (const label of ranked) {
       const point = screenPoint(label.u, label.v);
       if (label.kind === "landmark" && !detailed) continue;
-      const width = Math.min(190, 14 + String(label.text).length * 6.4);
-      const box = { x: point.x - width / 2, y: point.y + 16, w: width, h: 22 };
+      const namedBox = { x: point.x - Math.min(190, 14 + String(label.text).length * 6.4) / 2, y: point.y + 16, w: Math.min(190, 14 + String(label.text).length * 6.4), h: 22 };
+      const quietBox = { x: point.x - 8, y: point.y + 18, w: 16, h: 16 };
+      const showName = Boolean(label.priority) || detailed;
+      const box = showName ? namedBox : quietBox;
       const collides = occupied.some((other) => box.x < other.x + other.w && box.x + box.w > other.x && box.y < other.y + other.h && box.y + box.h > other.y);
-      const showName = Boolean(label.priority) || (detailed && !collides);
-      if (label.kind === "landmark" && !showName) continue;
-      if (showName) {
-        named.add(`${label.kind}:${label.id}`);
-        occupied.push(box);
-      }
+      if (!label.priority && collides) continue;
+      if (label.kind === "landmark" && !detailed) continue;
+      occupied.push(box);
+      if (showName && (label.priority || detailed)) named.add(`${label.kind}:${label.id}`);
+      placed.add(`${label.kind}:${label.id}`);
     }
     for (const label of labels) {
-      if (label.kind === "landmark" && !named.has(`${label.kind}:${label.id}`)) continue;
+      if (!placed.has(`${label.kind}:${label.id}`)) continue;
       const point = screenPoint(label.u, label.v);
       const key = `label:${label.kind}:${label.id}`;
       if (point.x < -80 || point.y < -40 || point.x > view.width + 80 || point.y > view.height + 40) continue;

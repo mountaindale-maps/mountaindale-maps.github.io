@@ -10,7 +10,7 @@ The 3D model stays at `/` and `/mesh.html`. Those URLs are unchanged.
 
 ## Imagery
 
-Tiles in `network/tiles/{z}/{x}/{y}.jpg` are an image-local pyramid of `orthophoto_8000px.jpg` (SHA256 `0d4567a7ff0a6009b42c8c43fc8c5e588dabc903ae7ad17a20070bfe78bad8ad`, 8000×10592). Zoom 6 is native. They are not Web Mercator XYZ tiles. Rebuild them with:
+The map background is the registered GIMP crop `network/imagery/oct31_gimp_crop.jpg` (SHA256 `d14b661ef72be0bc94018a8fe5fe2dc77ce41841a3e5bc0f5fb05386fcca0b27`, 5980×8062). Tiles in `network/tiles/{z}/{x}/{y}.jpg` are its image-local pyramid, z=0…5, native at zoom 5. They are not Web Mercator XYZ tiles. The full 8000×10592 JPEG stays at the site root for the existing aerial download. It is not the network canvas. Rebuild the pyramid from the crop only with:
 
 ```bash
 python3 scripts/build_tiles.py

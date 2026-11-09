@@ -21,6 +21,7 @@ const copies = [
   ["network/styles.css", "network/styles.css"],
   ["network/data", "network/data"],
   ["network/tiles", "network/tiles"],
+  ["network/imagery", "network/imagery"],
   ["network/README.md", "network/README.md"],
 ];
 for (const [from, to] of copies) {

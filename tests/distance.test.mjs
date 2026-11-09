@@ -65,9 +65,18 @@ test("vertical rise, slack, and service loop stay distinct from horizontal dista
     service_loop_m: 0.5,
   });
   assert.equal(segment.horizontal_ellipsoidal_m, 4);
-  assert.equal(segment.terrain_slope_m, 5);
-  assert.equal(segment.physical_cable_m, 6.5);
-  assert.equal(segment.physical_cable_ft, 6.5 / 0.3048);
+  assert.equal(segment.terrain_slope_m, 4);
+  assert.equal(segment.vertical_drop_m, 3);
+  assert.equal(segment.physical_cable_m, 8.5);
+  assert.equal(segment.physical_cable_ft, 8.5 / 0.3048);
+  const sloped = composeSegment({
+    horizontal_ellipsoidal_m: 4,
+    horizontal_grid_utm_m: 4,
+    slope_rise_m: 3,
+  });
+  assert.equal(sloped.terrain_slope_m, 5);
+  assert.equal(sloped.physical_cable_m, 5);
+  assert.throws(() => composeSegment({ horizontal_ellipsoidal_m: 4, vertical_rise_m: -3 }), /Vertical drop/);
   const angle = golden.right_angle_grid;
   const route = measureRoute([
     angle.p0,
@@ -79,8 +88,8 @@ test("vertical rise, slack, and service loop stay distinct from horizontal dista
   ], claim);
   assert.equal(route.segments.length, 2);
   assert.ok(Math.abs(route.segments[0].horizontal_ellipsoidal_m - angle.seg_ellipsoidal_m[0]) < 0.01);
-  assert.ok(route.segments[1].terrain_slope_m > route.segments[1].horizontal_ellipsoidal_m);
-  assert.ok(route.segments[1].physical_cable_m > route.segments[1].terrain_slope_m);
+  assert.equal(route.segments[1].terrain_slope_m, route.segments[1].horizontal_ellipsoidal_m);
+  assert.ok(route.segments[1].physical_cable_m > route.segments[1].horizontal_ellipsoidal_m + route.segments[1].vertical_drop_m - 0.001);
 });
 
 test("every measurable as-built link has a finite segment in feet and metres", () => {
