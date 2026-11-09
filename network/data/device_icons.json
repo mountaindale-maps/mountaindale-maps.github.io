@@ -1,0 +1,276 @@
+{
+  "schema": "mountaindale.device_icons",
+  "schema_version": "1.0.0",
+  "icons": {
+    "0000-MD-UDM-Pro-2": {
+      "file": "c785378e413028ce.png",
+      "scale": 1.0
+    },
+    "000-USW-24-PoE": {
+      "file": "0e80388b5c9e0d51.png",
+      "scale": 1.0
+    },
+    "000-USW-Flex-Mini": {
+      "file": "3019f7329d9536e3.png",
+      "scale": 1.0
+    },
+    "000-UAP-IW": {
+      "file": "d2c863d41c560ed7.png",
+      "scale": 1.0
+    },
+    "000-UAP-L": {
+      "file": "15f6e3a8b423e109.png",
+      "scale": 1.0
+    },
+    "000-USW-Flex-Back": {
+      "file": "96ec7da2559eb9e6.png",
+      "scale": 1.0
+    },
+    "000-USW-Flex-Roof": {
+      "file": "96ec7da2559eb9e6.png",
+      "scale": 1.0
+    },
+    "NBM5-AP-80": {
+      "file": "0ce267093d0e41d4.png",
+      "scale": 1.0
+    },
+    "NSL5AC-AP-89": {
+      "file": "b398bbb4fb716be3.png",
+      "scale": 1.0
+    },
+    "NSL5AC-AP-49": {
+      "file": "b398bbb4fb716be3.png",
+      "scale": 1.0
+    },
+    "NB5AC-AP-93": {
+      "file": "0ce267093d0e41d4.png",
+      "scale": 1.0
+    },
+    "NB5AC-AP-96": {
+      "file": "0ce267093d0e41d4.png",
+      "scale": 1.0
+    },
+    "067-UAP-U7O": {
+      "file": "04e52827bd8bb75d.png",
+      "scale": 1.0
+    },
+    "045-UAP-U7O": {
+      "file": "04e52827bd8bb75d.png",
+      "scale": 1.0
+    },
+    "014-UAP-U7O": {
+      "file": "04e52827bd8bb75d.png",
+      "scale": 1.0
+    },
+    "026-UAP-M": {
+      "file": "dcce9c202e878d97.png",
+      "scale": 1.0
+    },
+    "036-USW-Flex": {
+      "file": "96ec7da2559eb9e6.png",
+      "scale": 1.0
+    },
+    "036-UAP-U7O": {
+      "file": "04e52827bd8bb75d.png",
+      "scale": 1.0
+    },
+    "038-UAP-M": {
+      "file": "dcce9c202e878d97.png",
+      "scale": 1.0
+    },
+    "060-USW-Flex": {
+      "file": "96ec7da2559eb9e6.png",
+      "scale": 1.0
+    },
+    "060-UAP-U7O": {
+      "file": "04e52827bd8bb75d.png",
+      "scale": 1.0
+    },
+    "052-UAP-P-Cozy": {
+      "file": "15f6e3a8b423e109.png",
+      "scale": 1.0
+    },
+    "055-USW-Flex-Front": {
+      "file": "96ec7da2559eb9e6.png",
+      "scale": 1.0
+    },
+    "055-USW-Flex-Back": {
+      "file": "96ec7da2559eb9e6.png",
+      "scale": 1.0
+    },
+    "053-UAP-M": {
+      "file": "dcce9c202e878d97.png",
+      "scale": 1.0
+    },
+    "056-UAP-M": {
+      "file": "dcce9c202e878d97.png",
+      "scale": 1.0
+    },
+    "068-USW-Flex": {
+      "file": "96ec7da2559eb9e6.png",
+      "scale": 1.0
+    },
+    "068-UAP-U7O": {
+      "file": "04e52827bd8bb75d.png",
+      "scale": 1.0
+    },
+    "NS5AC-STA-57": {
+      "file": "c1c3824191b61385.png",
+      "scale": 1.0
+    },
+    "057-USW-Flex": {
+      "file": "96ec7da2559eb9e6.png",
+      "scale": 1.0
+    },
+    "057-UAP-U6M": {
+      "file": "90ca28bc68d9e834.png",
+      "scale": 1.0
+    },
+    "NB5AC-STA-75": {
+      "file": "0ce267093d0e41d4.png",
+      "scale": 1.0
+    },
+    "075-UAP-M": {
+      "file": "dcce9c202e878d97.png",
+      "scale": 1.0
+    },
+    "NBM5-STA-80": {
+      "file": "0ce267093d0e41d4.png",
+      "scale": 1.0
+    },
+    "080-UAP-M": {
+      "file": "dcce9c202e878d97.png",
+      "scale": 1.0
+    },
+    "089-USW-Flex-David": {
+      "file": "96ec7da2559eb9e6.png",
+      "scale": 1.0
+    },
+    "089-UAP-IW-ROCHSTAR": {
+      "file": "d2c863d41c560ed7.png",
+      "scale": 1.0
+    },
+    "089-UAP-M": {
+      "file": "dcce9c202e878d97.png",
+      "scale": 1.0
+    },
+    "085-UAP-M": {
+      "file": "dcce9c202e878d97.png",
+      "scale": 1.0
+    },
+    "NB5AC-STA-49": {
+      "file": "0ce267093d0e41d4.png",
+      "scale": 1.0
+    },
+    "049-UAP-U7O": {
+      "file": "04e52827bd8bb75d.png",
+      "scale": 1.0
+    },
+    "NB5AC-AP-91": {
+      "file": "0ce267093d0e41d4.png",
+      "scale": 1.0
+    },
+    "046-UAP-M": {
+      "file": "dcce9c202e878d97.png",
+      "scale": 1.0
+    },
+    "088-UAP-M": {
+      "file": "dcce9c202e878d97.png",
+      "scale": 1.0
+    },
+    "NS5AC-STA-91": {
+      "file": "c1c3824191b61385.png",
+      "scale": 1.0
+    },
+    "091-USW-Flex": {
+      "file": "96ec7da2559eb9e6.png",
+      "scale": 1.0
+    },
+    "091-UAP-U7O": {
+      "file": "04e52827bd8bb75d.png",
+      "scale": 1.0
+    },
+    "NB5AC-STA-93": {
+      "file": "0ce267093d0e41d4.png",
+      "scale": 1.0
+    },
+    "093-USW-Flex": {
+      "file": "96ec7da2559eb9e6.png",
+      "scale": 1.0
+    },
+    "094-UAP-U6M": {
+      "file": "90ca28bc68d9e834.png",
+      "scale": 1.0
+    },
+    "NB5AC-STA-96": {
+      "file": "0ce267093d0e41d4.png",
+      "scale": 1.0
+    },
+    "096-USW-Flex-East": {
+      "file": "96ec7da2559eb9e6.png",
+      "scale": 1.0
+    },
+    "NSL5AC-AP-57-75-98": {
+      "file": "b398bbb4fb716be3.png",
+      "scale": 1.0
+    },
+    "097-USW-Flex2.5G-IT": {
+      "file": "7bcc11bd6d0b2e52.png",
+      "scale": 1.0
+    },
+    "096-UAP-U7O": {
+      "file": "04e52827bd8bb75d.png",
+      "scale": 1.0
+    },
+    "NB5AC-STA-98": {
+      "file": "0ce267093d0e41d4.png",
+      "scale": 1.0
+    },
+    "098-USW-Flex-Getaway": {
+      "file": "96ec7da2559eb9e6.png",
+      "scale": 1.0
+    },
+    "098-UAP-P-Getaway": {
+      "file": "15f6e3a8b423e109.png",
+      "scale": 1.0
+    },
+    "NanoSwitch": {
+      "file": "5e35383978d23e67.png",
+      "scale": 1.0
+    },
+    "098-UAP-M-Hideaway": {
+      "file": "dcce9c202e878d97.png",
+      "scale": 1.0
+    },
+    "098-UAP-M": {
+      "file": "dcce9c202e878d97.png",
+      "scale": 1.0
+    },
+    "099-USW-Flex": {
+      "file": "96ec7da2559eb9e6.png",
+      "scale": 1.0
+    },
+    "099-UAP-U7O": {
+      "file": "04e52827bd8bb75d.png",
+      "scale": 1.0
+    },
+    "100-USW-Flex-Wilderness": {
+      "file": "96ec7da2559eb9e6.png",
+      "scale": 1.0
+    },
+    "100-UAP-U7O": {
+      "file": "04e52827bd8bb75d.png",
+      "scale": 1.0
+    },
+    "102-UAP-M": {
+      "file": "dcce9c202e878d97.png",
+      "scale": 1.0
+    }
+  },
+  "unassigned": [
+    "000-USW-Flex-Propane",
+    "016-USW-Flex",
+    "NSL5AC-STA-089",
+    "049-USW-Flex"
+  ]
+}

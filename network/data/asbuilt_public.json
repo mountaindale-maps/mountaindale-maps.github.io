@@ -1,0 +1,2951 @@
+{
+  "schema": "mountaindale.asbuilt_public",
+  "schema_version": "1.0.0",
+  "generated": "2026-11-08",
+  "title": "Mountaindale Cabins and RV Resort — as-built network (public)",
+  "scope": "As-built (current) network including Ubiquiti airMAX PtP/PtMP backhauls. No planned or future gear/routes.",
+  "source": {
+    "inventory": "asbuilt_inventory.json",
+    "inventory_sha256_16": "24d8c19f5ba2593e",
+    "earth_export": "Mountaindale_Network_2026-11-06.kml (predates final live-Earth edits)",
+    "live_earth_verified": false,
+    "note": "Approved corrections are applied in this derived data; live Google Earth has not been re-exported, so its match is unverified."
+  },
+  "provenance": {
+    "sources": [
+      "Mountaindale_Network_2026-11-06.kml (Google Earth export, predates final live-Earth edits)",
+      "asbuilt_inventory.json (parsed from that KML; D-approved name/uplink corrections)"
+    ],
+    "derived_text_fixes": "The 35 approved checklist corrections are applied here as a transparent interim (see asbuilt_full_local.json corrections_checklist / checklist_fixes_applied_in_derived).",
+    "live_earth_verified": false,
+    "fresh_export": "pending",
+    "atlas_review": {
+      "status": "image_transform_validated_not_survey",
+      "date": "2026-11-09",
+      "coordinates_edited": false,
+      "image_transform_validated": true,
+      "horizontal_estimates_ready": true,
+      "survey_accuracy_validated": false,
+      "safe_for_authoritative_measurement": false,
+      "disputed_pins_moved": false,
+      "earlier_review": {
+        "date": "2026-11-08",
+        "aerial_calibration_gate": false,
+        "meaning": "Recorded before the sampled JPEG registration. It meant the affine was not yet accepted and must not move equipment pins."
+      },
+      "note": "Sampled registration later validated the full-frame image transform. Approximate horizontal estimates use that affine. Ground survey remains false. The validated raster affine does not move disputed equipment pins; Site 96 stays where it was exported."
+    }
+  },
+  "coordinate_note": "lon/lat copied unchanged from the KML export (WGS84). Atlas owns map alignment and distances. No coordinates were snapped or moved.",
+  "altitude_note": {
+    "field": "coords.alt_m",
+    "alt_source": "kml-raw-unvalidated",
+    "text": "Raw source altitude from KML <coordinates>. All 86 Point geometries lack altitudeMode, so they default to clampToGround and viewers ignore this value; LookAt absolute altitude applies only to the camera. No vertical-datum provenance. Never a mounting height and never validated terrain height. null = no altitude in source (049-USW-Flex).",
+    "mount_height_field": "devices[].mount_height is set only where the source description states a Height line."
+  },
+  "display_rule": "Overlapping pins: no display offsets are stored. Use view-only screen-space clustering or spiderfy with leader lines; never persist offsets or measure distances to them.",
+  "pending_review": [
+    {
+      "id": "fresh-earth-export",
+      "owner": "Stellar",
+      "item": "Live Earth unverified; a fresh export is pending. Re-run the generator and confirm all 35 checklist rows are reflected in the source."
+    },
+    {
+      "id": "site96-placement",
+      "owner": "Atlas/D",
+      "item": "Site 96 pins are still unresolved: NB5AC-STA-96 is about 123 ft from 096-USW-Flex-East, and NSL5AC-AP-57-75-98 is about 65 ft away (the radios are about 59 ft apart). This needs a check on the ground. Lining up the photo does not move these pins."
+    },
+    {
+      "id": "049-survey-altitude",
+      "owner": "Atlas/D",
+      "item": "049-USW-Flex is an approximate pavilion-stack position (checklist), not an independent switch survey; altitude null."
+    },
+    {
+      "id": "098-UAP-M-mounting",
+      "owner": "D",
+      "item": "098-UAP-M cabin mounting tentative (no explicit mounting text)."
+    },
+    {
+      "id": "service-area-tags",
+      "owner": "D",
+      "item": "045-UAP-U7O and 046-UAP-M service-area tags are tentative (uplink-based). Groups can change without affecting connectivity."
+    },
+    {
+      "id": "aerial-calibration-gate",
+      "owner": "Atlas",
+      "item": "Cable lengths are approximate, in feet, measured along the drawn route. This is not a survey. Disputed equipment pins were not moved."
+    }
+  ],
+  "wan": [
+    {
+      "id": "SECOM",
+      "wan_role": "primary",
+      "label": "SECOM (primary internet)",
+      "public_summary": "Primary internet: 250 Mbps dedicated internet access (DIA) over fixed wireless from the on-property SECOM POP.",
+      "map_pin": {
+        "id": "SECOM POP",
+        "coords": {
+          "lon": -104.9481762255448,
+          "lat": 38.5892586387831,
+          "alt_m": 2090.683090731256,
+          "alt_source": "kml-raw-unvalidated"
+        }
+      }
+    },
+    {
+      "id": "Starlink Local Priority 500GB",
+      "wan_role": "failover",
+      "label": "Starlink (failover internet)",
+      "public_summary": "Failover internet via Starlink (Local Priority plan)."
+    },
+    {
+      "id": "wan-private-a",
+      "wan_role": "segregated",
+      "label": "Private family network",
+      "public_summary": "Private family network (not part of guest service)."
+    },
+    {
+      "id": "wan-private-b",
+      "wan_role": "segregated",
+      "label": "Private family network",
+      "public_summary": "Private family network (not part of guest service)."
+    }
+  ],
+  "devices": [
+    {
+      "id": "0000-MD-UDM-Pro-2",
+      "role": "router",
+      "model": "UniFi Dream Machine Pro",
+      "location_group": "main-building",
+      "coords": {
+        "lon": -104.9486362432005,
+        "lat": 38.58691652836596,
+        "alt_m": 2021.040172946238,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": null,
+      "service_area_tag": null,
+      "public_summary": "UniFi Dream Machine Pro. Main router in the Main Building network rack. Primary internet: SECOM; failover: Starlink."
+    },
+    {
+      "id": "000-USW-24-PoE",
+      "role": "switch",
+      "model": "USW 24 Port PoE Switch",
+      "location_group": "main-building",
+      "coords": {
+        "lon": -104.9486357351002,
+        "lat": 38.58691951027099,
+        "alt_m": 2021.070150917476,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "5 ft",
+      "service_area_tag": null,
+      "public_summary": "USW 24 Port PoE Switch. Core switch in the Main Building network rack (SFP+ uplink to 0000-MD-UDM-Pro-2)."
+    },
+    {
+      "id": "000-USW-Flex-Mini",
+      "role": "switch",
+      "model": "USW Flex mini",
+      "location_group": "main-building",
+      "coords": {
+        "lon": -104.9486090395773,
+        "lat": 38.58694828386479,
+        "alt_m": 2021.313137214501,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": 5,
+      "mount_height": null,
+      "service_area_tag": null,
+      "public_summary": "USW Flex mini. Main Building. Uplink: 000-USW-24-PoE (wired Ethernet)."
+    },
+    {
+      "id": "000-UAP-IW",
+      "role": "ap",
+      "model": "UAP In-Wall AP",
+      "location_group": "main-building",
+      "coords": {
+        "lon": -104.9486139230207,
+        "lat": 38.58694585737437,
+        "alt_m": 2021.339921805127,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": null,
+      "service_area_tag": null,
+      "public_summary": "UAP In-Wall AP. Main Building. Uplink: 000-USW-24-PoE (wired Ethernet)."
+    },
+    {
+      "id": "000-UAP-L",
+      "role": "ap",
+      "model": "UAP Lite AP",
+      "location_group": "main-building",
+      "coords": {
+        "lon": -104.948610124779,
+        "lat": 38.58703625666752,
+        "alt_m": 2021.5093495401,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "8 ft from floor",
+      "service_area_tag": null,
+      "public_summary": "UAP Lite AP. Main Building. Uplink: 000-USW-24-PoE (wired Ethernet)."
+    },
+    {
+      "id": "000-USW-Flex-Back",
+      "role": "switch",
+      "model": "USW Flex PoE switch",
+      "location_group": "main-building",
+      "coords": {
+        "lon": -104.9486951034402,
+        "lat": 38.58702154531657,
+        "alt_m": 2021.700882568118,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": 5,
+      "mount_height": null,
+      "service_area_tag": null,
+      "public_summary": "USW Flex PoE switch. Main Building. Uplink: 000-USW-24-PoE (wired Ethernet). Feeds 3 downstream devices."
+    },
+    {
+      "id": "000-USW-Flex-Roof",
+      "role": "switch",
+      "model": "USW Flex PoE switch",
+      "location_group": "main-building",
+      "coords": {
+        "lon": -104.9485838298845,
+        "lat": 38.58694569664048,
+        "alt_m": 2021.120466195213,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": 5,
+      "mount_height": "Roof level",
+      "service_area_tag": null,
+      "public_summary": "USW Flex PoE switch. Main Building. Uplink: 000-USW-24-PoE (wired Ethernet). Feeds 5 downstream devices."
+    },
+    {
+      "id": "NBM5-AP-80",
+      "role": "radio",
+      "model": "Nanobeam M5 PtP AP",
+      "location_group": "main-building",
+      "coords": {
+        "lon": -104.9485835010911,
+        "lat": 38.58697436679208,
+        "alt_m": 2021.281885691897,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "1 ft above roof",
+      "service_area_tag": null,
+      "public_summary": "Nanobeam M5 PtP AP. Main Building. Uplink: 000-USW-Flex-Roof (wired Ethernet). Wireless PtP AP to NBM5-STA-80."
+    },
+    {
+      "id": "NSL5AC-AP-89",
+      "role": "radio",
+      "model": "Nano Station Loco AC PtP AP",
+      "location_group": "main-building",
+      "coords": {
+        "lon": -104.9485174140516,
+        "lat": 38.5870533336397,
+        "alt_m": 2021.023634857672,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "5 ft above roof",
+      "service_area_tag": null,
+      "public_summary": "Nano Station Loco AC PtP AP. Main Building. Uplink: 000-USW-Flex-Roof (wired Ethernet). Wireless PtP AP to NSL5AC-STA-089."
+    },
+    {
+      "id": "NSL5AC-AP-49",
+      "role": "radio",
+      "model": "Nanostation AC Loco AP",
+      "location_group": "main-building",
+      "coords": {
+        "lon": -104.9486062079635,
+        "lat": 38.58688818106486,
+        "alt_m": 2020.629237354793,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "2 ft above roof",
+      "service_area_tag": null,
+      "public_summary": "Nanostation AC Loco AP. Main Building. Uplink: 000-USW-Flex-Roof (wired Ethernet). Wireless PtP AP to NB5AC-STA-49."
+    },
+    {
+      "id": "NB5AC-AP-93",
+      "role": "radio",
+      "model": "NanoBeam AC AP to above site 93/94",
+      "location_group": "main-building",
+      "coords": {
+        "lon": -104.9485689356765,
+        "lat": 38.58698358707787,
+        "alt_m": 2021.207037459974,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "1 ft above roof",
+      "service_area_tag": null,
+      "public_summary": "NanoBeam AC AP to above site 93/94. Main Building. Uplink: 000-USW-Flex-Roof (wired Ethernet). Wireless PtP AP to NB5AC-STA-93."
+    },
+    {
+      "id": "NB5AC-AP-96",
+      "role": "radio",
+      "model": "Nano Beam 5AC PtP AP to Site 96 Station",
+      "location_group": "main-building",
+      "coords": {
+        "lon": -104.9485571915797,
+        "lat": 38.58698101067382,
+        "alt_m": 2021.108665829207,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "6 ft above roof",
+      "service_area_tag": null,
+      "public_summary": "Nano Beam 5AC PtP AP to Site 96 Station. Main Building. Uplink: 000-USW-Flex-Roof (wired Ethernet). Wireless PtP AP to NB5AC-STA-96."
+    },
+    {
+      "id": "000-USW-Flex-Propane",
+      "role": "switch",
+      "model": "USW Flex PoE Switch",
+      "location_group": "propane-shed",
+      "coords": {
+        "lon": -104.9487576257698,
+        "lat": 38.586788426490806,
+        "alt_m": 2020.87976490194,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": 5,
+      "mount_height": "5 ft",
+      "service_area_tag": null,
+      "public_summary": "USW Flex PoE Switch. Propane Shed / Site 67. Uplink: 000-USW-Flex-Back (wired Ethernet). Feeds 4 downstream devices."
+    },
+    {
+      "id": "067-UAP-U7O",
+      "role": "ap",
+      "model": "UAP U7 Outdoor AP",
+      "location_group": "propane-shed",
+      "coords": {
+        "lon": -104.9489071099122,
+        "lat": 38.58686446293004,
+        "alt_m": 2021.530576139853,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "6 ft",
+      "service_area_tag": null,
+      "public_summary": "UAP U7 Outdoor AP. Propane Shed / Site 67. Uplink: 000-USW-Flex-Propane (wired Ethernet)."
+    },
+    {
+      "id": "045-UAP-U7O",
+      "role": "ap",
+      "model": "UAP U7 Outdoor AP",
+      "location_group": "site-45",
+      "coords": {
+        "lon": -104.9485406857586,
+        "lat": 38.586288713426136,
+        "alt_m": 2022.5698505,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "15 ft",
+      "service_area_tag": {
+        "group": "propane-shed",
+        "basis": "uplink 000-USW-Flex-Propane"
+      },
+      "public_summary": "UAP U7 Outdoor AP. Site 45. Uplink: 000-USW-Flex-Propane (wired Ethernet)."
+    },
+    {
+      "id": "016-USW-Flex",
+      "role": "switch",
+      "model": "USW Flex PoE Switch",
+      "location_group": "sites-14-26",
+      "coords": {
+        "lon": -104.94810502517024,
+        "lat": 38.586537044646725,
+        "alt_m": 2018.696569513068,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": 5,
+      "mount_height": "4.5 ft",
+      "service_area_tag": null,
+      "public_summary": "USW Flex PoE Switch. Sites 14–26. Uplink: 000-USW-Flex-Propane (wired Ethernet). Feeds 2 downstream devices."
+    },
+    {
+      "id": "014-UAP-U7O",
+      "role": "ap",
+      "model": "UAP U7 Outdoor AP",
+      "location_group": "sites-14-26",
+      "coords": {
+        "lon": -104.94806601915913,
+        "lat": 38.586760135223884,
+        "alt_m": 2019.830623833288,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "10 ft",
+      "service_area_tag": null,
+      "public_summary": "UAP U7 Outdoor AP. Sites 14–26. Uplink: 016-USW-Flex (wired Ethernet)."
+    },
+    {
+      "id": "026-UAP-M",
+      "role": "ap",
+      "model": "UAP Mesh AP",
+      "location_group": "sites-14-26",
+      "coords": {
+        "lon": -104.94802635095078,
+        "lat": 38.58644492361548,
+        "alt_m": 2017.760886655273,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "10 ft",
+      "service_area_tag": null,
+      "public_summary": "UAP Mesh AP. Sites 14–26. Uplink: 016-USW-Flex (wired Ethernet)."
+    },
+    {
+      "id": "036-USW-Flex",
+      "role": "switch",
+      "model": "USW Flex PoE switch",
+      "location_group": "sites-36-38",
+      "coords": {
+        "lon": -104.94907643706429,
+        "lat": 38.586532035572205,
+        "alt_m": 2019.600184765892,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": 5,
+      "mount_height": "4.5 ft",
+      "service_area_tag": null,
+      "public_summary": "USW Flex PoE switch. Sites 36–38. Uplink: 000-USW-Flex-Propane (wired Ethernet). Feeds 2 downstream devices."
+    },
+    {
+      "id": "036-UAP-U7O",
+      "role": "ap",
+      "model": "UAP U7 Outdoor AP",
+      "location_group": "sites-36-38",
+      "coords": {
+        "lon": -104.94906537405627,
+        "lat": 38.58653483130155,
+        "alt_m": 2019.729353145168,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "15 ft",
+      "service_area_tag": null,
+      "public_summary": "UAP U7 Outdoor AP. Sites 36–38. Uplink: 036-USW-Flex (wired Ethernet)."
+    },
+    {
+      "id": "038-UAP-M",
+      "role": "ap",
+      "model": "UAP Mesh AP",
+      "location_group": "sites-36-38",
+      "coords": {
+        "lon": -104.94935071557401,
+        "lat": 38.58668366436049,
+        "alt_m": 2019.893286680009,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "5 ft",
+      "service_area_tag": null,
+      "public_summary": "UAP Mesh AP. Sites 36–38. Uplink: 036-USW-Flex (wired Ethernet)."
+    },
+    {
+      "id": "060-USW-Flex",
+      "role": "switch",
+      "model": "USW Flex PoE Switch",
+      "location_group": "site-60",
+      "coords": {
+        "lon": -104.94915880436854,
+        "lat": 38.587116545786635,
+        "alt_m": 2021.823703661935,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": 5,
+      "mount_height": "5 ft",
+      "service_area_tag": null,
+      "public_summary": "USW Flex PoE Switch. Site 60. Uplink: 000-USW-Flex-Back (wired Ethernet). Feeds 2 downstream devices."
+    },
+    {
+      "id": "060-UAP-U7O",
+      "role": "ap",
+      "model": "UAP U7 Outdoor",
+      "location_group": "site-60",
+      "coords": {
+        "lon": -104.94916092923974,
+        "lat": 38.587139231148285,
+        "alt_m": 2021.857432654036,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "15 ft",
+      "service_area_tag": null,
+      "public_summary": "UAP U7 Outdoor. Site 60. Uplink: 060-USW-Flex (wired Ethernet)."
+    },
+    {
+      "id": "052-UAP-P-Cozy",
+      "role": "ap",
+      "model": "UAP Pro AP",
+      "location_group": "cozy-cabin",
+      "coords": {
+        "lon": -104.94938374208571,
+        "lat": 38.58690688234028,
+        "alt_m": 2021.50065997036,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "8 ft",
+      "service_area_tag": null,
+      "public_summary": "UAP Pro AP. Cozy Cabin / Sites 52–56. Uplink: 055-USW-Flex-Front (wired Ethernet)."
+    },
+    {
+      "id": "055-USW-Flex-Front",
+      "role": "switch",
+      "model": "USW Flex PoE switch",
+      "location_group": "cozy-cabin",
+      "coords": {
+        "lon": -104.94945988633653,
+        "lat": 38.587210774726145,
+        "alt_m": 2023.577772999222,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": 5,
+      "mount_height": "4 ft",
+      "service_area_tag": null,
+      "public_summary": "USW Flex PoE switch. Cozy Cabin / Sites 52–56. Uplink: 060-USW-Flex (wired Ethernet). Feeds 2 downstream devices."
+    },
+    {
+      "id": "055-USW-Flex-Back",
+      "role": "switch",
+      "model": "USW Flex PoE Switch",
+      "location_group": "cozy-cabin",
+      "coords": {
+        "lon": -104.94958763497345,
+        "lat": 38.587195986973036,
+        "alt_m": 2023.172433510692,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": 5,
+      "mount_height": "3 ft",
+      "service_area_tag": null,
+      "public_summary": "USW Flex PoE Switch. Cozy Cabin / Sites 52–56. Uplink: 055-USW-Flex-Front (wired Ethernet). Feeds 2 downstream devices."
+    },
+    {
+      "id": "053-UAP-M",
+      "role": "ap",
+      "model": "UAP Mesh AP",
+      "location_group": "cozy-cabin",
+      "coords": {
+        "lon": -104.9495559491416,
+        "lat": 38.58709543363874,
+        "alt_m": 2022.331985049032,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "4 ft",
+      "service_area_tag": null,
+      "public_summary": "UAP Mesh AP. Cozy Cabin / Sites 52–56. Uplink: 055-USW-Flex-Back (wired Ethernet)."
+    },
+    {
+      "id": "056-UAP-M",
+      "role": "ap",
+      "model": "UAP Mesh AP",
+      "location_group": "cozy-cabin",
+      "coords": {
+        "lon": -104.94966616133075,
+        "lat": 38.5872904618102,
+        "alt_m": 2023.307348624646,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "6 ft",
+      "service_area_tag": null,
+      "public_summary": "UAP Mesh AP. Cozy Cabin / Sites 52–56. Uplink: 055-USW-Flex-Back (wired Ethernet)."
+    },
+    {
+      "id": "068-USW-Flex",
+      "role": "switch",
+      "model": "USW Flex PoE Switch",
+      "location_group": "hurt-locker",
+      "coords": {
+        "lon": -104.94899873084557,
+        "lat": 38.58738036263369,
+        "alt_m": 2023.588583569696,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": 5,
+      "mount_height": "4 ft",
+      "service_area_tag": null,
+      "public_summary": "USW Flex PoE Switch. Hurt Locker / Site 68. Uplink: 000-USW-Flex-Back (wired Ethernet). Feeds 1 downstream device."
+    },
+    {
+      "id": "068-UAP-U7O",
+      "role": "ap",
+      "model": "UAP U7 Outdoor AP",
+      "location_group": "hurt-locker",
+      "coords": {
+        "lon": -104.94895709546901,
+        "lat": 38.58741120441585,
+        "alt_m": 2023.812401354044,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "5 ft",
+      "service_area_tag": null,
+      "public_summary": "UAP U7 Outdoor AP. Hurt Locker / Site 68. Uplink: 068-USW-Flex (wired Ethernet)."
+    },
+    {
+      "id": "NS5AC-STA-57",
+      "role": "radio",
+      "model": "Nanostation AC Station",
+      "location_group": "sites-57-75",
+      "coords": {
+        "lon": -104.9495766969662,
+        "lat": 38.58752283461209,
+        "alt_m": 2025.623977342689,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "3 ft",
+      "service_area_tag": null,
+      "public_summary": "Nanostation AC Station. Sites 57 & 75 (garden beds). Uplink: NSL5AC-AP-57-75-98 (airMAX PtMP wireless). Feeds 1 downstream device."
+    },
+    {
+      "id": "057-USW-Flex",
+      "role": "switch",
+      "model": "USW Flex PoE switch",
+      "location_group": "sites-57-75",
+      "coords": {
+        "lon": -104.9495766969662,
+        "lat": 38.58752283461209,
+        "alt_m": 2025.623977342689,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": 5,
+      "mount_height": null,
+      "service_area_tag": null,
+      "public_summary": "USW Flex PoE switch. Sites 57 & 75 (garden beds). Uplink: NS5AC-STA-57 (wired Ethernet). Feeds 1 downstream device."
+    },
+    {
+      "id": "057-UAP-U6M",
+      "role": "ap",
+      "model": "UAP U6 Mesh AP",
+      "location_group": "sites-57-75",
+      "coords": {
+        "lon": -104.9495813006643,
+        "lat": 38.58752306143247,
+        "alt_m": 2025.802546262586,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "4 ft",
+      "service_area_tag": null,
+      "public_summary": "UAP U6 Mesh AP. Sites 57 & 75 (garden beds). Uplink: 057-USW-Flex (wired Ethernet)."
+    },
+    {
+      "id": "NB5AC-STA-75",
+      "role": "radio",
+      "model": "Nanobeam AC Station",
+      "location_group": "sites-57-75",
+      "coords": {
+        "lon": -104.94924561867913,
+        "lat": 38.587668596368324,
+        "alt_m": 2025.456238989321,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "6 ft",
+      "service_area_tag": null,
+      "public_summary": "Nanobeam AC Station. Sites 57 & 75 (garden beds). Uplink: NSL5AC-AP-57-75-98 (airMAX PtMP wireless). Feeds 1 downstream device."
+    },
+    {
+      "id": "075-UAP-M",
+      "role": "ap",
+      "model": "UAP Mesh AP",
+      "location_group": "sites-57-75",
+      "coords": {
+        "lon": -104.94924407120122,
+        "lat": 38.587664008106735,
+        "alt_m": 2025.41386400997,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "8 ft",
+      "service_area_tag": null,
+      "public_summary": "UAP Mesh AP. Sites 57 & 75 (garden beds). Uplink: NB5AC-STA-75 (wired Ethernet)."
+    },
+    {
+      "id": "NBM5-STA-80",
+      "role": "radio",
+      "model": "Nanobeam M5 PtP Station",
+      "location_group": "site-80",
+      "coords": {
+        "lon": -104.9488363699694,
+        "lat": 38.58778707104136,
+        "alt_m": 2024.6180966507,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": null,
+      "service_area_tag": null,
+      "public_summary": "Nanobeam M5 PtP Station. Site 80. Uplink: NBM5-AP-80 (airMAX PtP wireless). Feeds 1 downstream device."
+    },
+    {
+      "id": "080-UAP-M",
+      "role": "ap",
+      "model": "UAP Mesh AP",
+      "location_group": "site-80",
+      "coords": {
+        "lon": -104.9487733854552,
+        "lat": 38.58782942640301,
+        "alt_m": 2026.424088309134,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "15 ft",
+      "service_area_tag": null,
+      "public_summary": "UAP Mesh AP. Site 80. Uplink: NBM5-STA-80 (wired Ethernet)."
+    },
+    {
+      "id": "NSL5AC-STA-089",
+      "role": "radio",
+      "model": "Nano Station Loco AC",
+      "location_group": "site-89",
+      "coords": {
+        "lon": -104.9482097424992,
+        "lat": 38.58749882984095,
+        "alt_m": 2024.658018991879,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": null,
+      "service_area_tag": null,
+      "public_summary": "Nano Station Loco AC. Site 89. Uplink: NSL5AC-AP-89 (airMAX PtP wireless). Feeds 1 downstream device."
+    },
+    {
+      "id": "089-USW-Flex-David",
+      "role": "switch",
+      "model": "USW Flex PoE switch",
+      "location_group": "site-89",
+      "coords": {
+        "lon": -104.94821840759545,
+        "lat": 38.587536324957206,
+        "alt_m": 2025.067489501296,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": 5,
+      "mount_height": null,
+      "service_area_tag": null,
+      "public_summary": "USW Flex PoE switch. Site 89. Uplink: NSL5AC-STA-089 (wired Ethernet). Feeds 3 downstream devices."
+    },
+    {
+      "id": "089-UAP-IW-ROCHSTAR",
+      "role": "ap",
+      "model": "UAP In-Wall AP",
+      "location_group": "site-89",
+      "coords": {
+        "lon": -104.9482353782434,
+        "lat": 38.58757069120174,
+        "alt_m": 2025.476838742808,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": null,
+      "service_area_tag": null,
+      "public_summary": "UAP In-Wall AP. Site 89. Uplink: 089-USW-Flex-David (wired Ethernet)."
+    },
+    {
+      "id": "089-UAP-M",
+      "role": "ap",
+      "model": "UAP Mesh AP",
+      "location_group": "site-89",
+      "coords": {
+        "lon": -104.9479019546087,
+        "lat": 38.58741181285237,
+        "alt_m": 2026.545316469245,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "4 ft",
+      "service_area_tag": null,
+      "public_summary": "UAP Mesh AP. Site 89. Uplink: 089-USW-Flex-David (wired Ethernet)."
+    },
+    {
+      "id": "085-UAP-M",
+      "role": "ap",
+      "model": "UAP Mesh AP",
+      "location_group": "site-89",
+      "coords": {
+        "lon": -104.9481573405195,
+        "lat": 38.5877909137323,
+        "alt_m": 2028.206589535691,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "7 ft",
+      "service_area_tag": null,
+      "public_summary": "UAP Mesh AP. Site 89. Uplink: 089-USW-Flex-David (wired Ethernet)."
+    },
+    {
+      "id": "NB5AC-STA-49",
+      "role": "radio",
+      "model": "Nanobeam AC PtP Station",
+      "location_group": "pavilion-49",
+      "coords": {
+        "lon": -104.94764319816913,
+        "lat": 38.58712546596103,
+        "alt_m": 2021.108234576472,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "13 ft",
+      "service_area_tag": null,
+      "public_summary": "Nanobeam AC PtP Station. Pavilion / Site 49. Uplink: NSL5AC-AP-49 (airMAX PtP wireless). Feeds 1 downstream device."
+    },
+    {
+      "id": "049-USW-Flex",
+      "role": "switch",
+      "model": "USW Flex PoE Switch",
+      "location_group": "pavilion-49",
+      "coords": {
+        "lon": -104.94764903718327,
+        "lat": 38.58713361388875,
+        "alt_m": null,
+        "alt_source": null
+      },
+      "status": "active",
+      "ports": 5,
+      "mount_height": null,
+      "service_area_tag": null,
+      "public_summary": "USW Flex PoE Switch. Pavilion / Site 49. Uplink: NB5AC-STA-49 (wired Ethernet). Feeds 3 downstream devices."
+    },
+    {
+      "id": "049-UAP-U7O",
+      "role": "ap",
+      "model": "UAP U7 Outdoor",
+      "location_group": "pavilion-49",
+      "coords": {
+        "lon": -104.94764200430738,
+        "lat": 38.58712686979081,
+        "alt_m": 2021.111461970889,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "20 ft",
+      "service_area_tag": null,
+      "public_summary": "UAP U7 Outdoor. Pavilion / Site 49. Uplink: 049-USW-Flex (wired Ethernet)."
+    },
+    {
+      "id": "NB5AC-AP-91",
+      "role": "radio",
+      "model": "NanoBeam AC PtP link to Site 91",
+      "location_group": "pavilion-49",
+      "coords": {
+        "lon": -104.94764200335582,
+        "lat": 38.587128180530435,
+        "alt_m": 2021.121035919392,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "16 ft",
+      "service_area_tag": null,
+      "public_summary": "NanoBeam AC PtP link to Site 91. Pavilion / Site 49. Uplink: 049-USW-Flex (wired Ethernet). Wireless PtP AP to NS5AC-STA-91."
+    },
+    {
+      "id": "046-UAP-M",
+      "role": "ap",
+      "model": "UAP Mesh AP",
+      "location_group": "site-46",
+      "coords": {
+        "lon": -104.9474124144296,
+        "lat": 38.58671598270021,
+        "alt_m": 2019.761954505469,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "5 ft",
+      "service_area_tag": {
+        "group": "pavilion-49",
+        "basis": "uplink 049-USW-Flex"
+      },
+      "public_summary": "UAP Mesh AP. Site 46. Uplink: 049-USW-Flex (wired Ethernet)."
+    },
+    {
+      "id": "088-UAP-M",
+      "role": "ap",
+      "model": "UAP Mesh AP",
+      "location_group": "staff-laundry",
+      "coords": {
+        "lon": -104.9472679519353,
+        "lat": 38.58742467694509,
+        "alt_m": 2025.565603354836,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "inactive",
+      "ports": null,
+      "mount_height": "10 ft",
+      "service_area_tag": null,
+      "public_summary": "UAP Mesh AP. Inactive; not connected to the network."
+    },
+    {
+      "id": "NS5AC-STA-91",
+      "role": "radio",
+      "model": "NanoStation AC Station",
+      "location_group": "site-91",
+      "coords": {
+        "lon": -104.94735434259371,
+        "lat": 38.58782649880609,
+        "alt_m": 2032.068725771103,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "12 ft",
+      "service_area_tag": null,
+      "public_summary": "NanoStation AC Station. Site 91. Uplink: NB5AC-AP-91 (airMAX PtP wireless). Feeds 1 downstream device."
+    },
+    {
+      "id": "091-USW-Flex",
+      "role": "switch",
+      "model": "USW Flex PoE Switch",
+      "location_group": "site-91",
+      "coords": {
+        "lon": -104.94735517991504,
+        "lat": 38.587823315957586,
+        "alt_m": 2032.068716339642,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": 5,
+      "mount_height": "5 ft",
+      "service_area_tag": null,
+      "public_summary": "USW Flex PoE Switch. Site 91. Uplink: NS5AC-STA-91 (wired Ethernet). Feeds 1 downstream device."
+    },
+    {
+      "id": "091-UAP-U7O",
+      "role": "ap",
+      "model": "UAP U7 outdoor AP",
+      "location_group": "site-91",
+      "coords": {
+        "lon": -104.94735434040665,
+        "lat": 38.58782949478203,
+        "alt_m": 2032.005799676705,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "6 ft",
+      "service_area_tag": null,
+      "public_summary": "UAP U7 outdoor AP. Site 91. Uplink: 091-USW-Flex (wired Ethernet)."
+    },
+    {
+      "id": "NB5AC-STA-93",
+      "role": "radio",
+      "model": "NanoBeam AC Station",
+      "location_group": "sites-93-94",
+      "coords": {
+        "lon": -104.9487944463718,
+        "lat": 38.58832152992467,
+        "alt_m": 2034.023637788979,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "4 ft",
+      "service_area_tag": null,
+      "public_summary": "NanoBeam AC Station. Sites 93–94. Uplink: NB5AC-AP-93 (airMAX PtP wireless). Feeds 1 downstream device."
+    },
+    {
+      "id": "093-USW-Flex",
+      "role": "switch",
+      "model": "USW Flex PoE Switch",
+      "location_group": "sites-93-94",
+      "coords": {
+        "lon": -104.9487882379998,
+        "lat": 38.58832174044489,
+        "alt_m": 2034.260751499962,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": 5,
+      "mount_height": null,
+      "service_area_tag": null,
+      "public_summary": "USW Flex PoE Switch. Sites 93–94. Uplink: NB5AC-STA-93 (wired Ethernet). Feeds 1 downstream device."
+    },
+    {
+      "id": "094-UAP-U6M",
+      "role": "ap",
+      "model": "UAP U6 Mesh AP",
+      "location_group": "sites-93-94",
+      "coords": {
+        "lon": -104.9487915615218,
+        "lat": 38.58832134224841,
+        "alt_m": 2034.260751499962,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "1 ft",
+      "service_area_tag": null,
+      "public_summary": "UAP U6 Mesh AP. Sites 93–94. Uplink: 093-USW-Flex (wired Ethernet)."
+    },
+    {
+      "id": "NB5AC-STA-96",
+      "role": "radio",
+      "model": "NanoBeam 5AC Station",
+      "location_group": "site-96-east",
+      "coords": {
+        "lon": -104.9488077099388,
+        "lat": 38.58868203946042,
+        "alt_m": 2048.020221847561,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": null,
+      "service_area_tag": null,
+      "public_summary": "NanoBeam 5AC Station. Site 96 (east tree). Uplink: NB5AC-AP-96 (airMAX PtP wireless). Feeds 1 downstream device."
+    },
+    {
+      "id": "096-USW-Flex-East",
+      "role": "switch",
+      "model": "USW Flex PoE Switch",
+      "location_group": "site-96-east",
+      "coords": {
+        "lon": -104.9492324358572,
+        "lat": 38.58873741061255,
+        "alt_m": 2040.467111037764,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": 5,
+      "mount_height": null,
+      "service_area_tag": null,
+      "public_summary": "USW Flex PoE Switch. Site 96 (east tree). Uplink: NB5AC-STA-96 (wired Ethernet). Feeds 2 downstream devices."
+    },
+    {
+      "id": "NSL5AC-AP-57-75-98",
+      "role": "radio",
+      "model": "Nanostation AC Loco AP PtMP",
+      "location_group": "site-96-east",
+      "coords": {
+        "lon": -104.9490129997427,
+        "lat": 38.58869367336984,
+        "alt_m": 2044.981294401686,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": null,
+      "service_area_tag": null,
+      "public_summary": "Nanostation AC Loco AP PtMP. Site 96 (east tree). Uplink: 096-USW-Flex-East (wired Ethernet). Wireless PtMP AP to 3 stations."
+    },
+    {
+      "id": "097-USW-Flex2.5G-IT",
+      "role": "switch",
+      "model": "USW 2.5Gb PoE Switch",
+      "location_group": "it-shed",
+      "coords": {
+        "lon": -104.9496253893239,
+        "lat": 38.58886261039832,
+        "alt_m": 2036.979910105888,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": 8,
+      "mount_height": null,
+      "service_area_tag": null,
+      "public_summary": "USW 2.5Gb PoE Switch. IT Shed. Uplink: 096-USW-Flex-East (wired Ethernet). Feeds 1 downstream device."
+    },
+    {
+      "id": "096-UAP-U7O",
+      "role": "ap",
+      "model": "UAP U7 Outdoor AP",
+      "location_group": "it-shed",
+      "coords": {
+        "lon": -104.9495570492975,
+        "lat": 38.58882375986025,
+        "alt_m": 2037.546292637601,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "8 ft",
+      "service_area_tag": null,
+      "public_summary": "UAP U7 Outdoor AP. IT Shed. Uplink: 097-USW-Flex2.5G-IT (wired Ethernet)."
+    },
+    {
+      "id": "NB5AC-STA-98",
+      "role": "radio",
+      "model": "Nanobeam AC Station",
+      "location_group": "getaway-cabin",
+      "coords": {
+        "lon": -104.94993153305039,
+        "lat": 38.58807893233884,
+        "alt_m": 2027.492021288425,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "7 ft",
+      "service_area_tag": null,
+      "public_summary": "Nanobeam AC Station. Getaway Cabin. Uplink: NSL5AC-AP-57-75-98 (airMAX PtMP wireless). Feeds 1 downstream device."
+    },
+    {
+      "id": "098-USW-Flex-Getaway",
+      "role": "switch",
+      "model": "USW Flex PoE Switch",
+      "location_group": "getaway-cabin",
+      "coords": {
+        "lon": -104.94989285465837,
+        "lat": 38.5881217956875,
+        "alt_m": 2027.975929159284,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": 5,
+      "mount_height": null,
+      "service_area_tag": null,
+      "public_summary": "USW Flex PoE Switch. Getaway Cabin. Uplink: NB5AC-STA-98 (wired Ethernet). Feeds 3 downstream devices."
+    },
+    {
+      "id": "098-UAP-P-Getaway",
+      "role": "ap",
+      "model": "UAP Pro AP",
+      "location_group": "getaway-cabin",
+      "coords": {
+        "lon": -104.94986481037265,
+        "lat": 38.58813919778066,
+        "alt_m": 2027.900351487963,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "5 ft",
+      "service_area_tag": null,
+      "public_summary": "UAP Pro AP. Getaway Cabin. Uplink: 098-USW-Flex-Getaway (wired Ethernet)."
+    },
+    {
+      "id": "NanoSwitch",
+      "role": "switch",
+      "model": "Ubiquiti Nano switch",
+      "location_group": "hideaway-cabin",
+      "coords": {
+        "lon": -104.95043803654099,
+        "lat": 38.58881828719843,
+        "alt_m": 2029.742848025244,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": 4,
+      "mount_height": null,
+      "service_area_tag": null,
+      "public_summary": "Ubiquiti Nano switch. Hideaway Cabin. Uplink: 099-USW-Flex (wired Ethernet). Feeds 2 downstream devices."
+    },
+    {
+      "id": "098-UAP-M-Hideaway",
+      "role": "ap",
+      "model": "UAP Mesh AP",
+      "location_group": "hideaway-cabin",
+      "coords": {
+        "lon": -104.95043939170891,
+        "lat": 38.588824843186465,
+        "alt_m": 2029.769433802599,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "10 ft",
+      "service_area_tag": null,
+      "public_summary": "UAP Mesh AP. Hideaway Cabin. Uplink: NanoSwitch (wired Ethernet)."
+    },
+    {
+      "id": "098-UAP-M",
+      "role": "ap",
+      "model": "UAP Mesh AP",
+      "location_group": "hideaway-cabin",
+      "coords": {
+        "lon": -104.9504023702731,
+        "lat": 38.58871109868342,
+        "alt_m": 2029.523367568446,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "4 ft",
+      "service_area_tag": null,
+      "public_summary": "UAP Mesh AP. Hideaway Cabin. Uplink: NanoSwitch (wired Ethernet)."
+    },
+    {
+      "id": "099-USW-Flex",
+      "role": "switch",
+      "model": "USW Flex PoE Switch",
+      "location_group": "site-99",
+      "coords": {
+        "lon": -104.95070078785069,
+        "lat": 38.58901135790125,
+        "alt_m": 2031.376034662387,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": 5,
+      "mount_height": "5 ft",
+      "service_area_tag": null,
+      "public_summary": "USW Flex PoE Switch. Site 99 (shed / fence). Uplink: 098-USW-Flex-Getaway (wired Ethernet). Feeds 2 downstream devices."
+    },
+    {
+      "id": "099-UAP-U7O",
+      "role": "ap",
+      "model": "UAP U7 Outdoor AP",
+      "location_group": "site-99",
+      "coords": {
+        "lon": -104.95078972170415,
+        "lat": 38.58905095500071,
+        "alt_m": 2031.544294477789,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "4 ft",
+      "service_area_tag": null,
+      "public_summary": "UAP U7 Outdoor AP. Site 99 (shed / fence). Uplink: 098-USW-Flex-Getaway (wired Ethernet)."
+    },
+    {
+      "id": "100-USW-Flex-Wilderness",
+      "role": "switch",
+      "model": "USW Flex PoE switch",
+      "location_group": "wilderness-cabin",
+      "coords": {
+        "lon": -104.95063412720503,
+        "lat": 38.58942035588827,
+        "alt_m": 2033.763591894669,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": 5,
+      "mount_height": "5 ft",
+      "service_area_tag": null,
+      "public_summary": "USW Flex PoE switch. Wilderness Cabin. Uplink: 099-USW-Flex (wired Ethernet). Feeds 2 downstream devices."
+    },
+    {
+      "id": "100-UAP-U7O",
+      "role": "ap",
+      "model": "UAP U7 Outdoor AP",
+      "location_group": "wilderness-cabin",
+      "coords": {
+        "lon": -104.95057323454306,
+        "lat": 38.589439040011406,
+        "alt_m": 2033.801849331904,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "4 ft",
+      "service_area_tag": null,
+      "public_summary": "UAP U7 Outdoor AP. Wilderness Cabin. Uplink: 100-USW-Flex-Wilderness (wired Ethernet)."
+    },
+    {
+      "id": "102-UAP-M",
+      "role": "ap",
+      "model": "UAP Mesh AP",
+      "location_group": "wilderness-cabin",
+      "coords": {
+        "lon": -104.95068770898415,
+        "lat": 38.58990280475964,
+        "alt_m": 2033.884817308948,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "status": "active",
+      "ports": null,
+      "mount_height": "10 ft",
+      "service_area_tag": null,
+      "public_summary": "UAP Mesh AP. Wilderness Cabin. Uplink: 100-USW-Flex-Wilderness (wired Ethernet)."
+    }
+  ],
+  "links": [
+    {
+      "id": "lnk:SECOM>0000-MD-UDM-Pro-2",
+      "parent": "SECOM",
+      "child": "0000-MD-UDM-Pro-2",
+      "medium": "wan",
+      "wan_role": "primary"
+    },
+    {
+      "id": "lnk:Starlink Local Priority 500GB>0000-MD-UDM-Pro-2",
+      "parent": "Starlink Local Priority 500GB",
+      "child": "0000-MD-UDM-Pro-2",
+      "medium": "wan",
+      "wan_role": "failover"
+    },
+    {
+      "id": "lnk:wan-private-a>0000-MD-UDM-Pro-2",
+      "parent": "wan-private-a",
+      "child": "0000-MD-UDM-Pro-2",
+      "medium": "wan",
+      "wan_role": "segregated"
+    },
+    {
+      "id": "lnk:wan-private-b>0000-MD-UDM-Pro-2",
+      "parent": "wan-private-b",
+      "child": "0000-MD-UDM-Pro-2",
+      "medium": "wan",
+      "wan_role": "segregated"
+    },
+    {
+      "id": "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "parent": "0000-MD-UDM-Pro-2",
+      "child": "000-USW-24-PoE",
+      "medium": "wired-ethernet"
+    },
+    {
+      "id": "lnk:000-USW-24-PoE>000-USW-Flex-Mini",
+      "parent": "000-USW-24-PoE",
+      "child": "000-USW-Flex-Mini",
+      "medium": "wired-ethernet"
+    },
+    {
+      "id": "lnk:000-USW-24-PoE>000-UAP-IW",
+      "parent": "000-USW-24-PoE",
+      "child": "000-UAP-IW",
+      "medium": "wired-ethernet"
+    },
+    {
+      "id": "lnk:000-USW-24-PoE>000-UAP-L",
+      "parent": "000-USW-24-PoE",
+      "child": "000-UAP-L",
+      "medium": "wired-ethernet"
+    },
+    {
+      "id": "lnk:000-USW-24-PoE>000-USW-Flex-Back",
+      "parent": "000-USW-24-PoE",
+      "child": "000-USW-Flex-Back",
+      "medium": "wired-ethernet"
+    },
+    {
+      "id": "lnk:000-USW-Flex-Back>000-USW-Flex-Propane",
+      "parent": "000-USW-Flex-Back",
+      "child": "000-USW-Flex-Propane",
+      "medium": "wired-ethernet"
+    },
+    {
+      "id": "lnk:000-USW-Flex-Propane>067-UAP-U7O",
+      "parent": "000-USW-Flex-Propane",
+      "child": "067-UAP-U7O",
+      "medium": "wired-ethernet"
+    },
+    {
+      "id": "lnk:000-USW-Flex-Propane>045-UAP-U7O",
+      "parent": "000-USW-Flex-Propane",
+      "child": "045-UAP-U7O",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.94872693205917,
+          "lat": 38.586799895282006
+        },
+        {
+          "lon": -104.94870161855779,
+          "lat": 38.58677187869861
+        },
+        {
+          "lon": -104.94866027381394,
+          "lat": 38.58670856816614
+        },
+        {
+          "lon": -104.9486293013094,
+          "lat": 38.58661053537945
+        },
+        {
+          "lon": -104.94860229089166,
+          "lat": 38.58646041412873
+        },
+        {
+          "lon": -104.94854994513933,
+          "lat": 38.58631336232554
+        },
+        {
+          "lon": -104.94856209233407,
+          "lat": 38.58629124333879
+        }
+      ]
+    },
+    {
+      "id": "lnk:000-USW-Flex-Propane>016-USW-Flex",
+      "parent": "000-USW-Flex-Propane",
+      "child": "016-USW-Flex",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.94873085775176,
+          "lat": 38.58679877678422
+        },
+        {
+          "lon": -104.94870197217925,
+          "lat": 38.58677635973061
+        },
+        {
+          "lon": -104.94854571197689,
+          "lat": 38.58674548504181
+        },
+        {
+          "lon": -104.94842621718473,
+          "lat": 38.58669502253034
+        },
+        {
+          "lon": -104.94826859010749,
+          "lat": 38.58658041048012
+        },
+        {
+          "lon": -104.94824720254783,
+          "lat": 38.58655127531511
+        },
+        {
+          "lon": -104.94821188383233,
+          "lat": 38.58654397825203
+        },
+        {
+          "lon": -104.94816763024518,
+          "lat": 38.58655712121924
+        },
+        {
+          "lon": -104.94812731502121,
+          "lat": 38.5865515022445
+        }
+      ]
+    },
+    {
+      "id": "lnk:016-USW-Flex>014-UAP-U7O",
+      "parent": "016-USW-Flex",
+      "child": "014-UAP-U7O",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.94808992774848,
+          "lat": 38.5867269783702
+        }
+      ]
+    },
+    {
+      "id": "lnk:016-USW-Flex>026-UAP-M",
+      "parent": "016-USW-Flex",
+      "child": "026-UAP-M",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.94810372290739,
+          "lat": 38.586523035447115
+        },
+        {
+          "lon": -104.94808955731612,
+          "lat": 38.586512316683624
+        },
+        {
+          "lon": -104.94806068296104,
+          "lat": 38.586516218034646
+        },
+        {
+          "lon": -104.94803129197865,
+          "lat": 38.58650858263697
+        },
+        {
+          "lon": -104.94801425647314,
+          "lat": 38.58647396552814
+        }
+      ]
+    },
+    {
+      "id": "lnk:000-USW-Flex-Propane>036-USW-Flex",
+      "parent": "000-USW-Flex-Propane",
+      "child": "036-USW-Flex",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.94876976084613,
+          "lat": 38.586783390821985
+        },
+        {
+          "lon": -104.94876405489178,
+          "lat": 38.58677918749973
+        },
+        {
+          "lon": -104.94886506867158,
+          "lat": 38.58672714152678
+        }
+      ]
+    },
+    {
+      "id": "lnk:036-USW-Flex>036-UAP-U7O",
+      "parent": "036-USW-Flex",
+      "child": "036-UAP-U7O",
+      "medium": "wired-ethernet"
+    },
+    {
+      "id": "lnk:036-USW-Flex>038-UAP-M",
+      "parent": "036-USW-Flex",
+      "child": "038-UAP-M",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.94915314987107,
+          "lat": 38.58653318917704
+        },
+        {
+          "lon": -104.94925090210127,
+          "lat": 38.586551715263965
+        },
+        {
+          "lon": -104.94935044707363,
+          "lat": 38.586557919634
+        },
+        {
+          "lon": -104.94939610331029,
+          "lat": 38.58657950362351
+        },
+        {
+          "lon": -104.94942141662145,
+          "lat": 38.58660808016722
+        },
+        {
+          "lon": -104.94941782575931,
+          "lat": 38.586640564971894
+        },
+        {
+          "lon": -104.9494017609524,
+          "lat": 38.58665260037776
+        },
+        {
+          "lon": -104.94936249417646,
+          "lat": 38.58667806836607
+        }
+      ]
+    },
+    {
+      "id": "lnk:000-USW-Flex-Back>060-USW-Flex",
+      "parent": "000-USW-Flex-Back",
+      "child": "060-USW-Flex",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.94882594306684,
+          "lat": 38.587056188796346
+        },
+        {
+          "lon": -104.9488669650997,
+          "lat": 38.58707188981155
+        },
+        {
+          "lon": -104.94890907285729,
+          "lat": 38.58706602706803
+        },
+        {
+          "lon": -104.94900433263025,
+          "lat": 38.587078111010086
+        },
+        {
+          "lon": -104.94912739972678,
+          "lat": 38.58712409360604
+        }
+      ]
+    },
+    {
+      "id": "lnk:060-USW-Flex>060-UAP-U7O",
+      "parent": "060-USW-Flex",
+      "child": "060-UAP-U7O",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.94916451491284,
+          "lat": 38.5871143078313
+        }
+      ]
+    },
+    {
+      "id": "lnk:060-USW-Flex>055-USW-Flex-Front",
+      "parent": "060-USW-Flex",
+      "child": "055-USW-Flex-Front",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.94918127098636,
+          "lat": 38.587134199005156
+        },
+        {
+          "lon": -104.94932182339026,
+          "lat": 38.58717822861126
+        }
+      ]
+    },
+    {
+      "id": "lnk:055-USW-Flex-Front>052-UAP-P-Cozy",
+      "parent": "055-USW-Flex-Front",
+      "child": "052-UAP-P-Cozy",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.94943886689575,
+          "lat": 38.58716455659911
+        },
+        {
+          "lon": -104.94940112553476,
+          "lat": 38.58704971780932
+        },
+        {
+          "lon": -104.94939511694814,
+          "lat": 38.58696821926427
+        },
+        {
+          "lon": -104.94938086481046,
+          "lat": 38.58693936745105
+        },
+        {
+          "lon": -104.94936945673852,
+          "lat": 38.5869253597718
+        },
+        {
+          "lon": -104.9493815912056,
+          "lat": 38.586921164203794
+        }
+      ]
+    },
+    {
+      "id": "lnk:055-USW-Flex-Front>055-USW-Flex-Back",
+      "parent": "055-USW-Flex-Front",
+      "child": "055-USW-Flex-Back",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.94957729588214,
+          "lat": 38.587183940159015
+        }
+      ]
+    },
+    {
+      "id": "lnk:055-USW-Flex-Back>053-UAP-M",
+      "parent": "055-USW-Flex-Back",
+      "child": "053-UAP-M",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.94961548283949,
+          "lat": 38.587172194320075
+        },
+        {
+          "lon": -104.949627627114,
+          "lat": 38.58715399599168
+        },
+        {
+          "lon": -104.94963584275195,
+          "lat": 38.58714111701074
+        },
+        {
+          "lon": -104.94963621207886,
+          "lat": 38.58712319366346
+        },
+        {
+          "lon": -104.9496212399336,
+          "lat": 38.58710330332333
+        },
+        {
+          "lon": -104.94959484497831,
+          "lat": 38.58709040942709
+        }
+      ]
+    },
+    {
+      "id": "lnk:055-USW-Flex-Back>056-UAP-M",
+      "parent": "055-USW-Flex-Back",
+      "child": "056-UAP-M",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.94963000614906,
+          "lat": 38.58718752871637
+        },
+        {
+          "lon": -104.94966730523907,
+          "lat": 38.58722832003004
+        },
+        {
+          "lon": -104.94969423577716,
+          "lat": 38.587238198224036
+        },
+        {
+          "lon": -104.94970384315586,
+          "lat": 38.58725702944836
+        },
+        {
+          "lon": -104.94970511241006,
+          "lat": 38.58727636048354
+        },
+        {
+          "lon": -104.94969009584037,
+          "lat": 38.58728863693803
+        }
+      ]
+    },
+    {
+      "id": "lnk:000-USW-Flex-Back>068-USW-Flex",
+      "parent": "000-USW-Flex-Back",
+      "child": "068-USW-Flex",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.94881167026858,
+          "lat": 38.58705674265824
+        },
+        {
+          "lon": -104.9489301075964,
+          "lat": 38.58709012096936
+        },
+        {
+          "lon": -104.94898326280509,
+          "lat": 38.58710358680435
+        },
+        {
+          "lon": -104.94902962161595,
+          "lat": 38.58714113436424
+        },
+        {
+          "lon": -104.94904053963123,
+          "lat": 38.58719421569452
+        },
+        {
+          "lon": -104.94904220956663,
+          "lat": 38.587246463926135
+        },
+        {
+          "lon": -104.94903429779244,
+          "lat": 38.58728960237923
+        },
+        {
+          "lon": -104.94902233076975,
+          "lat": 38.58733121286089
+        },
+        {
+          "lon": -104.94901502774387,
+          "lat": 38.58735445119234
+        }
+      ]
+    },
+    {
+      "id": "lnk:068-USW-Flex>068-UAP-U7O",
+      "parent": "068-USW-Flex",
+      "child": "068-UAP-U7O",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.94899051429917,
+          "lat": 38.58737999399938
+        },
+        {
+          "lon": -104.94898291737255,
+          "lat": 38.587380355734844
+        },
+        {
+          "lon": -104.9489788443782,
+          "lat": 38.58738408057391
+        },
+        {
+          "lon": -104.94897784679215,
+          "lat": 38.5873980344249
+        },
+        {
+          "lon": -104.94895760057393,
+          "lat": 38.587395312254756
+        }
+      ]
+    },
+    {
+      "id": "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "parent": "000-USW-24-PoE",
+      "child": "000-USW-Flex-Roof",
+      "medium": "wired-ethernet"
+    },
+    {
+      "id": "lnk:000-USW-Flex-Roof>NBM5-AP-80",
+      "parent": "000-USW-Flex-Roof",
+      "child": "NBM5-AP-80",
+      "medium": "wired-ethernet"
+    },
+    {
+      "id": "lnk:NBM5-AP-80>NBM5-STA-80",
+      "parent": "NBM5-AP-80",
+      "child": "NBM5-STA-80",
+      "medium": "airmax-ptp"
+    },
+    {
+      "id": "lnk:NBM5-STA-80>080-UAP-M",
+      "parent": "NBM5-STA-80",
+      "child": "080-UAP-M",
+      "medium": "wired-ethernet"
+    },
+    {
+      "id": "lnk:000-USW-Flex-Roof>NSL5AC-AP-89",
+      "parent": "000-USW-Flex-Roof",
+      "child": "NSL5AC-AP-89",
+      "medium": "wired-ethernet"
+    },
+    {
+      "id": "lnk:NSL5AC-AP-89>NSL5AC-STA-089",
+      "parent": "NSL5AC-AP-89",
+      "child": "NSL5AC-STA-089",
+      "medium": "airmax-ptp"
+    },
+    {
+      "id": "lnk:NSL5AC-STA-089>089-USW-Flex-David",
+      "parent": "NSL5AC-STA-089",
+      "child": "089-USW-Flex-David",
+      "medium": "wired-ethernet"
+    },
+    {
+      "id": "lnk:089-USW-Flex-David>089-UAP-IW-ROCHSTAR",
+      "parent": "089-USW-Flex-David",
+      "child": "089-UAP-IW-ROCHSTAR",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.9482364233494,
+          "lat": 38.587549672206045
+        }
+      ]
+    },
+    {
+      "id": "lnk:089-USW-Flex-David>089-UAP-M",
+      "parent": "089-USW-Flex-David",
+      "child": "089-UAP-M",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.94819679462267,
+          "lat": 38.58751206216226
+        },
+        {
+          "lon": -104.94814424421045,
+          "lat": 38.58753912163187
+        },
+        {
+          "lon": -104.94800780256381,
+          "lat": 38.587489341936944
+        }
+      ]
+    },
+    {
+      "id": "lnk:089-USW-Flex-David>085-UAP-M",
+      "parent": "089-USW-Flex-David",
+      "child": "085-UAP-M",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.948242100095,
+          "lat": 38.587552283626
+        },
+        {
+          "lon": -104.94826359603299,
+          "lat": 38.58759381844631
+        },
+        {
+          "lon": -104.94825085607863,
+          "lat": 38.58763839144636
+        },
+        {
+          "lon": -104.94821894740737,
+          "lat": 38.58765099775585
+        },
+        {
+          "lon": -104.94819323789054,
+          "lat": 38.58769861833608
+        }
+      ]
+    },
+    {
+      "id": "lnk:000-USW-Flex-Roof>NSL5AC-AP-49",
+      "parent": "000-USW-Flex-Roof",
+      "child": "NSL5AC-AP-49",
+      "medium": "wired-ethernet"
+    },
+    {
+      "id": "lnk:NSL5AC-AP-49>NB5AC-STA-49",
+      "parent": "NSL5AC-AP-49",
+      "child": "NB5AC-STA-49",
+      "medium": "airmax-ptp"
+    },
+    {
+      "id": "lnk:NB5AC-STA-49>049-USW-Flex",
+      "parent": "NB5AC-STA-49",
+      "child": "049-USW-Flex",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.94764057344051,
+          "lat": 38.58712612015573
+        },
+        {
+          "lon": -104.94763890189803,
+          "lat": 38.587128272765895
+        }
+      ]
+    },
+    {
+      "id": "lnk:049-USW-Flex>049-UAP-U7O",
+      "parent": "049-USW-Flex",
+      "child": "049-UAP-U7O",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.94763854411333,
+          "lat": 38.587128178981374
+        },
+        {
+          "lon": -104.94764081207693,
+          "lat": 38.58712602663831
+        }
+      ]
+    },
+    {
+      "id": "lnk:049-USW-Flex>NB5AC-AP-91",
+      "parent": "049-USW-Flex",
+      "child": "NB5AC-AP-91",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.94763866332958,
+          "lat": 38.58712827265906
+        },
+        {
+          "lon": -104.9476406927927,
+          "lat": 38.5871260265849
+        }
+      ]
+    },
+    {
+      "id": "lnk:NB5AC-AP-91>NS5AC-STA-91",
+      "parent": "NB5AC-AP-91",
+      "child": "NS5AC-STA-91",
+      "medium": "airmax-ptp"
+    },
+    {
+      "id": "lnk:NS5AC-STA-91>091-USW-Flex",
+      "parent": "NS5AC-STA-91",
+      "child": "091-USW-Flex",
+      "medium": "wired-ethernet"
+    },
+    {
+      "id": "lnk:091-USW-Flex>091-UAP-U7O",
+      "parent": "091-USW-Flex",
+      "child": "091-UAP-U7O",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.94735482035031,
+          "lat": 38.58782565640267
+        }
+      ]
+    },
+    {
+      "id": "lnk:049-USW-Flex>046-UAP-M",
+      "parent": "049-USW-Flex",
+      "child": "046-UAP-M",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.94763842482911,
+          "lat": 38.58712817892796
+        },
+        {
+          "lon": -104.94761944299779,
+          "lat": 38.5871497040128
+        },
+        {
+          "lon": -104.9476235030822,
+          "lat": 38.5871436202527
+        },
+        {
+          "lon": -104.9475389525474,
+          "lat": 38.587113341702256
+        },
+        {
+          "lon": -104.94751833334556,
+          "lat": 38.587090020000836
+        },
+        {
+          "lon": -104.94750188494402,
+          "lat": 38.58707241125015
+        },
+        {
+          "lon": -104.9474929693077,
+          "lat": 38.587030276315545
+        },
+        {
+          "lon": -104.9474751932969,
+          "lat": 38.58687017079005
+        },
+        {
+          "lon": -104.94743175611924,
+          "lat": 38.58673102556604
+        }
+      ]
+    },
+    {
+      "id": "lnk:000-USW-Flex-Roof>NB5AC-AP-93",
+      "parent": "000-USW-Flex-Roof",
+      "child": "NB5AC-AP-93",
+      "medium": "wired-ethernet"
+    },
+    {
+      "id": "lnk:NB5AC-AP-93>NB5AC-STA-93",
+      "parent": "NB5AC-AP-93",
+      "child": "NB5AC-STA-93",
+      "medium": "airmax-ptp"
+    },
+    {
+      "id": "lnk:NB5AC-STA-93>093-USW-Flex",
+      "parent": "NB5AC-STA-93",
+      "child": "093-USW-Flex",
+      "medium": "wired-ethernet"
+    },
+    {
+      "id": "lnk:093-USW-Flex>094-UAP-U6M",
+      "parent": "093-USW-Flex",
+      "child": "094-UAP-U6M",
+      "medium": "wired-ethernet"
+    },
+    {
+      "id": "lnk:000-USW-Flex-Roof>NB5AC-AP-96",
+      "parent": "000-USW-Flex-Roof",
+      "child": "NB5AC-AP-96",
+      "medium": "wired-ethernet"
+    },
+    {
+      "id": "lnk:NB5AC-AP-96>NB5AC-STA-96",
+      "parent": "NB5AC-AP-96",
+      "child": "NB5AC-STA-96",
+      "medium": "airmax-ptp"
+    },
+    {
+      "id": "lnk:NB5AC-STA-96>096-USW-Flex-East",
+      "parent": "NB5AC-STA-96",
+      "child": "096-USW-Flex-East",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.94889899807262,
+          "lat": 38.58868125513435
+        },
+        {
+          "lon": -104.94893598529191,
+          "lat": 38.58869845799495
+        },
+        {
+          "lon": -104.94899889602576,
+          "lat": 38.58871745008913
+        },
+        {
+          "lon": -104.94910006803993,
+          "lat": 38.588731717653296
+        }
+      ]
+    },
+    {
+      "id": "lnk:096-USW-Flex-East>NSL5AC-AP-57-75-98",
+      "parent": "096-USW-Flex-East",
+      "child": "NSL5AC-AP-57-75-98",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.94911695541411,
+          "lat": 38.5886981417949
+        }
+      ]
+    },
+    {
+      "id": "lnk:NSL5AC-AP-57-75-98>NS5AC-STA-57",
+      "parent": "NSL5AC-AP-57-75-98",
+      "child": "NS5AC-STA-57",
+      "medium": "airmax-ptmp"
+    },
+    {
+      "id": "lnk:NS5AC-STA-57>057-USW-Flex",
+      "parent": "NS5AC-STA-57",
+      "child": "057-USW-Flex",
+      "medium": "wired-ethernet"
+    },
+    {
+      "id": "lnk:057-USW-Flex>057-UAP-U6M",
+      "parent": "057-USW-Flex",
+      "child": "057-UAP-U6M",
+      "medium": "wired-ethernet"
+    },
+    {
+      "id": "lnk:NSL5AC-AP-57-75-98>NB5AC-STA-75",
+      "parent": "NSL5AC-AP-57-75-98",
+      "child": "NB5AC-STA-75",
+      "medium": "airmax-ptmp"
+    },
+    {
+      "id": "lnk:NB5AC-STA-75>075-UAP-M",
+      "parent": "NB5AC-STA-75",
+      "child": "075-UAP-M",
+      "medium": "wired-ethernet"
+    },
+    {
+      "id": "lnk:NSL5AC-AP-57-75-98>NB5AC-STA-98",
+      "parent": "NSL5AC-AP-57-75-98",
+      "child": "NB5AC-STA-98",
+      "medium": "airmax-ptmp"
+    },
+    {
+      "id": "lnk:NB5AC-STA-98>098-USW-Flex-Getaway",
+      "parent": "NB5AC-STA-98",
+      "child": "098-USW-Flex-Getaway",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.94990419084833,
+          "lat": 38.58811599584011
+        }
+      ]
+    },
+    {
+      "id": "lnk:098-USW-Flex-Getaway>098-UAP-P-Getaway",
+      "parent": "098-USW-Flex-Getaway",
+      "child": "098-UAP-P-Getaway",
+      "medium": "wired-ethernet"
+    },
+    {
+      "id": "lnk:098-USW-Flex-Getaway>099-USW-Flex",
+      "parent": "098-USW-Flex-Getaway",
+      "child": "099-USW-Flex",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.94992124820645,
+          "lat": 38.5881167521415
+        },
+        {
+          "lon": -104.94995036703648,
+          "lat": 38.58812210831664
+        },
+        {
+          "lon": -104.9500729031611,
+          "lat": 38.58817576032011
+        },
+        {
+          "lon": -104.9502010879082,
+          "lat": 38.588290916720645
+        },
+        {
+          "lon": -104.95031618656125,
+          "lat": 38.58833872431657
+        },
+        {
+          "lon": -104.95037134326273,
+          "lat": 38.58834080926562
+        },
+        {
+          "lon": -104.95052010767533,
+          "lat": 38.588450133064136
+        },
+        {
+          "lon": -104.95064258905063,
+          "lat": 38.58858521462232
+        },
+        {
+          "lon": -104.95080918767366,
+          "lat": 38.58886324690717
+        },
+        {
+          "lon": -104.95075350269673,
+          "lat": 38.58899309943554
+        }
+      ]
+    },
+    {
+      "id": "lnk:099-USW-Flex>NanoSwitch",
+      "parent": "099-USW-Flex",
+      "child": "NanoSwitch",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.95075200294289,
+          "lat": 38.588991299843435
+        },
+        {
+          "lon": -104.95076951134529,
+          "lat": 38.588951974736545
+        },
+        {
+          "lon": -104.95077944491793,
+          "lat": 38.588911884180725
+        },
+        {
+          "lon": -104.95078373670083,
+          "lat": 38.58888474962457
+        },
+        {
+          "lon": -104.95076977250231,
+          "lat": 38.58885394854703
+        },
+        {
+          "lon": -104.95073016855783,
+          "lat": 38.588823441568636
+        },
+        {
+          "lon": -104.95067365574535,
+          "lat": 38.588807715237714
+        },
+        {
+          "lon": -104.95056254697867,
+          "lat": 38.58881361391685
+        },
+        {
+          "lon": -104.9504646550327,
+          "lat": 38.58880701706966
+        }
+      ]
+    },
+    {
+      "id": "lnk:NanoSwitch>098-UAP-M-Hideaway",
+      "parent": "NanoSwitch",
+      "child": "098-UAP-M-Hideaway",
+      "medium": "wired-ethernet"
+    },
+    {
+      "id": "lnk:NanoSwitch>098-UAP-M",
+      "parent": "NanoSwitch",
+      "child": "098-UAP-M",
+      "medium": "wired-ethernet"
+    },
+    {
+      "id": "lnk:099-USW-Flex>100-USW-Flex-Wilderness",
+      "parent": "099-USW-Flex",
+      "child": "100-USW-Flex-Wilderness",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.95074113636835,
+          "lat": 38.5890015882163
+        },
+        {
+          "lon": -104.9508203428403,
+          "lat": 38.58901658944126
+        },
+        {
+          "lon": -104.95085736299269,
+          "lat": 38.589047404300686
+        },
+        {
+          "lon": -104.95089548242959,
+          "lat": 38.58907965882924
+        },
+        {
+          "lon": -104.9509178146495,
+          "lat": 38.589137236978154
+        },
+        {
+          "lon": -104.95087592910264,
+          "lat": 38.58924976633363
+        },
+        {
+          "lon": -104.95071888074447,
+          "lat": 38.58936886759515
+        }
+      ]
+    },
+    {
+      "id": "lnk:100-USW-Flex-Wilderness>100-UAP-U7O",
+      "parent": "100-USW-Flex-Wilderness",
+      "child": "100-UAP-U7O",
+      "medium": "wired-ethernet"
+    },
+    {
+      "id": "lnk:100-USW-Flex-Wilderness>102-UAP-M",
+      "parent": "100-USW-Flex-Wilderness",
+      "child": "102-UAP-M",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.95070109493182,
+          "lat": 38.58963511564737
+        },
+        {
+          "lon": -104.95071308977927,
+          "lat": 38.58979285912215
+        }
+      ]
+    },
+    {
+      "id": "lnk:096-USW-Flex-East>097-USW-Flex2.5G-IT",
+      "parent": "096-USW-Flex-East",
+      "child": "097-USW-Flex2.5G-IT",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.94925881052873,
+          "lat": 38.58879783883683
+        },
+        {
+          "lon": -104.9493131994127,
+          "lat": 38.58889492127411
+        },
+        {
+          "lon": -104.94938744952259,
+          "lat": 38.58898221735457
+        },
+        {
+          "lon": -104.94950713109021,
+          "lat": 38.58899785194317
+        },
+        {
+          "lon": -104.94958259824233,
+          "lat": 38.58896760927421
+        },
+        {
+          "lon": -104.94959566395808,
+          "lat": 38.58894090146415
+        },
+        {
+          "lon": -104.94959171583797,
+          "lat": 38.58890839840567
+        }
+      ]
+    },
+    {
+      "id": "lnk:097-USW-Flex2.5G-IT>096-UAP-U7O",
+      "parent": "097-USW-Flex2.5G-IT",
+      "child": "096-UAP-U7O",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.9496132951378,
+          "lat": 38.58887501590261
+        },
+        {
+          "lon": -104.9495826710779,
+          "lat": 38.58886342687545
+        },
+        {
+          "lon": -104.94956282469266,
+          "lat": 38.58885228771414
+        },
+        {
+          "lon": -104.94956567750468,
+          "lat": 38.58882869206925
+        }
+      ]
+    },
+    {
+      "id": "lnk:099-USW-Flex>099-UAP-U7O",
+      "parent": "099-USW-Flex",
+      "child": "099-UAP-U7O",
+      "medium": "wired-ethernet",
+      "vertices": [
+        {
+          "lon": -104.9507270507748,
+          "lat": 38.58900757507032
+        },
+        {
+          "lon": -104.95075448270701,
+          "lat": 38.58901367220488
+        },
+        {
+          "lon": -104.95076557035817,
+          "lat": 38.589022571179314
+        },
+        {
+          "lon": -104.95077641962907,
+          "lat": 38.58903118917953
+        }
+      ]
+    }
+  ],
+  "location_groups": [
+    {
+      "id": "main-building",
+      "label": "Main Building",
+      "anchor_landmark": "Main Building",
+      "anchor_coords": {
+        "lon": -104.9486403828452,
+        "lat": 38.58697788471157,
+        "alt_m": 2021.564304295896,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "centroid": {
+        "lon": -104.9486014,
+        "lat": 38.5869678
+      },
+      "device_ids": [
+        "0000-MD-UDM-Pro-2",
+        "000-USW-24-PoE",
+        "000-USW-Flex-Mini",
+        "000-UAP-IW",
+        "000-UAP-L",
+        "000-USW-Flex-Back",
+        "000-USW-Flex-Roof",
+        "NBM5-AP-80",
+        "NSL5AC-AP-89",
+        "NSL5AC-AP-49",
+        "NB5AC-AP-93",
+        "NB5AC-AP-96"
+      ]
+    },
+    {
+      "id": "propane-shed",
+      "label": "Propane Shed / Site 67",
+      "anchor_landmark": "Propane Shed",
+      "anchor_coords": {
+        "lon": -104.948772068093,
+        "lat": 38.58675367321184,
+        "alt_m": 2020.881701204765,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "centroid": {
+        "lon": -104.9488474,
+        "lat": 38.5868147
+      },
+      "device_ids": [
+        "000-USW-Flex-Propane",
+        "067-UAP-U7O"
+      ]
+    },
+    {
+      "id": "site-45",
+      "label": "Site 45",
+      "anchor_landmark": null,
+      "anchor_coords": null,
+      "centroid": {
+        "lon": -104.9485806,
+        "lat": 38.5862541
+      },
+      "device_ids": [
+        "045-UAP-U7O"
+      ]
+    },
+    {
+      "id": "sites-14-26",
+      "label": "Sites 14–26",
+      "anchor_landmark": null,
+      "anchor_coords": null,
+      "centroid": {
+        "lon": -104.9480723,
+        "lat": 38.5865866
+      },
+      "device_ids": [
+        "016-USW-Flex",
+        "014-UAP-U7O",
+        "026-UAP-M"
+      ]
+    },
+    {
+      "id": "sites-36-38",
+      "label": "Sites 36–38",
+      "anchor_landmark": null,
+      "anchor_coords": null,
+      "centroid": {
+        "lon": -104.9491823,
+        "lat": 38.5865941
+      },
+      "device_ids": [
+        "036-USW-Flex",
+        "036-UAP-U7O",
+        "038-UAP-M"
+      ]
+    },
+    {
+      "id": "site-60",
+      "label": "Site 60",
+      "anchor_landmark": null,
+      "anchor_coords": null,
+      "centroid": {
+        "lon": -104.949161,
+        "lat": 38.5870948
+      },
+      "device_ids": [
+        "060-USW-Flex",
+        "060-UAP-U7O"
+      ]
+    },
+    {
+      "id": "cozy-cabin",
+      "label": "Cozy Cabin / Sites 52–56",
+      "anchor_landmark": "Cozy Cabin",
+      "anchor_coords": {
+        "lon": -104.9494253297949,
+        "lat": 38.58684899299974,
+        "alt_m": 2021.35013187716,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "centroid": {
+        "lon": -104.9495558,
+        "lat": 38.587142
+      },
+      "device_ids": [
+        "052-UAP-P-Cozy",
+        "055-USW-Flex-Front",
+        "055-USW-Flex-Back",
+        "053-UAP-M",
+        "056-UAP-M"
+      ]
+    },
+    {
+      "id": "hurt-locker",
+      "label": "Hurt Locker / Site 68",
+      "anchor_landmark": "Hurt Locker",
+      "anchor_coords": {
+        "lon": -104.9490397622329,
+        "lat": 38.58737834237093,
+        "alt_m": 2023.550077029853,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "centroid": {
+        "lon": -104.9489906,
+        "lat": 38.5873711
+      },
+      "device_ids": [
+        "068-USW-Flex",
+        "068-UAP-U7O"
+      ]
+    },
+    {
+      "id": "sites-57-75",
+      "label": "Sites 57 & 75 (garden beds)",
+      "anchor_landmark": null,
+      "anchor_coords": null,
+      "centroid": {
+        "lon": -104.9494517,
+        "lat": 38.5875641
+      },
+      "device_ids": [
+        "NS5AC-STA-57",
+        "057-USW-Flex",
+        "057-UAP-U6M",
+        "NB5AC-STA-75",
+        "075-UAP-M"
+      ]
+    },
+    {
+      "id": "site-80",
+      "label": "Site 80",
+      "anchor_landmark": null,
+      "anchor_coords": null,
+      "centroid": {
+        "lon": -104.9488049,
+        "lat": 38.5878082
+      },
+      "device_ids": [
+        "NBM5-STA-80",
+        "080-UAP-M"
+      ]
+    },
+    {
+      "id": "site-89",
+      "label": "Site 89",
+      "anchor_landmark": null,
+      "anchor_coords": null,
+      "centroid": {
+        "lon": -104.948148,
+        "lat": 38.58755
+      },
+      "device_ids": [
+        "NSL5AC-STA-089",
+        "089-USW-Flex-David",
+        "089-UAP-IW-ROCHSTAR",
+        "089-UAP-M",
+        "085-UAP-M"
+      ]
+    },
+    {
+      "id": "pavilion-49",
+      "label": "Pavilion / Site 49",
+      "anchor_landmark": null,
+      "anchor_coords": null,
+      "centroid": {
+        "lon": -104.9476725,
+        "lat": 38.5871547
+      },
+      "device_ids": [
+        "NB5AC-STA-49",
+        "049-USW-Flex",
+        "049-UAP-U7O",
+        "NB5AC-AP-91"
+      ]
+    },
+    {
+      "id": "site-46",
+      "label": "Site 46",
+      "anchor_landmark": null,
+      "anchor_coords": null,
+      "centroid": {
+        "lon": -104.9474124,
+        "lat": 38.586716
+      },
+      "device_ids": [
+        "046-UAP-M"
+      ]
+    },
+    {
+      "id": "staff-laundry",
+      "label": "Staff Laundry",
+      "anchor_landmark": "Staff Laundry",
+      "anchor_coords": {
+        "lon": -104.9474299369689,
+        "lat": 38.58736005502006,
+        "alt_m": 2023.554147396276,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "centroid": {
+        "lon": -104.947268,
+        "lat": 38.5874247
+      },
+      "device_ids": [
+        "088-UAP-M"
+      ]
+    },
+    {
+      "id": "site-91",
+      "label": "Site 91",
+      "anchor_landmark": null,
+      "anchor_coords": null,
+      "centroid": {
+        "lon": -104.947408,
+        "lat": 38.5878297
+      },
+      "device_ids": [
+        "NS5AC-STA-91",
+        "091-USW-Flex",
+        "091-UAP-U7O"
+      ]
+    },
+    {
+      "id": "sites-93-94",
+      "label": "Sites 93–94",
+      "anchor_landmark": null,
+      "anchor_coords": null,
+      "centroid": {
+        "lon": -104.9487914,
+        "lat": 38.5883215
+      },
+      "device_ids": [
+        "NB5AC-STA-93",
+        "093-USW-Flex",
+        "094-UAP-U6M"
+      ]
+    },
+    {
+      "id": "site-96-east",
+      "label": "Site 96 (east tree)",
+      "anchor_landmark": null,
+      "anchor_coords": null,
+      "centroid": {
+        "lon": -104.9490177,
+        "lat": 38.5887044
+      },
+      "device_ids": [
+        "NB5AC-STA-96",
+        "096-USW-Flex-East",
+        "NSL5AC-AP-57-75-98"
+      ]
+    },
+    {
+      "id": "it-shed",
+      "label": "IT Shed",
+      "anchor_landmark": "IT Shed",
+      "anchor_coords": {
+        "lon": -104.949606368077,
+        "lat": 38.58884465607676,
+        "alt_m": 2036.914432592665,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "centroid": {
+        "lon": -104.9495912,
+        "lat": 38.5888432
+      },
+      "device_ids": [
+        "097-USW-Flex2.5G-IT",
+        "096-UAP-U7O"
+      ]
+    },
+    {
+      "id": "getaway-cabin",
+      "label": "Getaway Cabin",
+      "anchor_landmark": "Getaway Cabin",
+      "anchor_coords": {
+        "lon": -104.9498864121799,
+        "lat": 38.58815369780787,
+        "alt_m": 2027.938395309046,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "centroid": {
+        "lon": -104.949908,
+        "lat": 38.5881035
+      },
+      "device_ids": [
+        "NB5AC-STA-98",
+        "098-USW-Flex-Getaway",
+        "098-UAP-P-Getaway"
+      ]
+    },
+    {
+      "id": "hideaway-cabin",
+      "label": "Hideaway Cabin",
+      "anchor_landmark": "Hideaway Cabin",
+      "anchor_coords": {
+        "lon": -104.9504821377753,
+        "lat": 38.58883703362557,
+        "alt_m": 2029.920997667405,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "centroid": {
+        "lon": -104.9504249,
+        "lat": 38.5887555
+      },
+      "device_ids": [
+        "NanoSwitch",
+        "098-UAP-M-Hideaway",
+        "098-UAP-M"
+      ]
+    },
+    {
+      "id": "site-99",
+      "label": "Site 99 (shed / fence)",
+      "anchor_landmark": null,
+      "anchor_coords": null,
+      "centroid": {
+        "lon": -104.9507534,
+        "lat": 38.5890082
+      },
+      "device_ids": [
+        "099-USW-Flex",
+        "099-UAP-U7O"
+      ]
+    },
+    {
+      "id": "wilderness-cabin",
+      "label": "Wilderness Cabin",
+      "anchor_landmark": "Wilderness Cabin",
+      "anchor_coords": {
+        "lon": -104.9505965599513,
+        "lat": 38.58936485401672,
+        "alt_m": 2033.488690496013,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "centroid": {
+        "lon": -104.9506503,
+        "lat": 38.5895323
+      },
+      "device_ids": [
+        "100-USW-Flex-Wilderness",
+        "100-UAP-U7O",
+        "102-UAP-M"
+      ]
+    }
+  ],
+  "landmarks": [
+    {
+      "id": "Bath House",
+      "coords": {
+        "lon": -104.9488756032102,
+        "lat": 38.58696103461328,
+        "alt_m": 2021.573330068144,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "kind": "landmark"
+    },
+    {
+      "id": "Brown Building",
+      "coords": {
+        "lon": -104.9515289748455,
+        "lat": 38.59098667822396,
+        "alt_m": 2038.880168613101,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "kind": "landmark"
+    },
+    {
+      "id": "Cozy Cabin",
+      "coords": {
+        "lon": -104.9494253297949,
+        "lat": 38.58684899299974,
+        "alt_m": 2021.35013187716,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "kind": "landmark"
+    },
+    {
+      "id": "Front Dumpsters",
+      "coords": {
+        "lon": -104.9474266939325,
+        "lat": 38.58644667186604,
+        "alt_m": 2016.586015948817,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "kind": "landmark"
+    },
+    {
+      "id": "Getaway Cabin",
+      "coords": {
+        "lon": -104.9498864121799,
+        "lat": 38.58815369780787,
+        "alt_m": 2027.938395309046,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "kind": "landmark"
+    },
+    {
+      "id": "Hideaway Cabin",
+      "coords": {
+        "lon": -104.9504821377753,
+        "lat": 38.58883703362557,
+        "alt_m": 2029.920997667405,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "kind": "landmark"
+    },
+    {
+      "id": "Hurt Locker",
+      "coords": {
+        "lon": -104.9490397622329,
+        "lat": 38.58737834237093,
+        "alt_m": 2023.550077029853,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "kind": "landmark"
+    },
+    {
+      "id": "IT Shed",
+      "coords": {
+        "lon": -104.949606368077,
+        "lat": 38.58884465607676,
+        "alt_m": 2036.914432592665,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "kind": "landmark"
+    },
+    {
+      "id": "Main Building",
+      "coords": {
+        "lon": -104.9486403828452,
+        "lat": 38.58697788471157,
+        "alt_m": 2021.564304295896,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "kind": "landmark"
+    },
+    {
+      "id": "Propane Shed",
+      "coords": {
+        "lon": -104.948772068093,
+        "lat": 38.58675367321184,
+        "alt_m": 2020.881701204765,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "kind": "landmark"
+    },
+    {
+      "id": "Rear Dumpster",
+      "coords": {
+        "lon": -104.9496828182598,
+        "lat": 38.5883423269617,
+        "alt_m": 2027.624000333579,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "kind": "landmark"
+    },
+    {
+      "id": "Seclusion Cabin",
+      "coords": {
+        "lon": -104.9501709240883,
+        "lat": 38.58849206109454,
+        "alt_m": 2029.553529978712,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "kind": "landmark"
+    },
+    {
+      "id": "Shop",
+      "coords": {
+        "lon": -104.9515788180851,
+        "lat": 38.59039582931693,
+        "alt_m": 2035.927242648392,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "kind": "landmark"
+    },
+    {
+      "id": "Staff Laundry",
+      "coords": {
+        "lon": -104.9474299369689,
+        "lat": 38.58736005502006,
+        "alt_m": 2023.554147396276,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "kind": "landmark"
+    },
+    {
+      "id": "Water Shed",
+      "coords": {
+        "lon": -104.9512522452193,
+        "lat": 38.59155920573092,
+        "alt_m": 2040.033651007101,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "kind": "landmark"
+    },
+    {
+      "id": "Wilderness Cabin",
+      "coords": {
+        "lon": -104.9505965599513,
+        "lat": 38.58936485401672,
+        "alt_m": 2033.488690496013,
+        "alt_source": "kml-raw-unvalidated"
+      },
+      "kind": "landmark"
+    }
+  ]
+}

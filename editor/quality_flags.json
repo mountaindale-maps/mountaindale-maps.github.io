@@ -1,0 +1,124 @@
+{
+  "schema": "mountaindale.editor_quality_flags",
+  "note": "Editor-only. Not part of the public map or any public snapshot.",
+  "devices": [
+    {
+      "id": "045-UAP-U7O",
+      "data_quality": [
+        {
+          "code": "service-area-tentative",
+          "severity": "info",
+          "related": "propane-shed",
+          "message": "Own spatial group; service-area association with 'propane-shed' is tentative (uplink 000-USW-Flex-Propane); not a shared mounting.",
+          "by": "atlas-review-2026-11-08 (WGS84 geodesic)"
+        }
+      ],
+      "service_area_tag": {
+        "group": "propane-shed",
+        "basis": "uplink 000-USW-Flex-Propane",
+        "tentative": true
+      }
+    },
+    {
+      "id": "049-USW-Flex",
+      "data_quality": [
+        {
+          "code": "approximate-placement",
+          "severity": "info",
+          "related": [
+            "049-UAP-U7O",
+            "NB5AC-STA-49",
+            "NB5AC-AP-91"
+          ],
+          "separation_m": {
+            "049-UAP-U7O": 0.126,
+            "NB5AC-STA-49": 0.256,
+            "NB5AC-AP-91": 0.461
+          },
+          "message": "Approximate pavilion stack, corroborated, not an independent switch survey.",
+          "by": "atlas-review-2026-11-08 (WGS84 geodesic)"
+        }
+      ],
+      "service_area_tag": null
+    },
+    {
+      "id": "046-UAP-M",
+      "data_quality": [
+        {
+          "code": "service-area-tentative",
+          "severity": "info",
+          "related": "pavilion-49",
+          "message": "Own spatial group; service-area association with 'pavilion-49' is tentative (uplink 049-USW-Flex); not a shared mounting.",
+          "by": "atlas-review-2026-11-08 (WGS84 geodesic)"
+        }
+      ],
+      "service_area_tag": {
+        "group": "pavilion-49",
+        "basis": "uplink 049-USW-Flex",
+        "tentative": true
+      }
+    },
+    {
+      "id": "NB5AC-STA-96",
+      "data_quality": [
+        {
+          "code": "site96-placement-unresolved",
+          "severity": "warning",
+          "related": "096-USW-Flex-East",
+          "separation_m": 37.512,
+          "message": "Placement unresolved, NOT confirmed co-location. Descriptions place this radio's support hardware on the 096-USW-Flex-East tree ('same tree'), not necessarily the radio itself. Pins kept as exported; nothing snapped or moved.",
+          "by": "atlas-review-2026-11-08 (WGS84 geodesic)"
+        }
+      ],
+      "service_area_tag": null
+    },
+    {
+      "id": "096-USW-Flex-East",
+      "data_quality": [
+        {
+          "code": "site96-placement-unresolved",
+          "severity": "warning",
+          "related": [
+            "NB5AC-STA-96",
+            "NSL5AC-AP-57-75-98"
+          ],
+          "separation_m": {
+            "NB5AC-STA-96": 37.512,
+            "NSL5AC-AP-57-75-98": 19.725,
+            "radio_to_radio": 17.933
+          },
+          "message": "Placement unresolved, NOT confirmed co-location. Descriptions place this radio's support hardware on the 096-USW-Flex-East tree ('same tree'), not necessarily the radio itself. Pins kept as exported; nothing snapped or moved.",
+          "by": "atlas-review-2026-11-08 (WGS84 geodesic)"
+        }
+      ],
+      "service_area_tag": null
+    },
+    {
+      "id": "NSL5AC-AP-57-75-98",
+      "data_quality": [
+        {
+          "code": "site96-placement-unresolved",
+          "severity": "warning",
+          "related": "096-USW-Flex-East",
+          "separation_m": 19.725,
+          "message": "Placement unresolved, NOT confirmed co-location. Descriptions place this radio's support hardware on the 096-USW-Flex-East tree ('same tree'), not necessarily the radio itself. Pins kept as exported; nothing snapped or moved.",
+          "by": "atlas-review-2026-11-08 (WGS84 geodesic)"
+        }
+      ],
+      "service_area_tag": null
+    },
+    {
+      "id": "098-UAP-M",
+      "data_quality": [
+        {
+          "code": "mounting-tentative",
+          "severity": "info",
+          "related": "Hideaway Cabin",
+          "message": "Cabin mounting is tentative; grouped with Hideaway Cabin by proximity only.",
+          "by": "atlas-review-2026-11-08 (WGS84 geodesic)"
+        }
+      ],
+      "service_area_tag": null
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Mountaindale local network editor</title>
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/editor.css">
+</head>
+<body>
+<p id="local-banner" class="local-banner">Local planning editor. This server is loopback-only. Saves, notes, and plans stay on this computer and are not published.</p>
+<div class="app editor-app">
+  <header class="top">
+    <div class="brand">
+      <p class="home">Mountaindale</p>
+      <h1>Local editor</h1>
+    </div>
+    <p id="calib" class="calib">Approximate horizontal distance; ground accuracy unverified. The sampled image transform is validated. This is not a survey.</p>
+    <p id="bend-hint" class="bend-hint">Drag a cable to bend it.</p>
+    <div class="modes" id="modes">
+      <button type="button" data-mode="inspect" class="is-on">Inspect</button>
+      <button type="button" data-mode="move">Move</button>
+      <button type="button" data-mode="path">Paths</button>
+      <button type="button" data-mode="group">Groups</button>
+      <button type="button" data-mode="connect">Connections</button>
+      <button type="button" data-mode="plan" id="mode-plan">Plans</button>
+      <button type="button" data-mode="notes" id="mode-notes">Notes</button>
+    </div>
+    <div class="tools">
+      <button type="button" id="undo">Undo</button>
+      <button type="button" id="redo">Redo</button>
+      <button type="button" id="save">Save</button>
+      <button type="button" id="reload">Reload</button>
+      <button type="button" id="backups">Backups</button>
+      <button type="button" id="import-btn">Import</button>
+      <button type="button" id="legend-btn" aria-expanded="false" aria-controls="legend">Legend</button>
+      <button type="button" id="review-export">Review public snapshot</button>
+      <input id="import-file" type="file" accept="application/json,.json" hidden>
+    </div>
+  </header>
+  <aside id="detail" class="panel"></aside>
+  <div id="map" class="map" aria-label="Editable aerial map">
+    <div id="legend" class="legend" hidden>
+      <div class="legend-head">
+        <h2>Legend</h2>
+        <button type="button" id="legend-close">Close</button>
+      </div>
+      <ul id="legend-items"></ul>
+      <p>Numbered circles are groups of equipment. Tap a circle to spread them.</p>
+      <p>Cable lengths are approximate, measured along the drawn route, in feet.</p>
+      <details class="about">
+        <summary>About measurements</summary>
+        <p>Stored lengths stay metres (feet × 0.3048). Horizontal distance is the WGS84 geodesic along the cable, including each bend. Grid UTM length is separate. A vertical pole drop is added to that horizontal length. Only an explicit slope rise is combined as a hypotenuse. Slack and service loops are added after that. The sampled image transform is validated. This is not a survey and it does not state a ground-error bound.</p>
+      </details>
+    </div>
+  </div>
+  <section id="topology" class="topology" aria-label="Network topology">
+    <header class="topo-head"><h2>Topology</h2></header>
+    <ul id="link-key" class="link-key" aria-label="How links are drawn"></ul>
+    <div id="topo-body"></div>
+  </section>
+  <p id="save-state" class="save-state">Not saved yet</p>
+</div>
+<dialog id="export-dialog">
+  <form method="dialog">
+    <h2>Review public snapshot</h2>
+    <p>Nothing is copied into the public site. Planned equipment, planned routes, notes, and private fields stay excluded.</p>
+    <div id="edit-list"></div>
+    <h3>Excluded</h3>
+    <div id="excluded-plans"></div>
+    <label class="check"><input id="confirm-review" type="checkbox"> I reviewed this selection. Download only. Do not publish.</label>
+    <p id="export-result"></p>
+    <div class="dialog-actions">
+      <button type="button" id="validate-export">Validate</button>
+      <button type="button" id="download-snapshot" disabled aria-disabled="true">Download snapshot</button>
+      <button type="submit" value="cancel">Close</button>
+    </div>
+  </form>
+</dialog>
+<dialog id="backup-dialog">
+  <form method="dialog">
+    <h2>Local backups</h2>
+    <div id="backup-list"></div>
+    <button type="submit">Close</button>
+  </form>
+</dialog>
+<script type="module" src="/js/editor.js"></script>
+</body>
+</html>

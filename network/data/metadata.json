@@ -1,0 +1,257 @@
+{
+  "schema": "mountaindale-atlas-crop-v1",
+  "display_role": "PRIMARY_DISPLAY_BACKGROUND_BOTH_APPS",
+  "replaces_full_image_for_display": true,
+  "calibration_status": "CROP_REGISTERED_TO_VALIDATED_FULL_JPEG_NOT_SURVEY",
+  "readiness": "CROP_IMAGE_TRANSFORM_READY_FOR_DISPLAY_AND_APPROXIMATE_HORIZONTAL_ESTIMATES_NOT_SURVEY",
+  "image_transform_validated": true,
+  "horizontal_estimates_ready": true,
+  "survey_accuracy_validated": false,
+  "safe_for_authoritative_measurement": false,
+  "imagery": {
+    "file": "oct31_gimp_crop.jpg",
+    "public_file": "network/imagery/oct31_gimp_crop.jpg",
+    "width": 5980,
+    "height": 8062,
+    "sha256": "d14b661ef72be0bc94018a8fe5fe2dc77ce41841a3e5bc0f5fb05386fcca0b27",
+    "bytes": 9960257,
+    "unchanged_from_upload": true,
+    "preview": "oct31_gimp_crop_preview.jpg"
+  },
+  "full_jpeg": {
+    "file": "orthophoto_8000px.jpg",
+    "sha256": "0d4567a7ff0a6009b42c8c43fc8c5e588dabc903ae7ad17a20070bfe78bad8ad",
+    "width": 8000,
+    "height": 10592,
+    "role": "Existing site download and registration source. Not the network map canvas.",
+    "gdal_geotransform": [
+      504080.16032596945,
+      0.08311041491526702,
+      0,
+      4271568.686183937,
+      0,
+      -0.08311084179364896
+    ]
+  },
+  "original_geotiff_header": {
+    "width": 16623,
+    "height": 22008,
+    "model_pixel_scale": [
+      0.03999779337797848,
+      0.039999547268190196,
+      0
+    ],
+    "model_tiepoint": [
+      0,
+      0,
+      0,
+      504080.16032596945,
+      4271568.686183937,
+      0
+    ],
+    "raster_type": "PixelIsArea",
+    "crs_epsg": 32613,
+    "crs_name": "WGS 84 / UTM zone 13N",
+    "horizontal_datum": "WGS 84 (realization/epoch not specified in tags)",
+    "units": "metre",
+    "vertical_datum": "not specified; 2D orthophoto only",
+    "source": "Original ODM GeoTIFF header, EPSG:32613. The local filesystem path is omitted."
+  },
+  "registration_to_full": {
+    "full_file": "../oct31_sharp.jpg",
+    "full_sha256": "0d4567a7ff0a6009b42c8c43fc8c5e588dabc903ae7ad17a20070bfe78bad8ad",
+    "affine_crop_corner_to_full_corner_2x3": [
+      [
+        0.9999991596955672,
+        1.4140207693376454e-07,
+        816.0019847720412
+      ],
+      [
+        5.650120773051301e-07,
+        0.9999997876577029,
+        999.9998094143633
+      ]
+    ],
+    "affine_full_corner_to_crop_corner_2x3": [
+      [
+        1.000000840305219,
+        -1.414022257803412e-07,
+        -816.0025290605688
+      ],
+      [
+        -5.650126720638161e-07,
+        1.000000212342422,
+        -999.9995607052831
+      ]
+    ],
+    "effectively_integer_crop_origin_full_xy": [
+      816,
+      1000
+    ],
+    "effectively_axis_aligned": true,
+    "rotation_deg": 3.237283460653634e-05,
+    "scale": [
+      0.9999991596957268,
+      0.9999997876577129
+    ],
+    "shear_deg": -4.0474578546345826e-05,
+    "holdout_residual_full_px": {
+      "n": 1358,
+      "rmse": 0.18120039479615863,
+      "p50": 0.0341025001231708,
+      "p95": 0.14506045342019958,
+      "max": 2.4688398829758396
+    },
+    "train_residual_full_px": {
+      "n": 3151,
+      "rmse": 0.22471811738833597,
+      "p50": 0.03394856229841373,
+      "p95": 0.14707040307893998,
+      "max": 2.955734898925183
+    },
+    "matching": {
+      "detector": "SIFT",
+      "processing_scale": 0.25,
+      "ratio_test": 0.75,
+      "good_matches": 4527,
+      "ransac_inliers": 4509,
+      "reproj_threshold_full_px": 3.0
+    },
+    "inlier_coverage": {
+      "crop_xy_min": [
+        34.347965240478516,
+        114.87079620361328
+      ],
+      "crop_xy_max": [
+        5810.0703125,
+        7931.7783203125
+      ],
+      "full_xy_min": [
+        850.3456420898438,
+        1114.87060546875
+      ],
+      "full_xy_max": [
+        6626.0732421875,
+        8931.810546875
+      ]
+    },
+    "validation_report": "validation/crop_registration.json"
+  },
+  "candidate_georeferencing": {
+    "crs_epsg": 32613,
+    "pixel_convention": "upper-left outer corner (0,0); u right, v down; centers at (i+0.5,j+0.5)",
+    "gdal_geotransform": [
+      504147.9785894955,
+      0.08311034507721696,
+      1.1751985283845679e-08,
+      4271485.575357983,
+      -4.6958629368407625e-08,
+      -0.0831108241457019
+    ],
+    "affine_crop_corner_to_utm_epsg32613_2x3": [
+      [
+        0.08311034507721696,
+        1.1751985283845679e-08,
+        504147.9785894955
+      ],
+      [
+        -4.6958629368407625e-08,
+        -0.0831108241457019,
+        4271485.575357983
+      ]
+    ],
+    "native_preview_m_per_pixel": [
+      0.08311034507721696,
+      0.0831108241457019
+    ],
+    "geographic_crs_epsg": 4326,
+    "coordinate_order_geographic": "longitude,latitude",
+    "coordinate_order_projected": "easting,northing",
+    "crop_rectangle_corners_utm_en": [
+      [
+        504147.9785894955,
+        4271485.575357983
+      ],
+      [
+        504644.9784530573,
+        4271485.5750771705
+      ],
+      [
+        504644.9785478018,
+        4270815.535612907
+      ],
+      [
+        504147.97868424,
+        4270815.535893721
+      ]
+    ],
+    "assumption": "Composed from the validated full-frame affine and the measured crop-to-full registration. Not a ground survey. The affine does not move equipment coordinates."
+  },
+  "tiles": {
+    "type": "IMAGE_LOCAL_NOT_GEOGRAPHIC_XYZ",
+    "template": "tiles/{z}/{x}/{y}.jpg",
+    "tile_size": 256,
+    "min_zoom": 0,
+    "max_zoom": 5,
+    "native_zoom": 5,
+    "tile_count": 1025,
+    "source_pixels_per_tile_pixel": "2^(5-z)",
+    "origin": "top-left of crop JPEG; x right, y down",
+    "native_dimensions_px": [
+      5980,
+      8062
+    ],
+    "padded_pixels": "white outside crop extent within a tile"
+  },
+  "footprint": {
+    "valid_pixel_fraction": 0.5199666630436857,
+    "method": "Strict RGB>250 classified as background white; 5x5 morphological open+close. White canvas clearly present around irregular ortho footprint.",
+    "limits": "Near-white rooftops/vehicles may be eroded if >250; thin valid fingers may be opened away. Mask is image-space only, not a surveyed property boundary. Boundary margin for device-in-crop tests should use interior valid pixels, not merely the rectangular canvas.",
+    "use": "Heuristic only. Do not drop, move, or reject equipment or routes because a pixel is white or bright."
+  },
+  "devices_vs_crop": {
+    "devices_total": 70,
+    "outside_canvas": 0,
+    "uncertain_near_edge": 7,
+    "near_edge_device_ids": [
+      "000-USW-Flex-Mini",
+      "000-UAP-IW",
+      "000-USW-Flex-Roof",
+      "NBM5-AP-80",
+      "NSL5AC-AP-89",
+      "NB5AC-AP-93",
+      "016-USW-Flex"
+    ],
+    "outside_ids": []
+  },
+  "near_edge_device_ids": [
+    "000-USW-Flex-Mini",
+    "000-UAP-IW",
+    "000-USW-Flex-Roof",
+    "NBM5-AP-80",
+    "NSL5AC-AP-89",
+    "NB5AC-AP-93",
+    "016-USW-Flex"
+  ],
+  "accuracy": {
+    "crop_to_full_holdout_residual_full_px": {
+      "n": 1358,
+      "rmse": 0.18120039479615863,
+      "p50": 0.0341025001231708,
+      "p95": 0.14506045342019958,
+      "max": 2.4688398829758396
+    },
+    "registration_residual_interpretation": "Crop-to-full correlation residuals are not a ground-error bound."
+  },
+  "blockers": [
+    "This is not a survey. Cable lengths are approximate, in feet.",
+    "The white margin is not a property boundary. A bright roof can look like empty ground.",
+    "Lining up the photo does not move disputed equipment pins. Site 96 stays unresolved.",
+    "No equipment sits outside the photo. Seven devices are near the edge and stay where they were recorded."
+  ],
+  "provenance": {
+    "display": "Unchanged GIMP crop, 5980 by 8062, registered to the validated full JPEG.",
+    "full_jpeg_sha256": "0d4567a7ff0a6009b42c8c43fc8c5e588dabc903ae7ad17a20070bfe78bad8ad",
+    "crop_sha256": "d14b661ef72be0bc94018a8fe5fe2dc77ce41841a3e5bc0f5fb05386fcca0b27"
+  }
+}

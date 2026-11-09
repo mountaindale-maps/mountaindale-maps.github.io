@@ -1,0 +1,509 @@
+import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
+import { watch } from "node:fs";
+import { link, lstat, mkdtemp, readFile, readdir, rm, stat, symlink, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import test from "node:test";
+import http from "node:http";
+import { editorRoots, startEditorServer } from "../editor/server.mjs";
+import { LOCAL_PLAN_THREAT_MODEL, loadPlan, resolveAllowedDataDir, savePlan } from "../editor/store.mjs";
+import { evaluateCalibration, importCalibration } from "../network/js/lib/calibration.mjs";
+import { createHistory, undo } from "../network/js/lib/history.mjs";
+import { addLink, addPlannedDevice, importDocument, linksUnchanged, measureLink, planFromPublic, setSegmentExtra, ungroupDevice, validateImport } from "../network/js/lib/plan.mjs";
+import { buildPublicSnapshot, scanPublicTree } from "../network/js/lib/sanitize.mjs";
+import { mergeQualityFlags } from "../editor/quality.mjs";
+import { readFileSync } from "node:fs";
+
+const asbuilt = JSON.parse(readFileSync(new URL("../network/data/asbuilt_public.json", import.meta.url)));
+const metadata = JSON.parse(readFileSync(new URL("../network/data/metadata.json", import.meta.url)));
+const forbidden = [path.resolve("network"), path.resolve("dist"), path.resolve("editor/static")];
+
+function selection(deviceIds, extra = {}) {
+  return { confirmed: true, deviceIds, includeGroups: false, includeConnectivity: false, ...extra };
+}
+
+test("nested private fields and disguised secrets do not publish", () => {
+  const plan = planFromPublic(asbuilt, metadata);
+  const device = plan.asbuilt.devices.find((item) => item.id === "045-UAP-U7O");
+  device.ports = { serialNumber: "ABC12345", count: 2 };
+  device.data_quality = [...(device.data_quality || []), { code: "note", severity: "info", message: "Checked on site", assetTag: "AT-7781" }];
+  device.service_area_tag = { ...device.service_area_tag, household: "Smith" };
+  const group = plan.asbuilt.location_groups.find((item) => item.id === "site-45");
+  group.device_ids = [...group.device_ids, "PLAN-SHED-AP"];
+  const clean = buildPublicSnapshot(asbuilt, plan, selection(["045-UAP-U7O"], { includeGroups: true }));
+  const text = JSON.stringify(clean.snapshot);
+  for (const secret of ["ABC12345", "AT-7781", "PLAN-SHED-AP", "Smith", "serialNumber", "assetTag"]) {
+    assert.equal(text.includes(secret), false, secret);
+  }
+  const published = clean.snapshot.devices.find((item) => item.id === "045-UAP-U7O");
+  assert.equal(published.ports, null);
+  assert.equal(published.service_area_tag.group, "propane-shed");
+  assert.equal(published.service_area_tag.tentative, undefined);
+  assert.equal(published.service_area_tag.household, undefined);
+  assert.equal(published.data_quality, undefined);
+  assert.equal(JSON.stringify(published).includes("Checked on site"), false);
+  assert.equal(clean.snapshot.location_groups.find((item) => item.id === "site-45").device_ids.includes("PLAN-SHED-AP"), false);
+  assert.equal(clean.snapshot.location_groups.find((item) => item.id === "site-45").device_ids.includes("045-UAP-U7O"), true);
+
+  device.public_summary = "radio 0011.2233.4455";
+  assert.throws(() => buildPublicSnapshot(asbuilt, plan, selection(["045-UAP-U7O"])), /sanitizer/i);
+  device.public_summary = "pass\u200dword in the note";
+  assert.throws(() => buildPublicSnapshot(asbuilt, plan, selection(["045-UAP-U7O"])), /sanitizer/i);
+  device.public_summary = "gateway \uFF11\uFF10\uFF0E\uFF11\uFF0E\uFF12\uFF0E\uFF13";
+  assert.throws(() => buildPublicSnapshot(asbuilt, plan, selection(["045-UAP-U7O"])), /sanitizer/i);
+});
+
+test("the public file has no quality flags and the editor sidecar restores them", () => {
+  for (const device of asbuilt.devices) {
+    assert.equal(device.data_quality, undefined);
+    assert.equal(device.service_area_tag?.tentative, undefined);
+  }
+  const flags = JSON.parse(readFileSync(new URL("../editor/quality_flags.json", import.meta.url)));
+  const merged = mergeQualityFlags(asbuilt, flags);
+  const site = merged.devices.find((item) => item.id === "045-UAP-U7O");
+  assert.equal(site.service_area_tag.tentative, true);
+  assert.equal(site.data_quality[0].code, "service-area-tentative");
+  const east = merged.devices.find((item) => item.id === "096-USW-Flex-East");
+  assert.equal(east.data_quality[0].severity, "warning");
+  const plan = planFromPublic(merged, metadata);
+  const clean = buildPublicSnapshot(asbuilt, plan, selection(["045-UAP-U7O", "096-USW-Flex-East"]));
+  for (const device of clean.snapshot.devices) {
+    assert.equal(device.data_quality, undefined);
+    assert.equal(device.service_area_tag?.tentative, undefined);
+  }
+  assert.equal(JSON.stringify(clean.snapshot.devices).includes("data_quality"), false);
+  assert.equal(JSON.stringify(clean.snapshot.devices).includes("service-area-tentative"), false);
+});
+
+test("legitimate public fields round-trip through the allowlist", () => {
+  const plan = planFromPublic(asbuilt, metadata);
+  const clean = buildPublicSnapshot(asbuilt, plan, selection(["045-UAP-U7O", "096-USW-Flex-East"]));
+  const site = clean.snapshot.devices.find((item) => item.id === "045-UAP-U7O");
+  const source = asbuilt.devices.find((item) => item.id === "045-UAP-U7O");
+  assert.equal(site.ports, source.ports);
+  assert.equal(site.mount_height, source.mount_height);
+  assert.equal(site.service_area_tag.group, source.service_area_tag.group);
+  assert.equal(site.service_area_tag.tentative, undefined);
+  assert.equal(site.data_quality, undefined);
+  assert.equal(source.data_quality, undefined);
+  const flex = clean.snapshot.devices.find((item) => item.id === "096-USW-Flex-East");
+  assert.equal(flex.ports, 5);
+  assert.equal(flex.data_quality, undefined);
+  assert.deepEqual(scanPublicTree(clean.snapshot), []);
+  assert.equal(asbuilt.provenance.atlas_review.image_transform_validated, true);
+  assert.equal(asbuilt.provenance.atlas_review.survey_accuracy_validated, false);
+  assert.equal(asbuilt.provenance.atlas_review.disputed_pins_moved, false);
+  assert.equal(JSON.stringify(asbuilt.pending_review).includes("gate is false"), false);
+});
+
+test("invalid topology is rejected before a plan replaces the current one", () => {
+  const devices = [
+    { id: "A", role: "router", coords: { lon: -104.95, lat: 38.58 } },
+    { id: "B", role: "ap", coords: { lon: -104.95, lat: 38.58 } },
+    { id: "C", role: "switch", coords: { lon: -104.94, lat: 38.58 } },
+  ];
+  const current = planFromPublic(asbuilt, metadata);
+  assert.throws(() => importDocument({
+    devices,
+    links: [
+      { id: "1", parent: "A", child: "B", medium: "wired-ethernet" },
+      { id: "2", parent: "C", child: "B", medium: "wired-ethernet" },
+    ],
+  }, metadata), /DUAL UPLINK/);
+  assert.throws(() => importDocument({
+    devices,
+    links: [{ id: "1", parent: "A", child: "NOPE", medium: "wired-ethernet" }],
+  }, metadata), /endpoint is missing/);
+  assert.throws(() => importDocument({
+    devices: [devices[0], devices[0]],
+    links: [],
+  }, metadata), /Duplicate/);
+  assert.throws(() => importDocument({
+    devices,
+    links: [
+      { id: "1", parent: "A", child: "B", medium: "wired-ethernet" },
+      { id: "2", parent: "B", child: "A", medium: "wired-ethernet" },
+    ],
+  }, metadata), /CYCLE/);
+  assert.equal(current.asbuilt.devices.length, 70);
+  assert.doesNotThrow(() => validateImport(asbuilt));
+});
+
+test("ungroup removes the device from every group and keeps links", () => {
+  const plan = planFromPublic(asbuilt, metadata);
+  const next = ungroupDevice(plan, "045-UAP-U7O");
+  assert.equal(linksUnchanged(plan, next), true);
+  assert.equal(next.asbuilt.devices.find((item) => item.id === "045-UAP-U7O").location_group, null);
+  assert.equal(next.asbuilt.location_groups.some((group) => group.device_ids.includes("045-UAP-U7O")), false);
+  const history = undo({ past: [plan], present: next, future: [] });
+  assert.equal(history.present.asbuilt.devices.find((item) => item.id === "045-UAP-U7O").location_group, "site-45");
+});
+
+test("a backups symlink cannot receive a saved plan outside the allowed directory", async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), "md-root-"));
+  const outside = await mkdtemp(path.join(tmpdir(), "md-outside-"));
+  const plan = planFromPublic(asbuilt, metadata);
+  try {
+    await savePlan(dir, plan, forbidden);
+    await rm(path.join(dir, "backups"), { recursive: true, force: true });
+    await symlink(outside, path.join(dir, "backups"));
+    await assert.rejects(() => savePlan(dir, plan, forbidden), (error) => error.code === "DATA_DIR");
+    assert.equal((await readFile(path.join(dir, "current.json"), "utf8")).includes("mountaindale.local_plan"), true);
+    const leaked = await readFile(path.join(outside, "current.json"), "utf8").then(() => true, () => false);
+    assert.equal(leaked, false);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+    await rm(outside, { recursive: true, force: true });
+  }
+});
+
+test("a dangling temp symlink cannot receive a saved plan", async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), "md-tmp-"));
+  const outside = await mkdtemp(path.join(tmpdir(), "md-tmp-out-"));
+  const plan = planFromPublic(asbuilt, metadata);
+  const dangling = path.join(outside, "missing", "plan.json");
+  const victim = path.join(outside, "victim.json");
+  await writeFile(victim, "original");
+  try {
+    await symlink(dangling, path.join(dir, "current.json.tmp"));
+    await savePlan(dir, plan, forbidden);
+    assert.equal(existsSync(dangling), false);
+    assert.equal(await readFile(victim, "utf8"), "original");
+    assert.equal((await lstat(path.join(dir, "current.json.tmp"))).isSymbolicLink(), true);
+    assert.equal((await lstat(path.join(dir, "current.json"))).isSymbolicLink(), false);
+    assert.match(await readFile(path.join(dir, "current.json"), "utf8"), /mountaindale.local_plan/);
+    await rm(path.join(dir, "current.json.tmp"));
+    await symlink(victim, path.join(dir, "current.json.tmp"));
+    plan.notes.push({ id: "n-tmp", kind: "change-request", text: "still inside", created: "2026-11-09T00:00:00Z", device_ids: [] });
+    await savePlan(dir, plan, forbidden);
+    assert.equal(await readFile(victim, "utf8"), "original");
+    assert.match(await readFile(path.join(dir, "current.json"), "utf8"), /still inside/);
+    await rm(path.join(dir, "current.json"));
+    await symlink(dangling, path.join(dir, "current.json"));
+    await savePlan(dir, plan, forbidden);
+    assert.equal(existsSync(dangling), false);
+    assert.equal((await lstat(path.join(dir, "current.json"))).isFile(), true);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+    await rm(outside, { recursive: true, force: true });
+  }
+});
+
+test("replacing the temp file with a symlink during save does not write outside", async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), "md-race-"));
+  const outside = await mkdtemp(path.join(tmpdir(), "md-race-out-"));
+  const plan = planFromPublic(asbuilt, metadata);
+  const victim = path.join(outside, "victim.json");
+  const leak = path.join(outside, "leak.json");
+  await writeFile(victim, "original");
+  await savePlan(dir, plan, forbidden);
+  let armed = true;
+  const watcher = watch(dir, (event, filename) => {
+    if (!armed || !filename || !String(filename).endsWith(".tmp")) return;
+    const full = path.join(dir, String(filename));
+    symlink(leak, full).catch(async () => {
+      await rm(full, { force: true }).catch(() => {});
+      await symlink(leak, full).catch(() => {});
+    });
+  });
+  try {
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      plan.notes.push({ id: `race-${attempt}`, kind: "change-request", text: "race", created: "2026-11-09T00:00:00Z", device_ids: [] });
+      try {
+        await savePlan(dir, plan, forbidden);
+      } catch (error) {
+        assert.equal(error.code, "DATA_DIR");
+      }
+      assert.equal(existsSync(leak), false);
+      assert.equal(await readFile(victim, "utf8"), "original");
+    }
+  } finally {
+    armed = false;
+    watcher.close();
+  }
+  await new Promise((resolve) => setTimeout(resolve, 30));
+  await savePlan(dir, plan, forbidden);
+  assert.equal(existsSync(leak), false);
+  assert.equal((await lstat(path.join(dir, "current.json"))).isFile(), true);
+  assert.match(await readFile(path.join(dir, "current.json"), "utf8"), /mountaindale.local_plan/);
+  await rm(dir, { recursive: true, force: true });
+  await rm(outside, { recursive: true, force: true });
+});
+
+test("same-user code can read a plan by hardlink or copy; modes exclude other accounts", async () => {
+  assert.match(LOCAL_PLAN_THREAT_MODEL, /same-user/);
+  assert.match(LOCAL_PLAN_THREAT_MODEL, /0700/);
+  const dir = await mkdtemp(path.join(tmpdir(), "md-owner-"));
+  const outside = await mkdtemp(path.join(tmpdir(), "md-owner-out-"));
+  const plan = planFromPublic(asbuilt, metadata);
+  plan.notes.push({ id: "kept", kind: "change-request", text: "previous plan stays", created: "2026-11-09T00:00:00Z", device_ids: [] });
+  try {
+    await savePlan(dir, plan, forbidden);
+    const directory = await stat(dir);
+    const current = await stat(path.join(dir, "current.json"));
+    const backups = await stat(path.join(dir, "backups"));
+    assert.equal(directory.mode & 0o777, 0o700);
+    assert.equal(backups.mode & 0o777, 0o700);
+    assert.equal(current.mode & 0o777, 0o600);
+    assert.equal(current.nlink, 1);
+    const alias = path.join(outside, "hardlink.json");
+    await link(path.join(dir, "current.json"), alias);
+    assert.equal((await stat(path.join(dir, "current.json"))).nlink, 2);
+    assert.match(await readFile(alias, "utf8"), /previous plan stays/);
+    await rm(alias);
+    const copied = path.join(outside, "copied.json");
+    await writeFile(copied, await readFile(path.join(dir, "current.json")));
+    assert.equal((await stat(path.join(dir, "current.json"))).nlink, 1);
+    assert.match(await readFile(copied, "utf8"), /previous plan stays/);
+
+    const captures = [];
+    let serial = 0;
+    const watcher = watch(dir, (event, filename) => {
+      if (!filename || !String(filename).endsWith(".tmp")) return;
+      const dest = path.join(outside, `linked-${serial += 1}.json`);
+      link(path.join(dir, String(filename)), dest).then(() => captures.push(dest), () => {});
+    });
+    let refused = 0;
+    let installed = 0;
+    try {
+      for (let attempt = 0; attempt < 12; attempt += 1) {
+        plan.notes.push({ id: `alias-${attempt}`, kind: "change-request", text: `alias-marker-${attempt}`, created: "2026-11-09T00:00:00Z", device_ids: [] });
+        try {
+          await savePlan(dir, plan, forbidden);
+          installed += 1;
+        } catch (error) {
+          assert.equal(error.code, "PLAN_ALIASED");
+          refused += 1;
+        }
+      }
+    } finally {
+      watcher.close();
+    }
+    await new Promise((resolve) => setTimeout(resolve, 40));
+    const held = [];
+    for (const name of await readdir(outside)) {
+      if (!name.startsWith("linked-")) continue;
+      const text = await readFile(path.join(outside, name), "utf8");
+      if (text.includes("alias-marker-")) held.push(name);
+    }
+    assert.ok(held.length > 0, "a same-user hardlink of the temp file received the plan bytes");
+    const saved = await readFile(path.join(dir, "current.json"), "utf8");
+    assert.match(saved, /previous plan stays|alias-marker-/);
+    assert.equal((await lstat(path.join(dir, "current.json"))).isSymbolicLink(), false);
+    assert.ok(refused + installed === 12);
+    assert.ok(refused > 0, "an already-linked temp inode was not installed over the previous plan");
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+    await rm(outside, { recursive: true, force: true });
+  }
+});
+
+test("an explicit slope survives edit, save, reload, and the API, and negatives are refused", async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), "md-slope-"));
+  const started = await startEditorServer({ port: 0, dataDir: dir, roots: { kind: "repo", publicDir: null, baselineDir: path.resolve("network/data"), forbidden } });
+  try {
+    let plan = planFromPublic(asbuilt, metadata);
+    const link = plan.asbuilt.links.find((item) => item.medium !== "wan");
+    plan = setSegmentExtra(plan, link.id, 0, { vertical_drop_m: 2, slope_rise_m: 3, slack_m: 1, service_loop_m: 0.5 });
+    const claim = evaluateCalibration(metadata);
+    const segment = measureLink(plan, link, claim).segments[0];
+    const sloped = Math.hypot(segment.horizontal_ellipsoidal_m, 3);
+    assert.ok(Math.abs(segment.terrain_slope_m - sloped) < 1e-6);
+    assert.ok(Math.abs(segment.physical_cable_m - (sloped + 3.5)) < 1e-6);
+    plan = setSegmentExtra(plan, link.id, 0, { slack_m: 1 });
+    assert.equal(plan.cable_paths[link.id].segments[0].slope_rise_m, 3);
+    assert.equal(plan.cable_paths[link.id].segments[0].vertical_drop_m, 2);
+    assert.throws(() => setSegmentExtra(plan, link.id, 0, { slope_rise_m: -4 }), /Slope rise/);
+    assert.throws(() => setSegmentExtra(plan, link.id, 0, { vertical_drop_m: -1 }), /Vertical drop/);
+    const legacy = setSegmentExtra(planFromPublic(asbuilt, metadata), link.id, 0, { vertical_rise_m: 3 });
+    const legacySegment = measureLink(legacy, link, claim).segments[0];
+    assert.equal(legacySegment.vertical_drop_m, 3);
+    assert.equal(legacySegment.terrain_slope_m, legacySegment.horizontal_ellipsoidal_m);
+    assert.equal(legacy.cable_paths[link.id].segments[0].slope_rise_m, 0);
+    const rejected = structuredClone(plan);
+    rejected.cable_paths[link.id].segments[0].slope_rise_m = -2;
+    const refused = await fetch(`http://127.0.0.1:${started.port}/api/state`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(rejected),
+    });
+    const refusedBody = await refused.json();
+    assert.equal(refused.status, 400);
+    assert.match(refusedBody.error, /Slope rise/);
+    assert.equal(await loadPlan(dir), null);
+    const saved = await fetch(`http://127.0.0.1:${started.port}/api/state`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(plan),
+    });
+    assert.equal(saved.status, 200);
+    const loaded = await (await fetch(`http://127.0.0.1:${started.port}/api/state`)).json();
+    assert.equal(loaded.plan.cable_paths[link.id].segments[0].slope_rise_m, 3);
+    const again = measureLink(loaded.plan, link, claim).segments[0];
+    assert.ok(Math.abs(again.terrain_slope_m - Math.hypot(again.horizontal_ellipsoidal_m, 3)) < 1e-6);
+    assert.ok(Math.abs(again.physical_cable_m - (again.terrain_slope_m + 3.5)) < 1e-6);
+  } finally {
+    await new Promise((resolve) => started.server.close(resolve));
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test("a corrupt plan is reported with its backups and is not overwritten", async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), "md-corrupt-"));
+  const plan = planFromPublic(asbuilt, metadata);
+  const started = await startEditorServer({ port: 0, dataDir: dir, roots: { kind: "repo", publicDir: null, baselineDir: path.resolve("network/data"), forbidden } });
+  try {
+    await savePlan(dir, plan, forbidden);
+    plan.notes.push({ id: "n", kind: "change-request", text: "keep", created: "2026-11-09T00:00:00Z", device_ids: [] });
+    await savePlan(dir, plan, forbidden);
+    const current = path.join(dir, "current.json");
+    await writeFile(current, "{not json");
+    const response = await fetch(`http://127.0.0.1:${started.port}/api/state`);
+    const body = await response.json();
+    assert.equal(response.status, 409);
+    assert.equal(body.code, "PLAN_CORRUPT");
+    assert.ok(body.backups.length >= 1);
+    assert.equal(await readFile(current, "utf8"), "{not json");
+    assert.equal(JSON.stringify(body).includes(dir), false);
+  } finally {
+    await new Promise((resolve) => started.server.close(resolve));
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test("a symlink ancestor cannot redirect saves into the public tree", async () => {
+  const parent = await mkdtemp(path.join(tmpdir(), "md-link-"));
+  const plan = planFromPublic(asbuilt, metadata);
+  try {
+    await symlink(path.resolve("network"), path.join(parent, "via"));
+    await assert.rejects(() => savePlan(path.join(parent, "via", "plans"), plan, forbidden), (error) => error.code === "DATA_DIR");
+    assert.equal(existsSync(path.resolve("network/plans")), false);
+    assert.equal(existsSync(path.resolve("network/current.json")), false);
+  } finally {
+    await rm(parent, { recursive: true, force: true });
+  }
+});
+
+test("backup names are portable and errors do not reveal the data directory", async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), "md-backup-"));
+  const started = await startEditorServer({ port: 0, dataDir: dir, roots: { kind: "repo", publicDir: null, baselineDir: path.resolve("network/data"), forbidden } });
+  try {
+    const response = await fetch(`http://127.0.0.1:${started.port}/api/restore`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ name: "foo\\bar.json" }),
+    });
+    const body = await response.json();
+    assert.equal(response.status, 400);
+    assert.equal(body.error, "Unknown backup");
+    assert.equal(JSON.stringify(body).includes(dir), false);
+  } finally {
+    await new Promise((resolve) => started.server.close(resolve));
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+function piece(...parts) {
+  return parts.join("");
+}
+
+test("calibration import scrubs private paths from nested notes", () => {
+  const home = piece("/home/", "dh", "enken");
+  const imported = importCalibration(metadata, {
+    blockers: [`see ${home}/secret/odm_ortho${"photo.tif"}`, "one rejected patch remains"],
+    accuracy: { notes: `log ${home}/terminals/${piece("127", "707")}.txt and a rejected patch`, rmse: 0.05 },
+    image_transform_validated: true,
+    horizontal_estimates_ready: true,
+  });
+  const text = JSON.stringify(imported);
+  assert.equal(text.includes(home), false);
+  assert.equal(text.includes(piece("127", "707", ".txt")), false);
+  assert.match(text, /one rejected patch remains/);
+  assert.equal(imported.safe_for_authoritative_measurement, false);
+});
+
+test("planned references in quality notes do not publish, and look-alike secrets are refused", () => {
+  const plan = planFromPublic(asbuilt, metadata);
+  const device = plan.asbuilt.devices.find((item) => item.id === "096-USW-Flex-East");
+  device.data_quality = [{
+    code: "site96-placement-unresolved",
+    severity: "warning",
+    related: ["NB5AC-STA-96", "PLAN-SHED-AP"],
+    separation_m: { "NB5AC-STA-96": 37.512, "PLAN-SHED-AP": 4, radio_to_radio: 17.933 },
+    message: "Placement unresolved.",
+  }];
+  device.public_summary = `gate p${"\u0430"}ssword`;
+  assert.throws(() => buildPublicSnapshot(asbuilt, plan, selection([device.id])), /sanitizer/i);
+  device.public_summary = asbuilt.devices.find((item) => item.id === device.id).public_summary;
+  const clean = buildPublicSnapshot(asbuilt, plan, selection([device.id]));
+  const published = clean.snapshot.devices.find((item) => item.id === device.id);
+  assert.equal(published.data_quality, undefined);
+  assert.equal(JSON.stringify(published).includes("PLAN-SHED-AP"), false);
+  assert.equal(JSON.stringify(published).includes("Placement unresolved"), false);
+});
+
+test("a link to planned equipment is marked planned and cannot be published", () => {
+  let plan = planFromPublic(asbuilt, metadata);
+  plan = addPlannedDevice(plan, { id: "PLAN-AP-X", role: "ap", model: "Test AP", coords: { lon: -104.95, lat: 38.58 } });
+  plan = addLink(plan, { parent: "0000-MD-UDM-Pro-2", child: "PLAN-AP-X", medium: "wired-ethernet" });
+  const created = plan.asbuilt.links.find((link) => link.child === "PLAN-AP-X");
+  assert.equal(created.planned, true);
+  assert.equal(created.record_class, "planned");
+  plan.asbuilt.links.push({ id: "lnk:QA>PLAN-AP-X", parent: "QA", child: "PLAN-AP-X", medium: "wired-ethernet" });
+  const exported = buildPublicSnapshot(asbuilt, plan, {
+    confirmed: true,
+    deviceIds: [],
+    includeGroups: false,
+    includeConnectivity: true,
+  });
+  const text = JSON.stringify(exported.snapshot);
+  assert.equal(text.includes("PLAN-AP-X"), false);
+  assert.equal(text.includes("lnk:QA>PLAN-AP-X"), false);
+  assert.equal(exported.snapshot.links.length, asbuilt.links.length);
+  assert.ok(exported.excluded.planned_links.includes("lnk:QA>PLAN-AP-X"));
+});
+
+test("negative rise and slack are refused", () => {
+  const plan = planFromPublic(asbuilt, metadata);
+  const linkId = plan.asbuilt.links.find((link) => link.medium !== "wan").id;
+  assert.throws(() => setSegmentExtra(plan, linkId, 0, { slack_m: -1 }), /Slack/);
+  assert.throws(() => setSegmentExtra(plan, linkId, 0, { vertical_rise_m: -0.2 }), /Vertical drop/);
+  assert.throws(() => setSegmentExtra(plan, linkId, 0, { slope_rise_m: -0.2 }), /Slope rise/);
+  const kept = setSegmentExtra(plan, linkId, 0, { slack_m: 1.5, vertical_rise_m: 0 });
+  assert.equal(kept.cable_paths[linkId].segments[0].slack_m, 1.5);
+});
+
+test("repo mode refuses a data directory inside the working tree", async () => {
+  const roots = editorRoots();
+  assert.equal(roots.kind, "repo");
+  assert.ok(roots.forbidden.map((root) => path.resolve(root)).includes(path.resolve(".")));
+  await assert.rejects(() => resolveAllowedDataDir(path.resolve("editor"), roots.forbidden), (error) => error.code === "DATA_DIR");
+});
+
+test("a foreign Host header cannot read the local plan", async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), "md-host-"));
+  const started = await startEditorServer({ port: 0, dataDir: dir, roots: { kind: "repo", publicDir: null, baselineDir: path.resolve("network/data"), forbidden } });
+  try {
+    const status = await new Promise((resolve, reject) => {
+      const request = http.request({
+        hostname: "127.0.0.1",
+        port: started.port,
+        path: "/api/state",
+        method: "GET",
+        headers: { host: "evil.example" },
+      }, (response) => {
+        response.resume();
+        resolve(response.statusCode);
+      });
+      request.on("error", reject);
+      request.end();
+    });
+    assert.equal(status, 403);
+    const health = await fetch(`http://127.0.0.1:${started.port}/api/health`);
+    assert.equal(health.status, 200);
+  } finally {
+    await new Promise((resolve) => started.server.close(resolve));
+    await rm(dir, { recursive: true, force: true });
+  }
+});

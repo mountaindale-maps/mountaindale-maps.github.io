@@ -1,0 +1,2756 @@
+{
+  "schema": "mountaindale.topology_hierarchy",
+  "schema_version": "1.0.0",
+  "root": {
+    "key": "wan:internet",
+    "kind": "wan",
+    "label": "Internet / WAN",
+    "default_expanded": true,
+    "collapsible": false,
+    "wan_sources": [
+      {
+        "id": "SECOM",
+        "wan_role": "primary",
+        "label": "SECOM (primary internet)",
+        "link_id": "lnk:SECOM>0000-MD-UDM-Pro-2"
+      },
+      {
+        "id": "Starlink Local Priority 500GB",
+        "wan_role": "failover",
+        "label": "Starlink (failover internet)",
+        "link_id": "lnk:Starlink Local Priority 500GB>0000-MD-UDM-Pro-2"
+      },
+      {
+        "id": "wan-private-a",
+        "wan_role": "segregated",
+        "label": "Private family network",
+        "link_id": "lnk:wan-private-a>0000-MD-UDM-Pro-2"
+      },
+      {
+        "id": "wan-private-b",
+        "wan_role": "segregated",
+        "label": "Private family network",
+        "link_id": "lnk:wan-private-b>0000-MD-UDM-Pro-2"
+      }
+    ],
+    "children": [
+      {
+        "key": "0000-MD-UDM-Pro-2",
+        "kind": "device",
+        "device_id": "0000-MD-UDM-Pro-2",
+        "label": "0000-MD-UDM-Pro-2",
+        "role": "router",
+        "status": "active",
+        "uplink_link_id": null,
+        "uplink_medium": null,
+        "wireless_hop": false,
+        "default_expanded": true,
+        "collapsible": true,
+        "children": [
+          {
+            "key": "000-USW-24-PoE",
+            "kind": "device",
+            "device_id": "000-USW-24-PoE",
+            "label": "000-USW-24-PoE",
+            "role": "switch",
+            "status": "active",
+            "uplink_link_id": "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+            "uplink_medium": "wired-ethernet",
+            "wireless_hop": false,
+            "default_expanded": true,
+            "collapsible": true,
+            "children": [
+              {
+                "key": "000-USW-Flex-Mini",
+                "kind": "device",
+                "device_id": "000-USW-Flex-Mini",
+                "label": "000-USW-Flex-Mini",
+                "role": "switch",
+                "status": "active",
+                "uplink_link_id": "lnk:000-USW-24-PoE>000-USW-Flex-Mini",
+                "uplink_medium": "wired-ethernet",
+                "wireless_hop": false,
+                "default_expanded": false,
+                "collapsible": false,
+                "children": []
+              },
+              {
+                "key": "000-UAP-IW",
+                "kind": "device",
+                "device_id": "000-UAP-IW",
+                "label": "000-UAP-IW",
+                "role": "ap",
+                "status": "active",
+                "uplink_link_id": "lnk:000-USW-24-PoE>000-UAP-IW",
+                "uplink_medium": "wired-ethernet",
+                "wireless_hop": false,
+                "default_expanded": false,
+                "collapsible": false,
+                "children": []
+              },
+              {
+                "key": "000-UAP-L",
+                "kind": "device",
+                "device_id": "000-UAP-L",
+                "label": "000-UAP-L",
+                "role": "ap",
+                "status": "active",
+                "uplink_link_id": "lnk:000-USW-24-PoE>000-UAP-L",
+                "uplink_medium": "wired-ethernet",
+                "wireless_hop": false,
+                "default_expanded": false,
+                "collapsible": false,
+                "children": []
+              },
+              {
+                "key": "000-USW-Flex-Back",
+                "kind": "device",
+                "device_id": "000-USW-Flex-Back",
+                "label": "000-USW-Flex-Back",
+                "role": "switch",
+                "status": "active",
+                "uplink_link_id": "lnk:000-USW-24-PoE>000-USW-Flex-Back",
+                "uplink_medium": "wired-ethernet",
+                "wireless_hop": false,
+                "default_expanded": false,
+                "collapsible": true,
+                "children": [
+                  {
+                    "key": "000-USW-Flex-Propane",
+                    "kind": "device",
+                    "device_id": "000-USW-Flex-Propane",
+                    "label": "000-USW-Flex-Propane",
+                    "role": "switch",
+                    "status": "active",
+                    "uplink_link_id": "lnk:000-USW-Flex-Back>000-USW-Flex-Propane",
+                    "uplink_medium": "wired-ethernet",
+                    "wireless_hop": false,
+                    "default_expanded": false,
+                    "collapsible": true,
+                    "children": [
+                      {
+                        "key": "067-UAP-U7O",
+                        "kind": "device",
+                        "device_id": "067-UAP-U7O",
+                        "label": "067-UAP-U7O",
+                        "role": "ap",
+                        "status": "active",
+                        "uplink_link_id": "lnk:000-USW-Flex-Propane>067-UAP-U7O",
+                        "uplink_medium": "wired-ethernet",
+                        "wireless_hop": false,
+                        "default_expanded": false,
+                        "collapsible": false,
+                        "children": []
+                      },
+                      {
+                        "key": "045-UAP-U7O",
+                        "kind": "device",
+                        "device_id": "045-UAP-U7O",
+                        "label": "045-UAP-U7O",
+                        "role": "ap",
+                        "status": "active",
+                        "uplink_link_id": "lnk:000-USW-Flex-Propane>045-UAP-U7O",
+                        "uplink_medium": "wired-ethernet",
+                        "wireless_hop": false,
+                        "default_expanded": false,
+                        "collapsible": false,
+                        "children": []
+                      },
+                      {
+                        "key": "016-USW-Flex",
+                        "kind": "device",
+                        "device_id": "016-USW-Flex",
+                        "label": "016-USW-Flex",
+                        "role": "switch",
+                        "status": "active",
+                        "uplink_link_id": "lnk:000-USW-Flex-Propane>016-USW-Flex",
+                        "uplink_medium": "wired-ethernet",
+                        "wireless_hop": false,
+                        "default_expanded": false,
+                        "collapsible": true,
+                        "children": [
+                          {
+                            "key": "014-UAP-U7O",
+                            "kind": "device",
+                            "device_id": "014-UAP-U7O",
+                            "label": "014-UAP-U7O",
+                            "role": "ap",
+                            "status": "active",
+                            "uplink_link_id": "lnk:016-USW-Flex>014-UAP-U7O",
+                            "uplink_medium": "wired-ethernet",
+                            "wireless_hop": false,
+                            "default_expanded": false,
+                            "collapsible": false,
+                            "children": []
+                          },
+                          {
+                            "key": "026-UAP-M",
+                            "kind": "device",
+                            "device_id": "026-UAP-M",
+                            "label": "026-UAP-M",
+                            "role": "ap",
+                            "status": "active",
+                            "uplink_link_id": "lnk:016-USW-Flex>026-UAP-M",
+                            "uplink_medium": "wired-ethernet",
+                            "wireless_hop": false,
+                            "default_expanded": false,
+                            "collapsible": false,
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "key": "036-USW-Flex",
+                        "kind": "device",
+                        "device_id": "036-USW-Flex",
+                        "label": "036-USW-Flex",
+                        "role": "switch",
+                        "status": "active",
+                        "uplink_link_id": "lnk:000-USW-Flex-Propane>036-USW-Flex",
+                        "uplink_medium": "wired-ethernet",
+                        "wireless_hop": false,
+                        "default_expanded": false,
+                        "collapsible": true,
+                        "children": [
+                          {
+                            "key": "036-UAP-U7O",
+                            "kind": "device",
+                            "device_id": "036-UAP-U7O",
+                            "label": "036-UAP-U7O",
+                            "role": "ap",
+                            "status": "active",
+                            "uplink_link_id": "lnk:036-USW-Flex>036-UAP-U7O",
+                            "uplink_medium": "wired-ethernet",
+                            "wireless_hop": false,
+                            "default_expanded": false,
+                            "collapsible": false,
+                            "children": []
+                          },
+                          {
+                            "key": "038-UAP-M",
+                            "kind": "device",
+                            "device_id": "038-UAP-M",
+                            "label": "038-UAP-M",
+                            "role": "ap",
+                            "status": "active",
+                            "uplink_link_id": "lnk:036-USW-Flex>038-UAP-M",
+                            "uplink_medium": "wired-ethernet",
+                            "wireless_hop": false,
+                            "default_expanded": false,
+                            "collapsible": false,
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "key": "060-USW-Flex",
+                    "kind": "device",
+                    "device_id": "060-USW-Flex",
+                    "label": "060-USW-Flex",
+                    "role": "switch",
+                    "status": "active",
+                    "uplink_link_id": "lnk:000-USW-Flex-Back>060-USW-Flex",
+                    "uplink_medium": "wired-ethernet",
+                    "wireless_hop": false,
+                    "default_expanded": false,
+                    "collapsible": true,
+                    "children": [
+                      {
+                        "key": "060-UAP-U7O",
+                        "kind": "device",
+                        "device_id": "060-UAP-U7O",
+                        "label": "060-UAP-U7O",
+                        "role": "ap",
+                        "status": "active",
+                        "uplink_link_id": "lnk:060-USW-Flex>060-UAP-U7O",
+                        "uplink_medium": "wired-ethernet",
+                        "wireless_hop": false,
+                        "default_expanded": false,
+                        "collapsible": false,
+                        "children": []
+                      },
+                      {
+                        "key": "055-USW-Flex-Front",
+                        "kind": "device",
+                        "device_id": "055-USW-Flex-Front",
+                        "label": "055-USW-Flex-Front",
+                        "role": "switch",
+                        "status": "active",
+                        "uplink_link_id": "lnk:060-USW-Flex>055-USW-Flex-Front",
+                        "uplink_medium": "wired-ethernet",
+                        "wireless_hop": false,
+                        "default_expanded": false,
+                        "collapsible": true,
+                        "children": [
+                          {
+                            "key": "052-UAP-P-Cozy",
+                            "kind": "device",
+                            "device_id": "052-UAP-P-Cozy",
+                            "label": "052-UAP-P-Cozy",
+                            "role": "ap",
+                            "status": "active",
+                            "uplink_link_id": "lnk:055-USW-Flex-Front>052-UAP-P-Cozy",
+                            "uplink_medium": "wired-ethernet",
+                            "wireless_hop": false,
+                            "default_expanded": false,
+                            "collapsible": false,
+                            "children": []
+                          },
+                          {
+                            "key": "055-USW-Flex-Back",
+                            "kind": "device",
+                            "device_id": "055-USW-Flex-Back",
+                            "label": "055-USW-Flex-Back",
+                            "role": "switch",
+                            "status": "active",
+                            "uplink_link_id": "lnk:055-USW-Flex-Front>055-USW-Flex-Back",
+                            "uplink_medium": "wired-ethernet",
+                            "wireless_hop": false,
+                            "default_expanded": false,
+                            "collapsible": true,
+                            "children": [
+                              {
+                                "key": "053-UAP-M",
+                                "kind": "device",
+                                "device_id": "053-UAP-M",
+                                "label": "053-UAP-M",
+                                "role": "ap",
+                                "status": "active",
+                                "uplink_link_id": "lnk:055-USW-Flex-Back>053-UAP-M",
+                                "uplink_medium": "wired-ethernet",
+                                "wireless_hop": false,
+                                "default_expanded": false,
+                                "collapsible": false,
+                                "children": []
+                              },
+                              {
+                                "key": "056-UAP-M",
+                                "kind": "device",
+                                "device_id": "056-UAP-M",
+                                "label": "056-UAP-M",
+                                "role": "ap",
+                                "status": "active",
+                                "uplink_link_id": "lnk:055-USW-Flex-Back>056-UAP-M",
+                                "uplink_medium": "wired-ethernet",
+                                "wireless_hop": false,
+                                "default_expanded": false,
+                                "collapsible": false,
+                                "children": []
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "key": "068-USW-Flex",
+                    "kind": "device",
+                    "device_id": "068-USW-Flex",
+                    "label": "068-USW-Flex",
+                    "role": "switch",
+                    "status": "active",
+                    "uplink_link_id": "lnk:000-USW-Flex-Back>068-USW-Flex",
+                    "uplink_medium": "wired-ethernet",
+                    "wireless_hop": false,
+                    "default_expanded": false,
+                    "collapsible": true,
+                    "children": [
+                      {
+                        "key": "068-UAP-U7O",
+                        "kind": "device",
+                        "device_id": "068-UAP-U7O",
+                        "label": "068-UAP-U7O",
+                        "role": "ap",
+                        "status": "active",
+                        "uplink_link_id": "lnk:068-USW-Flex>068-UAP-U7O",
+                        "uplink_medium": "wired-ethernet",
+                        "wireless_hop": false,
+                        "default_expanded": false,
+                        "collapsible": false,
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "key": "000-USW-Flex-Roof",
+                "kind": "device",
+                "device_id": "000-USW-Flex-Roof",
+                "label": "000-USW-Flex-Roof",
+                "role": "switch",
+                "status": "active",
+                "uplink_link_id": "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+                "uplink_medium": "wired-ethernet",
+                "wireless_hop": false,
+                "default_expanded": false,
+                "collapsible": true,
+                "children": [
+                  {
+                    "key": "NBM5-AP-80",
+                    "kind": "device",
+                    "device_id": "NBM5-AP-80",
+                    "label": "NBM5-AP-80",
+                    "role": "radio",
+                    "status": "active",
+                    "uplink_link_id": "lnk:000-USW-Flex-Roof>NBM5-AP-80",
+                    "uplink_medium": "wired-ethernet",
+                    "wireless_hop": false,
+                    "default_expanded": false,
+                    "collapsible": true,
+                    "children": [
+                      {
+                        "key": "NBM5-STA-80",
+                        "kind": "device",
+                        "device_id": "NBM5-STA-80",
+                        "label": "NBM5-STA-80",
+                        "role": "radio",
+                        "status": "active",
+                        "uplink_link_id": "lnk:NBM5-AP-80>NBM5-STA-80",
+                        "uplink_medium": "airmax-ptp",
+                        "wireless_hop": true,
+                        "default_expanded": false,
+                        "collapsible": true,
+                        "children": [
+                          {
+                            "key": "080-UAP-M",
+                            "kind": "device",
+                            "device_id": "080-UAP-M",
+                            "label": "080-UAP-M",
+                            "role": "ap",
+                            "status": "active",
+                            "uplink_link_id": "lnk:NBM5-STA-80>080-UAP-M",
+                            "uplink_medium": "wired-ethernet",
+                            "wireless_hop": false,
+                            "default_expanded": false,
+                            "collapsible": false,
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "key": "NSL5AC-AP-89",
+                    "kind": "device",
+                    "device_id": "NSL5AC-AP-89",
+                    "label": "NSL5AC-AP-89",
+                    "role": "radio",
+                    "status": "active",
+                    "uplink_link_id": "lnk:000-USW-Flex-Roof>NSL5AC-AP-89",
+                    "uplink_medium": "wired-ethernet",
+                    "wireless_hop": false,
+                    "default_expanded": false,
+                    "collapsible": true,
+                    "children": [
+                      {
+                        "key": "NSL5AC-STA-089",
+                        "kind": "device",
+                        "device_id": "NSL5AC-STA-089",
+                        "label": "NSL5AC-STA-089",
+                        "role": "radio",
+                        "status": "active",
+                        "uplink_link_id": "lnk:NSL5AC-AP-89>NSL5AC-STA-089",
+                        "uplink_medium": "airmax-ptp",
+                        "wireless_hop": true,
+                        "default_expanded": false,
+                        "collapsible": true,
+                        "children": [
+                          {
+                            "key": "089-USW-Flex-David",
+                            "kind": "device",
+                            "device_id": "089-USW-Flex-David",
+                            "label": "089-USW-Flex-David",
+                            "role": "switch",
+                            "status": "active",
+                            "uplink_link_id": "lnk:NSL5AC-STA-089>089-USW-Flex-David",
+                            "uplink_medium": "wired-ethernet",
+                            "wireless_hop": false,
+                            "default_expanded": false,
+                            "collapsible": true,
+                            "children": [
+                              {
+                                "key": "089-UAP-IW-ROCHSTAR",
+                                "kind": "device",
+                                "device_id": "089-UAP-IW-ROCHSTAR",
+                                "label": "089-UAP-IW-ROCHSTAR",
+                                "role": "ap",
+                                "status": "active",
+                                "uplink_link_id": "lnk:089-USW-Flex-David>089-UAP-IW-ROCHSTAR",
+                                "uplink_medium": "wired-ethernet",
+                                "wireless_hop": false,
+                                "default_expanded": false,
+                                "collapsible": false,
+                                "children": []
+                              },
+                              {
+                                "key": "089-UAP-M",
+                                "kind": "device",
+                                "device_id": "089-UAP-M",
+                                "label": "089-UAP-M",
+                                "role": "ap",
+                                "status": "active",
+                                "uplink_link_id": "lnk:089-USW-Flex-David>089-UAP-M",
+                                "uplink_medium": "wired-ethernet",
+                                "wireless_hop": false,
+                                "default_expanded": false,
+                                "collapsible": false,
+                                "children": []
+                              },
+                              {
+                                "key": "085-UAP-M",
+                                "kind": "device",
+                                "device_id": "085-UAP-M",
+                                "label": "085-UAP-M",
+                                "role": "ap",
+                                "status": "active",
+                                "uplink_link_id": "lnk:089-USW-Flex-David>085-UAP-M",
+                                "uplink_medium": "wired-ethernet",
+                                "wireless_hop": false,
+                                "default_expanded": false,
+                                "collapsible": false,
+                                "children": []
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "key": "NSL5AC-AP-49",
+                    "kind": "device",
+                    "device_id": "NSL5AC-AP-49",
+                    "label": "NSL5AC-AP-49",
+                    "role": "radio",
+                    "status": "active",
+                    "uplink_link_id": "lnk:000-USW-Flex-Roof>NSL5AC-AP-49",
+                    "uplink_medium": "wired-ethernet",
+                    "wireless_hop": false,
+                    "default_expanded": false,
+                    "collapsible": true,
+                    "children": [
+                      {
+                        "key": "NB5AC-STA-49",
+                        "kind": "device",
+                        "device_id": "NB5AC-STA-49",
+                        "label": "NB5AC-STA-49",
+                        "role": "radio",
+                        "status": "active",
+                        "uplink_link_id": "lnk:NSL5AC-AP-49>NB5AC-STA-49",
+                        "uplink_medium": "airmax-ptp",
+                        "wireless_hop": true,
+                        "default_expanded": false,
+                        "collapsible": true,
+                        "children": [
+                          {
+                            "key": "049-USW-Flex",
+                            "kind": "device",
+                            "device_id": "049-USW-Flex",
+                            "label": "049-USW-Flex",
+                            "role": "switch",
+                            "status": "active",
+                            "uplink_link_id": "lnk:NB5AC-STA-49>049-USW-Flex",
+                            "uplink_medium": "wired-ethernet",
+                            "wireless_hop": false,
+                            "default_expanded": false,
+                            "collapsible": true,
+                            "children": [
+                              {
+                                "key": "049-UAP-U7O",
+                                "kind": "device",
+                                "device_id": "049-UAP-U7O",
+                                "label": "049-UAP-U7O",
+                                "role": "ap",
+                                "status": "active",
+                                "uplink_link_id": "lnk:049-USW-Flex>049-UAP-U7O",
+                                "uplink_medium": "wired-ethernet",
+                                "wireless_hop": false,
+                                "default_expanded": false,
+                                "collapsible": false,
+                                "children": []
+                              },
+                              {
+                                "key": "NB5AC-AP-91",
+                                "kind": "device",
+                                "device_id": "NB5AC-AP-91",
+                                "label": "NB5AC-AP-91",
+                                "role": "radio",
+                                "status": "active",
+                                "uplink_link_id": "lnk:049-USW-Flex>NB5AC-AP-91",
+                                "uplink_medium": "wired-ethernet",
+                                "wireless_hop": false,
+                                "default_expanded": false,
+                                "collapsible": true,
+                                "children": [
+                                  {
+                                    "key": "NS5AC-STA-91",
+                                    "kind": "device",
+                                    "device_id": "NS5AC-STA-91",
+                                    "label": "NS5AC-STA-91",
+                                    "role": "radio",
+                                    "status": "active",
+                                    "uplink_link_id": "lnk:NB5AC-AP-91>NS5AC-STA-91",
+                                    "uplink_medium": "airmax-ptp",
+                                    "wireless_hop": true,
+                                    "default_expanded": false,
+                                    "collapsible": true,
+                                    "children": [
+                                      {
+                                        "key": "091-USW-Flex",
+                                        "kind": "device",
+                                        "device_id": "091-USW-Flex",
+                                        "label": "091-USW-Flex",
+                                        "role": "switch",
+                                        "status": "active",
+                                        "uplink_link_id": "lnk:NS5AC-STA-91>091-USW-Flex",
+                                        "uplink_medium": "wired-ethernet",
+                                        "wireless_hop": false,
+                                        "default_expanded": false,
+                                        "collapsible": true,
+                                        "children": [
+                                          {
+                                            "key": "091-UAP-U7O",
+                                            "kind": "device",
+                                            "device_id": "091-UAP-U7O",
+                                            "label": "091-UAP-U7O",
+                                            "role": "ap",
+                                            "status": "active",
+                                            "uplink_link_id": "lnk:091-USW-Flex>091-UAP-U7O",
+                                            "uplink_medium": "wired-ethernet",
+                                            "wireless_hop": false,
+                                            "default_expanded": false,
+                                            "collapsible": false,
+                                            "children": []
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "key": "046-UAP-M",
+                                "kind": "device",
+                                "device_id": "046-UAP-M",
+                                "label": "046-UAP-M",
+                                "role": "ap",
+                                "status": "active",
+                                "uplink_link_id": "lnk:049-USW-Flex>046-UAP-M",
+                                "uplink_medium": "wired-ethernet",
+                                "wireless_hop": false,
+                                "default_expanded": false,
+                                "collapsible": false,
+                                "children": []
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "key": "NB5AC-AP-93",
+                    "kind": "device",
+                    "device_id": "NB5AC-AP-93",
+                    "label": "NB5AC-AP-93",
+                    "role": "radio",
+                    "status": "active",
+                    "uplink_link_id": "lnk:000-USW-Flex-Roof>NB5AC-AP-93",
+                    "uplink_medium": "wired-ethernet",
+                    "wireless_hop": false,
+                    "default_expanded": false,
+                    "collapsible": true,
+                    "children": [
+                      {
+                        "key": "NB5AC-STA-93",
+                        "kind": "device",
+                        "device_id": "NB5AC-STA-93",
+                        "label": "NB5AC-STA-93",
+                        "role": "radio",
+                        "status": "active",
+                        "uplink_link_id": "lnk:NB5AC-AP-93>NB5AC-STA-93",
+                        "uplink_medium": "airmax-ptp",
+                        "wireless_hop": true,
+                        "default_expanded": false,
+                        "collapsible": true,
+                        "children": [
+                          {
+                            "key": "093-USW-Flex",
+                            "kind": "device",
+                            "device_id": "093-USW-Flex",
+                            "label": "093-USW-Flex",
+                            "role": "switch",
+                            "status": "active",
+                            "uplink_link_id": "lnk:NB5AC-STA-93>093-USW-Flex",
+                            "uplink_medium": "wired-ethernet",
+                            "wireless_hop": false,
+                            "default_expanded": false,
+                            "collapsible": true,
+                            "children": [
+                              {
+                                "key": "094-UAP-U6M",
+                                "kind": "device",
+                                "device_id": "094-UAP-U6M",
+                                "label": "094-UAP-U6M",
+                                "role": "ap",
+                                "status": "active",
+                                "uplink_link_id": "lnk:093-USW-Flex>094-UAP-U6M",
+                                "uplink_medium": "wired-ethernet",
+                                "wireless_hop": false,
+                                "default_expanded": false,
+                                "collapsible": false,
+                                "children": []
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "key": "NB5AC-AP-96",
+                    "kind": "device",
+                    "device_id": "NB5AC-AP-96",
+                    "label": "NB5AC-AP-96",
+                    "role": "radio",
+                    "status": "active",
+                    "uplink_link_id": "lnk:000-USW-Flex-Roof>NB5AC-AP-96",
+                    "uplink_medium": "wired-ethernet",
+                    "wireless_hop": false,
+                    "default_expanded": false,
+                    "collapsible": true,
+                    "children": [
+                      {
+                        "key": "NB5AC-STA-96",
+                        "kind": "device",
+                        "device_id": "NB5AC-STA-96",
+                        "label": "NB5AC-STA-96",
+                        "role": "radio",
+                        "status": "active",
+                        "uplink_link_id": "lnk:NB5AC-AP-96>NB5AC-STA-96",
+                        "uplink_medium": "airmax-ptp",
+                        "wireless_hop": true,
+                        "default_expanded": false,
+                        "collapsible": true,
+                        "children": [
+                          {
+                            "key": "096-USW-Flex-East",
+                            "kind": "device",
+                            "device_id": "096-USW-Flex-East",
+                            "label": "096-USW-Flex-East",
+                            "role": "switch",
+                            "status": "active",
+                            "uplink_link_id": "lnk:NB5AC-STA-96>096-USW-Flex-East",
+                            "uplink_medium": "wired-ethernet",
+                            "wireless_hop": false,
+                            "default_expanded": false,
+                            "collapsible": true,
+                            "children": [
+                              {
+                                "key": "NSL5AC-AP-57-75-98",
+                                "kind": "device",
+                                "device_id": "NSL5AC-AP-57-75-98",
+                                "label": "NSL5AC-AP-57-75-98",
+                                "role": "radio",
+                                "status": "active",
+                                "uplink_link_id": "lnk:096-USW-Flex-East>NSL5AC-AP-57-75-98",
+                                "uplink_medium": "wired-ethernet",
+                                "wireless_hop": false,
+                                "default_expanded": false,
+                                "collapsible": true,
+                                "children": [
+                                  {
+                                    "key": "NS5AC-STA-57",
+                                    "kind": "device",
+                                    "device_id": "NS5AC-STA-57",
+                                    "label": "NS5AC-STA-57",
+                                    "role": "radio",
+                                    "status": "active",
+                                    "uplink_link_id": "lnk:NSL5AC-AP-57-75-98>NS5AC-STA-57",
+                                    "uplink_medium": "airmax-ptmp",
+                                    "wireless_hop": true,
+                                    "default_expanded": false,
+                                    "collapsible": true,
+                                    "children": [
+                                      {
+                                        "key": "057-USW-Flex",
+                                        "kind": "device",
+                                        "device_id": "057-USW-Flex",
+                                        "label": "057-USW-Flex",
+                                        "role": "switch",
+                                        "status": "active",
+                                        "uplink_link_id": "lnk:NS5AC-STA-57>057-USW-Flex",
+                                        "uplink_medium": "wired-ethernet",
+                                        "wireless_hop": false,
+                                        "default_expanded": false,
+                                        "collapsible": true,
+                                        "children": [
+                                          {
+                                            "key": "057-UAP-U6M",
+                                            "kind": "device",
+                                            "device_id": "057-UAP-U6M",
+                                            "label": "057-UAP-U6M",
+                                            "role": "ap",
+                                            "status": "active",
+                                            "uplink_link_id": "lnk:057-USW-Flex>057-UAP-U6M",
+                                            "uplink_medium": "wired-ethernet",
+                                            "wireless_hop": false,
+                                            "default_expanded": false,
+                                            "collapsible": false,
+                                            "children": []
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "key": "NB5AC-STA-75",
+                                    "kind": "device",
+                                    "device_id": "NB5AC-STA-75",
+                                    "label": "NB5AC-STA-75",
+                                    "role": "radio",
+                                    "status": "active",
+                                    "uplink_link_id": "lnk:NSL5AC-AP-57-75-98>NB5AC-STA-75",
+                                    "uplink_medium": "airmax-ptmp",
+                                    "wireless_hop": true,
+                                    "default_expanded": false,
+                                    "collapsible": true,
+                                    "children": [
+                                      {
+                                        "key": "075-UAP-M",
+                                        "kind": "device",
+                                        "device_id": "075-UAP-M",
+                                        "label": "075-UAP-M",
+                                        "role": "ap",
+                                        "status": "active",
+                                        "uplink_link_id": "lnk:NB5AC-STA-75>075-UAP-M",
+                                        "uplink_medium": "wired-ethernet",
+                                        "wireless_hop": false,
+                                        "default_expanded": false,
+                                        "collapsible": false,
+                                        "children": []
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "key": "NB5AC-STA-98",
+                                    "kind": "device",
+                                    "device_id": "NB5AC-STA-98",
+                                    "label": "NB5AC-STA-98",
+                                    "role": "radio",
+                                    "status": "active",
+                                    "uplink_link_id": "lnk:NSL5AC-AP-57-75-98>NB5AC-STA-98",
+                                    "uplink_medium": "airmax-ptmp",
+                                    "wireless_hop": true,
+                                    "default_expanded": false,
+                                    "collapsible": true,
+                                    "children": [
+                                      {
+                                        "key": "098-USW-Flex-Getaway",
+                                        "kind": "device",
+                                        "device_id": "098-USW-Flex-Getaway",
+                                        "label": "098-USW-Flex-Getaway",
+                                        "role": "switch",
+                                        "status": "active",
+                                        "uplink_link_id": "lnk:NB5AC-STA-98>098-USW-Flex-Getaway",
+                                        "uplink_medium": "wired-ethernet",
+                                        "wireless_hop": false,
+                                        "default_expanded": false,
+                                        "collapsible": true,
+                                        "children": [
+                                          {
+                                            "key": "098-UAP-P-Getaway",
+                                            "kind": "device",
+                                            "device_id": "098-UAP-P-Getaway",
+                                            "label": "098-UAP-P-Getaway",
+                                            "role": "ap",
+                                            "status": "active",
+                                            "uplink_link_id": "lnk:098-USW-Flex-Getaway>098-UAP-P-Getaway",
+                                            "uplink_medium": "wired-ethernet",
+                                            "wireless_hop": false,
+                                            "default_expanded": false,
+                                            "collapsible": false,
+                                            "children": []
+                                          },
+                                          {
+                                            "key": "099-USW-Flex",
+                                            "kind": "device",
+                                            "device_id": "099-USW-Flex",
+                                            "label": "099-USW-Flex",
+                                            "role": "switch",
+                                            "status": "active",
+                                            "uplink_link_id": "lnk:098-USW-Flex-Getaway>099-USW-Flex",
+                                            "uplink_medium": "wired-ethernet",
+                                            "wireless_hop": false,
+                                            "default_expanded": false,
+                                            "collapsible": true,
+                                            "children": [
+                                              {
+                                                "key": "NanoSwitch",
+                                                "kind": "device",
+                                                "device_id": "NanoSwitch",
+                                                "label": "NanoSwitch",
+                                                "role": "switch",
+                                                "status": "active",
+                                                "uplink_link_id": "lnk:099-USW-Flex>NanoSwitch",
+                                                "uplink_medium": "wired-ethernet",
+                                                "wireless_hop": false,
+                                                "default_expanded": false,
+                                                "collapsible": true,
+                                                "children": [
+                                                  {
+                                                    "key": "098-UAP-M-Hideaway",
+                                                    "kind": "device",
+                                                    "device_id": "098-UAP-M-Hideaway",
+                                                    "label": "098-UAP-M-Hideaway",
+                                                    "role": "ap",
+                                                    "status": "active",
+                                                    "uplink_link_id": "lnk:NanoSwitch>098-UAP-M-Hideaway",
+                                                    "uplink_medium": "wired-ethernet",
+                                                    "wireless_hop": false,
+                                                    "default_expanded": false,
+                                                    "collapsible": false,
+                                                    "children": []
+                                                  },
+                                                  {
+                                                    "key": "098-UAP-M",
+                                                    "kind": "device",
+                                                    "device_id": "098-UAP-M",
+                                                    "label": "098-UAP-M",
+                                                    "role": "ap",
+                                                    "status": "active",
+                                                    "uplink_link_id": "lnk:NanoSwitch>098-UAP-M",
+                                                    "uplink_medium": "wired-ethernet",
+                                                    "wireless_hop": false,
+                                                    "default_expanded": false,
+                                                    "collapsible": false,
+                                                    "children": []
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "key": "100-USW-Flex-Wilderness",
+                                                "kind": "device",
+                                                "device_id": "100-USW-Flex-Wilderness",
+                                                "label": "100-USW-Flex-Wilderness",
+                                                "role": "switch",
+                                                "status": "active",
+                                                "uplink_link_id": "lnk:099-USW-Flex>100-USW-Flex-Wilderness",
+                                                "uplink_medium": "wired-ethernet",
+                                                "wireless_hop": false,
+                                                "default_expanded": false,
+                                                "collapsible": true,
+                                                "children": [
+                                                  {
+                                                    "key": "100-UAP-U7O",
+                                                    "kind": "device",
+                                                    "device_id": "100-UAP-U7O",
+                                                    "label": "100-UAP-U7O",
+                                                    "role": "ap",
+                                                    "status": "active",
+                                                    "uplink_link_id": "lnk:100-USW-Flex-Wilderness>100-UAP-U7O",
+                                                    "uplink_medium": "wired-ethernet",
+                                                    "wireless_hop": false,
+                                                    "default_expanded": false,
+                                                    "collapsible": false,
+                                                    "children": []
+                                                  },
+                                                  {
+                                                    "key": "102-UAP-M",
+                                                    "kind": "device",
+                                                    "device_id": "102-UAP-M",
+                                                    "label": "102-UAP-M",
+                                                    "role": "ap",
+                                                    "status": "active",
+                                                    "uplink_link_id": "lnk:100-USW-Flex-Wilderness>102-UAP-M",
+                                                    "uplink_medium": "wired-ethernet",
+                                                    "wireless_hop": false,
+                                                    "default_expanded": false,
+                                                    "collapsible": false,
+                                                    "children": []
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "key": "099-UAP-U7O",
+                                                "kind": "device",
+                                                "device_id": "099-UAP-U7O",
+                                                "label": "099-UAP-U7O",
+                                                "role": "ap",
+                                                "status": "active",
+                                                "uplink_link_id": "lnk:099-USW-Flex>099-UAP-U7O",
+                                                "uplink_medium": "wired-ethernet",
+                                                "wireless_hop": false,
+                                                "default_expanded": false,
+                                                "collapsible": false,
+                                                "children": []
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "key": "097-USW-Flex2.5G-IT",
+                                "kind": "device",
+                                "device_id": "097-USW-Flex2.5G-IT",
+                                "label": "097-USW-Flex2.5G-IT",
+                                "role": "switch",
+                                "status": "active",
+                                "uplink_link_id": "lnk:096-USW-Flex-East>097-USW-Flex2.5G-IT",
+                                "uplink_medium": "wired-ethernet",
+                                "wireless_hop": false,
+                                "default_expanded": false,
+                                "collapsible": true,
+                                "children": [
+                                  {
+                                    "key": "096-UAP-U7O",
+                                    "kind": "device",
+                                    "device_id": "096-UAP-U7O",
+                                    "label": "096-UAP-U7O",
+                                    "role": "ap",
+                                    "status": "active",
+                                    "uplink_link_id": "lnk:097-USW-Flex2.5G-IT>096-UAP-U7O",
+                                    "uplink_medium": "wired-ethernet",
+                                    "wireless_hop": false,
+                                    "default_expanded": false,
+                                    "collapsible": false,
+                                    "children": []
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "unconnected": [
+    {
+      "key": "088-UAP-M",
+      "kind": "device",
+      "device_id": "088-UAP-M",
+      "label": "088-UAP-M",
+      "role": "ap",
+      "status": "inactive",
+      "note": "Inactive AP, no uplink"
+    }
+  ],
+  "ancestors": {
+    "0000-MD-UDM-Pro-2": [
+      "wan:internet"
+    ],
+    "000-USW-24-PoE": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2"
+    ],
+    "000-USW-Flex-Mini": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE"
+    ],
+    "000-UAP-IW": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE"
+    ],
+    "000-UAP-L": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE"
+    ],
+    "000-USW-Flex-Back": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE"
+    ],
+    "000-USW-Flex-Propane": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back"
+    ],
+    "067-UAP-U7O": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "000-USW-Flex-Propane"
+    ],
+    "045-UAP-U7O": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "000-USW-Flex-Propane"
+    ],
+    "016-USW-Flex": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "000-USW-Flex-Propane"
+    ],
+    "014-UAP-U7O": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "000-USW-Flex-Propane",
+      "016-USW-Flex"
+    ],
+    "026-UAP-M": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "000-USW-Flex-Propane",
+      "016-USW-Flex"
+    ],
+    "036-USW-Flex": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "000-USW-Flex-Propane"
+    ],
+    "036-UAP-U7O": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "000-USW-Flex-Propane",
+      "036-USW-Flex"
+    ],
+    "038-UAP-M": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "000-USW-Flex-Propane",
+      "036-USW-Flex"
+    ],
+    "060-USW-Flex": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back"
+    ],
+    "060-UAP-U7O": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "060-USW-Flex"
+    ],
+    "055-USW-Flex-Front": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "060-USW-Flex"
+    ],
+    "052-UAP-P-Cozy": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "060-USW-Flex",
+      "055-USW-Flex-Front"
+    ],
+    "055-USW-Flex-Back": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "060-USW-Flex",
+      "055-USW-Flex-Front"
+    ],
+    "053-UAP-M": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "060-USW-Flex",
+      "055-USW-Flex-Front",
+      "055-USW-Flex-Back"
+    ],
+    "056-UAP-M": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "060-USW-Flex",
+      "055-USW-Flex-Front",
+      "055-USW-Flex-Back"
+    ],
+    "068-USW-Flex": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back"
+    ],
+    "068-UAP-U7O": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "068-USW-Flex"
+    ],
+    "000-USW-Flex-Roof": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE"
+    ],
+    "NBM5-AP-80": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof"
+    ],
+    "NBM5-STA-80": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NBM5-AP-80"
+    ],
+    "080-UAP-M": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NBM5-AP-80",
+      "NBM5-STA-80"
+    ],
+    "NSL5AC-AP-89": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof"
+    ],
+    "NSL5AC-STA-089": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-89"
+    ],
+    "089-USW-Flex-David": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-89",
+      "NSL5AC-STA-089"
+    ],
+    "089-UAP-IW-ROCHSTAR": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-89",
+      "NSL5AC-STA-089",
+      "089-USW-Flex-David"
+    ],
+    "089-UAP-M": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-89",
+      "NSL5AC-STA-089",
+      "089-USW-Flex-David"
+    ],
+    "085-UAP-M": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-89",
+      "NSL5AC-STA-089",
+      "089-USW-Flex-David"
+    ],
+    "NSL5AC-AP-49": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof"
+    ],
+    "NB5AC-STA-49": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-49"
+    ],
+    "049-USW-Flex": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-49",
+      "NB5AC-STA-49"
+    ],
+    "049-UAP-U7O": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-49",
+      "NB5AC-STA-49",
+      "049-USW-Flex"
+    ],
+    "NB5AC-AP-91": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-49",
+      "NB5AC-STA-49",
+      "049-USW-Flex"
+    ],
+    "NS5AC-STA-91": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-49",
+      "NB5AC-STA-49",
+      "049-USW-Flex",
+      "NB5AC-AP-91"
+    ],
+    "091-USW-Flex": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-49",
+      "NB5AC-STA-49",
+      "049-USW-Flex",
+      "NB5AC-AP-91",
+      "NS5AC-STA-91"
+    ],
+    "091-UAP-U7O": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-49",
+      "NB5AC-STA-49",
+      "049-USW-Flex",
+      "NB5AC-AP-91",
+      "NS5AC-STA-91",
+      "091-USW-Flex"
+    ],
+    "046-UAP-M": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-49",
+      "NB5AC-STA-49",
+      "049-USW-Flex"
+    ],
+    "NB5AC-AP-93": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof"
+    ],
+    "NB5AC-STA-93": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-93"
+    ],
+    "093-USW-Flex": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-93",
+      "NB5AC-STA-93"
+    ],
+    "094-UAP-U6M": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-93",
+      "NB5AC-STA-93",
+      "093-USW-Flex"
+    ],
+    "NB5AC-AP-96": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof"
+    ],
+    "NB5AC-STA-96": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96"
+    ],
+    "096-USW-Flex-East": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96"
+    ],
+    "NSL5AC-AP-57-75-98": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East"
+    ],
+    "NS5AC-STA-57": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98"
+    ],
+    "057-USW-Flex": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NS5AC-STA-57"
+    ],
+    "057-UAP-U6M": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NS5AC-STA-57",
+      "057-USW-Flex"
+    ],
+    "NB5AC-STA-75": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98"
+    ],
+    "075-UAP-M": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NB5AC-STA-75"
+    ],
+    "NB5AC-STA-98": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98"
+    ],
+    "098-USW-Flex-Getaway": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NB5AC-STA-98"
+    ],
+    "098-UAP-P-Getaway": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NB5AC-STA-98",
+      "098-USW-Flex-Getaway"
+    ],
+    "099-USW-Flex": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NB5AC-STA-98",
+      "098-USW-Flex-Getaway"
+    ],
+    "NanoSwitch": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NB5AC-STA-98",
+      "098-USW-Flex-Getaway",
+      "099-USW-Flex"
+    ],
+    "098-UAP-M-Hideaway": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NB5AC-STA-98",
+      "098-USW-Flex-Getaway",
+      "099-USW-Flex",
+      "NanoSwitch"
+    ],
+    "098-UAP-M": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NB5AC-STA-98",
+      "098-USW-Flex-Getaway",
+      "099-USW-Flex",
+      "NanoSwitch"
+    ],
+    "100-USW-Flex-Wilderness": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NB5AC-STA-98",
+      "098-USW-Flex-Getaway",
+      "099-USW-Flex"
+    ],
+    "100-UAP-U7O": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NB5AC-STA-98",
+      "098-USW-Flex-Getaway",
+      "099-USW-Flex",
+      "100-USW-Flex-Wilderness"
+    ],
+    "102-UAP-M": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NB5AC-STA-98",
+      "098-USW-Flex-Getaway",
+      "099-USW-Flex",
+      "100-USW-Flex-Wilderness"
+    ],
+    "099-UAP-U7O": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NB5AC-STA-98",
+      "098-USW-Flex-Getaway",
+      "099-USW-Flex"
+    ],
+    "097-USW-Flex2.5G-IT": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East"
+    ],
+    "096-UAP-U7O": [
+      "wan:internet",
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "097-USW-Flex2.5G-IT"
+    ]
+  },
+  "device_path": {
+    "0000-MD-UDM-Pro-2": [
+      "0000-MD-UDM-Pro-2"
+    ],
+    "000-USW-24-PoE": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE"
+    ],
+    "000-USW-Flex-Mini": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Mini"
+    ],
+    "000-UAP-IW": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-UAP-IW"
+    ],
+    "000-UAP-L": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-UAP-L"
+    ],
+    "000-USW-Flex-Back": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back"
+    ],
+    "000-USW-Flex-Propane": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "000-USW-Flex-Propane"
+    ],
+    "067-UAP-U7O": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "000-USW-Flex-Propane",
+      "067-UAP-U7O"
+    ],
+    "045-UAP-U7O": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "000-USW-Flex-Propane",
+      "045-UAP-U7O"
+    ],
+    "016-USW-Flex": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "000-USW-Flex-Propane",
+      "016-USW-Flex"
+    ],
+    "014-UAP-U7O": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "000-USW-Flex-Propane",
+      "016-USW-Flex",
+      "014-UAP-U7O"
+    ],
+    "026-UAP-M": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "000-USW-Flex-Propane",
+      "016-USW-Flex",
+      "026-UAP-M"
+    ],
+    "036-USW-Flex": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "000-USW-Flex-Propane",
+      "036-USW-Flex"
+    ],
+    "036-UAP-U7O": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "000-USW-Flex-Propane",
+      "036-USW-Flex",
+      "036-UAP-U7O"
+    ],
+    "038-UAP-M": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "000-USW-Flex-Propane",
+      "036-USW-Flex",
+      "038-UAP-M"
+    ],
+    "060-USW-Flex": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "060-USW-Flex"
+    ],
+    "060-UAP-U7O": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "060-USW-Flex",
+      "060-UAP-U7O"
+    ],
+    "055-USW-Flex-Front": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "060-USW-Flex",
+      "055-USW-Flex-Front"
+    ],
+    "052-UAP-P-Cozy": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "060-USW-Flex",
+      "055-USW-Flex-Front",
+      "052-UAP-P-Cozy"
+    ],
+    "055-USW-Flex-Back": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "060-USW-Flex",
+      "055-USW-Flex-Front",
+      "055-USW-Flex-Back"
+    ],
+    "053-UAP-M": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "060-USW-Flex",
+      "055-USW-Flex-Front",
+      "055-USW-Flex-Back",
+      "053-UAP-M"
+    ],
+    "056-UAP-M": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "060-USW-Flex",
+      "055-USW-Flex-Front",
+      "055-USW-Flex-Back",
+      "056-UAP-M"
+    ],
+    "068-USW-Flex": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "068-USW-Flex"
+    ],
+    "068-UAP-U7O": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Back",
+      "068-USW-Flex",
+      "068-UAP-U7O"
+    ],
+    "000-USW-Flex-Roof": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof"
+    ],
+    "NBM5-AP-80": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NBM5-AP-80"
+    ],
+    "NBM5-STA-80": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NBM5-AP-80",
+      "NBM5-STA-80"
+    ],
+    "080-UAP-M": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NBM5-AP-80",
+      "NBM5-STA-80",
+      "080-UAP-M"
+    ],
+    "NSL5AC-AP-89": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-89"
+    ],
+    "NSL5AC-STA-089": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-89",
+      "NSL5AC-STA-089"
+    ],
+    "089-USW-Flex-David": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-89",
+      "NSL5AC-STA-089",
+      "089-USW-Flex-David"
+    ],
+    "089-UAP-IW-ROCHSTAR": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-89",
+      "NSL5AC-STA-089",
+      "089-USW-Flex-David",
+      "089-UAP-IW-ROCHSTAR"
+    ],
+    "089-UAP-M": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-89",
+      "NSL5AC-STA-089",
+      "089-USW-Flex-David",
+      "089-UAP-M"
+    ],
+    "085-UAP-M": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-89",
+      "NSL5AC-STA-089",
+      "089-USW-Flex-David",
+      "085-UAP-M"
+    ],
+    "NSL5AC-AP-49": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-49"
+    ],
+    "NB5AC-STA-49": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-49",
+      "NB5AC-STA-49"
+    ],
+    "049-USW-Flex": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-49",
+      "NB5AC-STA-49",
+      "049-USW-Flex"
+    ],
+    "049-UAP-U7O": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-49",
+      "NB5AC-STA-49",
+      "049-USW-Flex",
+      "049-UAP-U7O"
+    ],
+    "NB5AC-AP-91": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-49",
+      "NB5AC-STA-49",
+      "049-USW-Flex",
+      "NB5AC-AP-91"
+    ],
+    "NS5AC-STA-91": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-49",
+      "NB5AC-STA-49",
+      "049-USW-Flex",
+      "NB5AC-AP-91",
+      "NS5AC-STA-91"
+    ],
+    "091-USW-Flex": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-49",
+      "NB5AC-STA-49",
+      "049-USW-Flex",
+      "NB5AC-AP-91",
+      "NS5AC-STA-91",
+      "091-USW-Flex"
+    ],
+    "091-UAP-U7O": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-49",
+      "NB5AC-STA-49",
+      "049-USW-Flex",
+      "NB5AC-AP-91",
+      "NS5AC-STA-91",
+      "091-USW-Flex",
+      "091-UAP-U7O"
+    ],
+    "046-UAP-M": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NSL5AC-AP-49",
+      "NB5AC-STA-49",
+      "049-USW-Flex",
+      "046-UAP-M"
+    ],
+    "NB5AC-AP-93": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-93"
+    ],
+    "NB5AC-STA-93": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-93",
+      "NB5AC-STA-93"
+    ],
+    "093-USW-Flex": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-93",
+      "NB5AC-STA-93",
+      "093-USW-Flex"
+    ],
+    "094-UAP-U6M": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-93",
+      "NB5AC-STA-93",
+      "093-USW-Flex",
+      "094-UAP-U6M"
+    ],
+    "NB5AC-AP-96": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96"
+    ],
+    "NB5AC-STA-96": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96"
+    ],
+    "096-USW-Flex-East": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East"
+    ],
+    "NSL5AC-AP-57-75-98": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98"
+    ],
+    "NS5AC-STA-57": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NS5AC-STA-57"
+    ],
+    "057-USW-Flex": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NS5AC-STA-57",
+      "057-USW-Flex"
+    ],
+    "057-UAP-U6M": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NS5AC-STA-57",
+      "057-USW-Flex",
+      "057-UAP-U6M"
+    ],
+    "NB5AC-STA-75": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NB5AC-STA-75"
+    ],
+    "075-UAP-M": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NB5AC-STA-75",
+      "075-UAP-M"
+    ],
+    "NB5AC-STA-98": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NB5AC-STA-98"
+    ],
+    "098-USW-Flex-Getaway": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NB5AC-STA-98",
+      "098-USW-Flex-Getaway"
+    ],
+    "098-UAP-P-Getaway": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NB5AC-STA-98",
+      "098-USW-Flex-Getaway",
+      "098-UAP-P-Getaway"
+    ],
+    "099-USW-Flex": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NB5AC-STA-98",
+      "098-USW-Flex-Getaway",
+      "099-USW-Flex"
+    ],
+    "NanoSwitch": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NB5AC-STA-98",
+      "098-USW-Flex-Getaway",
+      "099-USW-Flex",
+      "NanoSwitch"
+    ],
+    "098-UAP-M-Hideaway": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NB5AC-STA-98",
+      "098-USW-Flex-Getaway",
+      "099-USW-Flex",
+      "NanoSwitch",
+      "098-UAP-M-Hideaway"
+    ],
+    "098-UAP-M": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NB5AC-STA-98",
+      "098-USW-Flex-Getaway",
+      "099-USW-Flex",
+      "NanoSwitch",
+      "098-UAP-M"
+    ],
+    "100-USW-Flex-Wilderness": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NB5AC-STA-98",
+      "098-USW-Flex-Getaway",
+      "099-USW-Flex",
+      "100-USW-Flex-Wilderness"
+    ],
+    "100-UAP-U7O": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NB5AC-STA-98",
+      "098-USW-Flex-Getaway",
+      "099-USW-Flex",
+      "100-USW-Flex-Wilderness",
+      "100-UAP-U7O"
+    ],
+    "102-UAP-M": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NB5AC-STA-98",
+      "098-USW-Flex-Getaway",
+      "099-USW-Flex",
+      "100-USW-Flex-Wilderness",
+      "102-UAP-M"
+    ],
+    "099-UAP-U7O": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "NSL5AC-AP-57-75-98",
+      "NB5AC-STA-98",
+      "098-USW-Flex-Getaway",
+      "099-USW-Flex",
+      "099-UAP-U7O"
+    ],
+    "097-USW-Flex2.5G-IT": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "097-USW-Flex2.5G-IT"
+    ],
+    "096-UAP-U7O": [
+      "0000-MD-UDM-Pro-2",
+      "000-USW-24-PoE",
+      "000-USW-Flex-Roof",
+      "NB5AC-AP-96",
+      "NB5AC-STA-96",
+      "096-USW-Flex-East",
+      "097-USW-Flex2.5G-IT",
+      "096-UAP-U7O"
+    ]
+  },
+  "path_links": {
+    "0000-MD-UDM-Pro-2": [],
+    "000-USW-24-PoE": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE"
+    ],
+    "000-USW-Flex-Mini": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Mini"
+    ],
+    "000-UAP-IW": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-UAP-IW"
+    ],
+    "000-UAP-L": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-UAP-L"
+    ],
+    "000-USW-Flex-Back": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Back"
+    ],
+    "000-USW-Flex-Propane": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Back",
+      "lnk:000-USW-Flex-Back>000-USW-Flex-Propane"
+    ],
+    "067-UAP-U7O": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Back",
+      "lnk:000-USW-Flex-Back>000-USW-Flex-Propane",
+      "lnk:000-USW-Flex-Propane>067-UAP-U7O"
+    ],
+    "045-UAP-U7O": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Back",
+      "lnk:000-USW-Flex-Back>000-USW-Flex-Propane",
+      "lnk:000-USW-Flex-Propane>045-UAP-U7O"
+    ],
+    "016-USW-Flex": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Back",
+      "lnk:000-USW-Flex-Back>000-USW-Flex-Propane",
+      "lnk:000-USW-Flex-Propane>016-USW-Flex"
+    ],
+    "014-UAP-U7O": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Back",
+      "lnk:000-USW-Flex-Back>000-USW-Flex-Propane",
+      "lnk:000-USW-Flex-Propane>016-USW-Flex",
+      "lnk:016-USW-Flex>014-UAP-U7O"
+    ],
+    "026-UAP-M": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Back",
+      "lnk:000-USW-Flex-Back>000-USW-Flex-Propane",
+      "lnk:000-USW-Flex-Propane>016-USW-Flex",
+      "lnk:016-USW-Flex>026-UAP-M"
+    ],
+    "036-USW-Flex": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Back",
+      "lnk:000-USW-Flex-Back>000-USW-Flex-Propane",
+      "lnk:000-USW-Flex-Propane>036-USW-Flex"
+    ],
+    "036-UAP-U7O": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Back",
+      "lnk:000-USW-Flex-Back>000-USW-Flex-Propane",
+      "lnk:000-USW-Flex-Propane>036-USW-Flex",
+      "lnk:036-USW-Flex>036-UAP-U7O"
+    ],
+    "038-UAP-M": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Back",
+      "lnk:000-USW-Flex-Back>000-USW-Flex-Propane",
+      "lnk:000-USW-Flex-Propane>036-USW-Flex",
+      "lnk:036-USW-Flex>038-UAP-M"
+    ],
+    "060-USW-Flex": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Back",
+      "lnk:000-USW-Flex-Back>060-USW-Flex"
+    ],
+    "060-UAP-U7O": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Back",
+      "lnk:000-USW-Flex-Back>060-USW-Flex",
+      "lnk:060-USW-Flex>060-UAP-U7O"
+    ],
+    "055-USW-Flex-Front": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Back",
+      "lnk:000-USW-Flex-Back>060-USW-Flex",
+      "lnk:060-USW-Flex>055-USW-Flex-Front"
+    ],
+    "052-UAP-P-Cozy": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Back",
+      "lnk:000-USW-Flex-Back>060-USW-Flex",
+      "lnk:060-USW-Flex>055-USW-Flex-Front",
+      "lnk:055-USW-Flex-Front>052-UAP-P-Cozy"
+    ],
+    "055-USW-Flex-Back": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Back",
+      "lnk:000-USW-Flex-Back>060-USW-Flex",
+      "lnk:060-USW-Flex>055-USW-Flex-Front",
+      "lnk:055-USW-Flex-Front>055-USW-Flex-Back"
+    ],
+    "053-UAP-M": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Back",
+      "lnk:000-USW-Flex-Back>060-USW-Flex",
+      "lnk:060-USW-Flex>055-USW-Flex-Front",
+      "lnk:055-USW-Flex-Front>055-USW-Flex-Back",
+      "lnk:055-USW-Flex-Back>053-UAP-M"
+    ],
+    "056-UAP-M": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Back",
+      "lnk:000-USW-Flex-Back>060-USW-Flex",
+      "lnk:060-USW-Flex>055-USW-Flex-Front",
+      "lnk:055-USW-Flex-Front>055-USW-Flex-Back",
+      "lnk:055-USW-Flex-Back>056-UAP-M"
+    ],
+    "068-USW-Flex": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Back",
+      "lnk:000-USW-Flex-Back>068-USW-Flex"
+    ],
+    "068-UAP-U7O": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Back",
+      "lnk:000-USW-Flex-Back>068-USW-Flex",
+      "lnk:068-USW-Flex>068-UAP-U7O"
+    ],
+    "000-USW-Flex-Roof": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof"
+    ],
+    "NBM5-AP-80": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NBM5-AP-80"
+    ],
+    "NBM5-STA-80": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NBM5-AP-80",
+      "lnk:NBM5-AP-80>NBM5-STA-80"
+    ],
+    "080-UAP-M": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NBM5-AP-80",
+      "lnk:NBM5-AP-80>NBM5-STA-80",
+      "lnk:NBM5-STA-80>080-UAP-M"
+    ],
+    "NSL5AC-AP-89": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NSL5AC-AP-89"
+    ],
+    "NSL5AC-STA-089": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NSL5AC-AP-89",
+      "lnk:NSL5AC-AP-89>NSL5AC-STA-089"
+    ],
+    "089-USW-Flex-David": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NSL5AC-AP-89",
+      "lnk:NSL5AC-AP-89>NSL5AC-STA-089",
+      "lnk:NSL5AC-STA-089>089-USW-Flex-David"
+    ],
+    "089-UAP-IW-ROCHSTAR": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NSL5AC-AP-89",
+      "lnk:NSL5AC-AP-89>NSL5AC-STA-089",
+      "lnk:NSL5AC-STA-089>089-USW-Flex-David",
+      "lnk:089-USW-Flex-David>089-UAP-IW-ROCHSTAR"
+    ],
+    "089-UAP-M": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NSL5AC-AP-89",
+      "lnk:NSL5AC-AP-89>NSL5AC-STA-089",
+      "lnk:NSL5AC-STA-089>089-USW-Flex-David",
+      "lnk:089-USW-Flex-David>089-UAP-M"
+    ],
+    "085-UAP-M": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NSL5AC-AP-89",
+      "lnk:NSL5AC-AP-89>NSL5AC-STA-089",
+      "lnk:NSL5AC-STA-089>089-USW-Flex-David",
+      "lnk:089-USW-Flex-David>085-UAP-M"
+    ],
+    "NSL5AC-AP-49": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NSL5AC-AP-49"
+    ],
+    "NB5AC-STA-49": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NSL5AC-AP-49",
+      "lnk:NSL5AC-AP-49>NB5AC-STA-49"
+    ],
+    "049-USW-Flex": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NSL5AC-AP-49",
+      "lnk:NSL5AC-AP-49>NB5AC-STA-49",
+      "lnk:NB5AC-STA-49>049-USW-Flex"
+    ],
+    "049-UAP-U7O": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NSL5AC-AP-49",
+      "lnk:NSL5AC-AP-49>NB5AC-STA-49",
+      "lnk:NB5AC-STA-49>049-USW-Flex",
+      "lnk:049-USW-Flex>049-UAP-U7O"
+    ],
+    "NB5AC-AP-91": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NSL5AC-AP-49",
+      "lnk:NSL5AC-AP-49>NB5AC-STA-49",
+      "lnk:NB5AC-STA-49>049-USW-Flex",
+      "lnk:049-USW-Flex>NB5AC-AP-91"
+    ],
+    "NS5AC-STA-91": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NSL5AC-AP-49",
+      "lnk:NSL5AC-AP-49>NB5AC-STA-49",
+      "lnk:NB5AC-STA-49>049-USW-Flex",
+      "lnk:049-USW-Flex>NB5AC-AP-91",
+      "lnk:NB5AC-AP-91>NS5AC-STA-91"
+    ],
+    "091-USW-Flex": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NSL5AC-AP-49",
+      "lnk:NSL5AC-AP-49>NB5AC-STA-49",
+      "lnk:NB5AC-STA-49>049-USW-Flex",
+      "lnk:049-USW-Flex>NB5AC-AP-91",
+      "lnk:NB5AC-AP-91>NS5AC-STA-91",
+      "lnk:NS5AC-STA-91>091-USW-Flex"
+    ],
+    "091-UAP-U7O": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NSL5AC-AP-49",
+      "lnk:NSL5AC-AP-49>NB5AC-STA-49",
+      "lnk:NB5AC-STA-49>049-USW-Flex",
+      "lnk:049-USW-Flex>NB5AC-AP-91",
+      "lnk:NB5AC-AP-91>NS5AC-STA-91",
+      "lnk:NS5AC-STA-91>091-USW-Flex",
+      "lnk:091-USW-Flex>091-UAP-U7O"
+    ],
+    "046-UAP-M": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NSL5AC-AP-49",
+      "lnk:NSL5AC-AP-49>NB5AC-STA-49",
+      "lnk:NB5AC-STA-49>049-USW-Flex",
+      "lnk:049-USW-Flex>046-UAP-M"
+    ],
+    "NB5AC-AP-93": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NB5AC-AP-93"
+    ],
+    "NB5AC-STA-93": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NB5AC-AP-93",
+      "lnk:NB5AC-AP-93>NB5AC-STA-93"
+    ],
+    "093-USW-Flex": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NB5AC-AP-93",
+      "lnk:NB5AC-AP-93>NB5AC-STA-93",
+      "lnk:NB5AC-STA-93>093-USW-Flex"
+    ],
+    "094-UAP-U6M": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NB5AC-AP-93",
+      "lnk:NB5AC-AP-93>NB5AC-STA-93",
+      "lnk:NB5AC-STA-93>093-USW-Flex",
+      "lnk:093-USW-Flex>094-UAP-U6M"
+    ],
+    "NB5AC-AP-96": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NB5AC-AP-96"
+    ],
+    "NB5AC-STA-96": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NB5AC-AP-96",
+      "lnk:NB5AC-AP-96>NB5AC-STA-96"
+    ],
+    "096-USW-Flex-East": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NB5AC-AP-96",
+      "lnk:NB5AC-AP-96>NB5AC-STA-96",
+      "lnk:NB5AC-STA-96>096-USW-Flex-East"
+    ],
+    "NSL5AC-AP-57-75-98": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NB5AC-AP-96",
+      "lnk:NB5AC-AP-96>NB5AC-STA-96",
+      "lnk:NB5AC-STA-96>096-USW-Flex-East",
+      "lnk:096-USW-Flex-East>NSL5AC-AP-57-75-98"
+    ],
+    "NS5AC-STA-57": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NB5AC-AP-96",
+      "lnk:NB5AC-AP-96>NB5AC-STA-96",
+      "lnk:NB5AC-STA-96>096-USW-Flex-East",
+      "lnk:096-USW-Flex-East>NSL5AC-AP-57-75-98",
+      "lnk:NSL5AC-AP-57-75-98>NS5AC-STA-57"
+    ],
+    "057-USW-Flex": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NB5AC-AP-96",
+      "lnk:NB5AC-AP-96>NB5AC-STA-96",
+      "lnk:NB5AC-STA-96>096-USW-Flex-East",
+      "lnk:096-USW-Flex-East>NSL5AC-AP-57-75-98",
+      "lnk:NSL5AC-AP-57-75-98>NS5AC-STA-57",
+      "lnk:NS5AC-STA-57>057-USW-Flex"
+    ],
+    "057-UAP-U6M": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NB5AC-AP-96",
+      "lnk:NB5AC-AP-96>NB5AC-STA-96",
+      "lnk:NB5AC-STA-96>096-USW-Flex-East",
+      "lnk:096-USW-Flex-East>NSL5AC-AP-57-75-98",
+      "lnk:NSL5AC-AP-57-75-98>NS5AC-STA-57",
+      "lnk:NS5AC-STA-57>057-USW-Flex",
+      "lnk:057-USW-Flex>057-UAP-U6M"
+    ],
+    "NB5AC-STA-75": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NB5AC-AP-96",
+      "lnk:NB5AC-AP-96>NB5AC-STA-96",
+      "lnk:NB5AC-STA-96>096-USW-Flex-East",
+      "lnk:096-USW-Flex-East>NSL5AC-AP-57-75-98",
+      "lnk:NSL5AC-AP-57-75-98>NB5AC-STA-75"
+    ],
+    "075-UAP-M": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NB5AC-AP-96",
+      "lnk:NB5AC-AP-96>NB5AC-STA-96",
+      "lnk:NB5AC-STA-96>096-USW-Flex-East",
+      "lnk:096-USW-Flex-East>NSL5AC-AP-57-75-98",
+      "lnk:NSL5AC-AP-57-75-98>NB5AC-STA-75",
+      "lnk:NB5AC-STA-75>075-UAP-M"
+    ],
+    "NB5AC-STA-98": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NB5AC-AP-96",
+      "lnk:NB5AC-AP-96>NB5AC-STA-96",
+      "lnk:NB5AC-STA-96>096-USW-Flex-East",
+      "lnk:096-USW-Flex-East>NSL5AC-AP-57-75-98",
+      "lnk:NSL5AC-AP-57-75-98>NB5AC-STA-98"
+    ],
+    "098-USW-Flex-Getaway": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NB5AC-AP-96",
+      "lnk:NB5AC-AP-96>NB5AC-STA-96",
+      "lnk:NB5AC-STA-96>096-USW-Flex-East",
+      "lnk:096-USW-Flex-East>NSL5AC-AP-57-75-98",
+      "lnk:NSL5AC-AP-57-75-98>NB5AC-STA-98",
+      "lnk:NB5AC-STA-98>098-USW-Flex-Getaway"
+    ],
+    "098-UAP-P-Getaway": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NB5AC-AP-96",
+      "lnk:NB5AC-AP-96>NB5AC-STA-96",
+      "lnk:NB5AC-STA-96>096-USW-Flex-East",
+      "lnk:096-USW-Flex-East>NSL5AC-AP-57-75-98",
+      "lnk:NSL5AC-AP-57-75-98>NB5AC-STA-98",
+      "lnk:NB5AC-STA-98>098-USW-Flex-Getaway",
+      "lnk:098-USW-Flex-Getaway>098-UAP-P-Getaway"
+    ],
+    "099-USW-Flex": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NB5AC-AP-96",
+      "lnk:NB5AC-AP-96>NB5AC-STA-96",
+      "lnk:NB5AC-STA-96>096-USW-Flex-East",
+      "lnk:096-USW-Flex-East>NSL5AC-AP-57-75-98",
+      "lnk:NSL5AC-AP-57-75-98>NB5AC-STA-98",
+      "lnk:NB5AC-STA-98>098-USW-Flex-Getaway",
+      "lnk:098-USW-Flex-Getaway>099-USW-Flex"
+    ],
+    "NanoSwitch": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NB5AC-AP-96",
+      "lnk:NB5AC-AP-96>NB5AC-STA-96",
+      "lnk:NB5AC-STA-96>096-USW-Flex-East",
+      "lnk:096-USW-Flex-East>NSL5AC-AP-57-75-98",
+      "lnk:NSL5AC-AP-57-75-98>NB5AC-STA-98",
+      "lnk:NB5AC-STA-98>098-USW-Flex-Getaway",
+      "lnk:098-USW-Flex-Getaway>099-USW-Flex",
+      "lnk:099-USW-Flex>NanoSwitch"
+    ],
+    "098-UAP-M-Hideaway": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NB5AC-AP-96",
+      "lnk:NB5AC-AP-96>NB5AC-STA-96",
+      "lnk:NB5AC-STA-96>096-USW-Flex-East",
+      "lnk:096-USW-Flex-East>NSL5AC-AP-57-75-98",
+      "lnk:NSL5AC-AP-57-75-98>NB5AC-STA-98",
+      "lnk:NB5AC-STA-98>098-USW-Flex-Getaway",
+      "lnk:098-USW-Flex-Getaway>099-USW-Flex",
+      "lnk:099-USW-Flex>NanoSwitch",
+      "lnk:NanoSwitch>098-UAP-M-Hideaway"
+    ],
+    "098-UAP-M": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NB5AC-AP-96",
+      "lnk:NB5AC-AP-96>NB5AC-STA-96",
+      "lnk:NB5AC-STA-96>096-USW-Flex-East",
+      "lnk:096-USW-Flex-East>NSL5AC-AP-57-75-98",
+      "lnk:NSL5AC-AP-57-75-98>NB5AC-STA-98",
+      "lnk:NB5AC-STA-98>098-USW-Flex-Getaway",
+      "lnk:098-USW-Flex-Getaway>099-USW-Flex",
+      "lnk:099-USW-Flex>NanoSwitch",
+      "lnk:NanoSwitch>098-UAP-M"
+    ],
+    "100-USW-Flex-Wilderness": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NB5AC-AP-96",
+      "lnk:NB5AC-AP-96>NB5AC-STA-96",
+      "lnk:NB5AC-STA-96>096-USW-Flex-East",
+      "lnk:096-USW-Flex-East>NSL5AC-AP-57-75-98",
+      "lnk:NSL5AC-AP-57-75-98>NB5AC-STA-98",
+      "lnk:NB5AC-STA-98>098-USW-Flex-Getaway",
+      "lnk:098-USW-Flex-Getaway>099-USW-Flex",
+      "lnk:099-USW-Flex>100-USW-Flex-Wilderness"
+    ],
+    "100-UAP-U7O": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NB5AC-AP-96",
+      "lnk:NB5AC-AP-96>NB5AC-STA-96",
+      "lnk:NB5AC-STA-96>096-USW-Flex-East",
+      "lnk:096-USW-Flex-East>NSL5AC-AP-57-75-98",
+      "lnk:NSL5AC-AP-57-75-98>NB5AC-STA-98",
+      "lnk:NB5AC-STA-98>098-USW-Flex-Getaway",
+      "lnk:098-USW-Flex-Getaway>099-USW-Flex",
+      "lnk:099-USW-Flex>100-USW-Flex-Wilderness",
+      "lnk:100-USW-Flex-Wilderness>100-UAP-U7O"
+    ],
+    "102-UAP-M": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NB5AC-AP-96",
+      "lnk:NB5AC-AP-96>NB5AC-STA-96",
+      "lnk:NB5AC-STA-96>096-USW-Flex-East",
+      "lnk:096-USW-Flex-East>NSL5AC-AP-57-75-98",
+      "lnk:NSL5AC-AP-57-75-98>NB5AC-STA-98",
+      "lnk:NB5AC-STA-98>098-USW-Flex-Getaway",
+      "lnk:098-USW-Flex-Getaway>099-USW-Flex",
+      "lnk:099-USW-Flex>100-USW-Flex-Wilderness",
+      "lnk:100-USW-Flex-Wilderness>102-UAP-M"
+    ],
+    "099-UAP-U7O": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NB5AC-AP-96",
+      "lnk:NB5AC-AP-96>NB5AC-STA-96",
+      "lnk:NB5AC-STA-96>096-USW-Flex-East",
+      "lnk:096-USW-Flex-East>NSL5AC-AP-57-75-98",
+      "lnk:NSL5AC-AP-57-75-98>NB5AC-STA-98",
+      "lnk:NB5AC-STA-98>098-USW-Flex-Getaway",
+      "lnk:098-USW-Flex-Getaway>099-USW-Flex",
+      "lnk:099-USW-Flex>099-UAP-U7O"
+    ],
+    "097-USW-Flex2.5G-IT": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NB5AC-AP-96",
+      "lnk:NB5AC-AP-96>NB5AC-STA-96",
+      "lnk:NB5AC-STA-96>096-USW-Flex-East",
+      "lnk:096-USW-Flex-East>097-USW-Flex2.5G-IT"
+    ],
+    "096-UAP-U7O": [
+      "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE",
+      "lnk:000-USW-24-PoE>000-USW-Flex-Roof",
+      "lnk:000-USW-Flex-Roof>NB5AC-AP-96",
+      "lnk:NB5AC-AP-96>NB5AC-STA-96",
+      "lnk:NB5AC-STA-96>096-USW-Flex-East",
+      "lnk:096-USW-Flex-East>097-USW-Flex2.5G-IT",
+      "lnk:097-USW-Flex2.5G-IT>096-UAP-U7O"
+    ]
+  },
+  "primary_wan_link_id": "lnk:SECOM>0000-MD-UDM-Pro-2",
+  "rebuilt": true
+}
