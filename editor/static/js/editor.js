@@ -815,7 +815,7 @@ function deviceCard(plan, hier) {
   renderDeviceStory(preview, {
     device,
     detail: friendlyById[device.id] || null,
-    links: linksWithCoords(plan.asbuilt.links, plan.asbuilt.devices, plan.asbuilt.wan),
+    links: linksWithCoords(plan.asbuilt.links, plan.asbuilt.devices, plan.asbuilt.wan, plan.cable_paths),
     groupLabel: plan.asbuilt.location_groups.find((group) => group.id === device.location_group)?.label || device.location_group,
     claim: claim(),
     geotransform: gt(),

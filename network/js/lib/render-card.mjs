@@ -67,18 +67,37 @@ function renderRoute(route, links, claim) {
     block.appendChild(el("p", null, "Private family networks connect separately and are not part of the equipment path."));
     return block;
   }
+  const lines = routeLines(route, links, claim);
+  if (lines.some((line) => line.feet)) {
+    block.appendChild(el("p", null, "Each length is one Ethernet cable, from one piece of equipment to the next."));
+  }
   const list = el("ol", "route");
   list.id = "device-path";
-  for (const row of pathRows(route)) {
+  for (const line of lines) {
     const item = document.createElement("li");
-    const text = row.extra ? `${row.id}. ${row.extra}.` : row.id;
-    item.append(el("span", "via", row.via), document.createTextNode(text));
+    item.append(el("span", "via", line.via), document.createTextNode(line.rest));
     list.appendChild(item);
   }
   block.appendChild(list);
-  const length = cableLengthMeters(route, links, claim);
-  if (length != null) block.appendChild(el("p", "path-length", `Ethernet cable length ${formatFeet(length)}.`));
   return block;
+}
+
+/** One visible path row. Ethernet runs carry that cable's own length. Wireless runs do not. */
+export function routeLines(route, links, claim) {
+  return pathRows(route).map((row, index) => {
+    const hop = index === 0 ? null : route.hops[index - 1];
+    const feet = hop && hop.connection !== "wireless" ? ethernetRunFeet(hop, links, claim) : null;
+    const name = row.extra ? `${row.id}. ${row.extra}.` : row.id;
+    const rest = feet ? `, ${feet}. ${name}` : ` ${name}`;
+    return { via: row.via, rest, feet, text: `${row.via}${rest}`, hop };
+  });
+}
+
+export function ethernetRunFeet(hop, links, claim) {
+  if (!hop || hop.connection === "wireless") return null;
+  const metrics = measureHop(hop, links, claim);
+  if (!metrics) return null;
+  return formatFeet(metrics.totals.physical_cable_m);
 }
 
 function renderDetails({ device, card, route, claim, links, geotransform, image, nearEdgeIds }) {
@@ -102,10 +121,11 @@ function renderDetails({ device, card, route, claim, links, geotransform, image,
     ? "No height above sea level is recorded. That height is not how high the equipment is mounted."
     : `The photo lists a height above sea level of ${formatFeet(device.coords.alt_m)}. That figure was not checked, and it is not how high the equipment is mounted.`));
   const place = canvasPlace(device, point, image, nearEdgeIds);
-  if (place === "outside") technical.appendChild(el("p", null, "Outside the crop canvas. The stored longitude and latitude were not moved."));
-  else if (place === "near-edge") technical.appendChild(el("p", null, "Near the crop edge. Shown at the source coordinates."));
+  if (place === "outside") technical.appendChild(el("p", null, "Outside the aerial photo. The recorded position was not moved."));
+  else if (place === "near-edge") technical.appendChild(el("p", null, "Near the edge of the aerial photo. Shown where it was recorded."));
   if (device.status !== "inactive" && route.reachesRouter && route.hops.length && claim) {
     const pieces = route.hops.flatMap((hop) => {
+      if (hop.connection === "wireless") return [];
       const link = (links || []).find((item) => item.id === hop.linkId);
       if (!link) return [];
       const metrics = measureHop(hop, links, claim);
@@ -116,37 +136,16 @@ function renderDetails({ device, card, route, claim, links, geotransform, image,
       fillDistanceList(list, metrics, `${hop.from} to ${hop.to}`, { plain: true });
       technical.appendChild(list);
     });
-    if (pieces.length) {
-      const sum = pieces.reduce((total, piece) => total + piece.metrics.totals.horizontal_ellipsoidal_m, 0);
-      technical.appendChild(el("p", "distance-total", `Path length ${formatFeet(sum)}.`));
-    }
   }
   return technical;
-}
-
-function cableLengthMeters(route, links, claim) {
-  const pieces = (route?.hops || []).filter((hop) => hop.connection === "cable");
-  if (!pieces.length) return null;
-  let sum = 0;
-  let any = false;
-  for (const hop of pieces) {
-    const metrics = measureHop(hop, links, claim);
-    if (!metrics) continue;
-    sum += metrics.totals.horizontal_ellipsoidal_m;
-    any = true;
-  }
-  return any ? sum : null;
 }
 
 function measureHop(hop, links, claim) {
   const link = (links || []).find((item) => item.id === hop.linkId);
   if (!link?.fromCoords || !link?.toCoords) return null;
   const bends = link.medium === "wired-ethernet" && Array.isArray(link.vertices) ? link.vertices : [];
-  return measureRoute(
-    [link.toCoords, ...bends, link.fromCoords],
-    [],
-    claim,
-  );
+  const extras = link.medium === "wired-ethernet" && Array.isArray(link.segments) ? link.segments : [];
+  return measureRoute([link.toCoords, ...bends, link.fromCoords], extras, claim);
 }
 
 function pixelOf(coords, geotransform) {
@@ -162,15 +161,22 @@ function canvasPlace(device, point, image, nearEdgeIds) {
   return "inside";
 }
 
-export function linksWithCoords(links, devices, wan = []) {
+export function linksWithCoords(links, devices, wan = [], cablePaths = null) {
   const coords = new Map();
   for (const device of devices || []) coords.set(device.id, device.coords);
   for (const entry of wan || []) {
     if (entry.map_pin?.coords) coords.set(entry.id, entry.map_pin.coords);
   }
-  return (links || []).map((link) => ({
-    ...link,
-    fromCoords: coords.get(link.child) || null,
-    toCoords: coords.get(link.parent) || null,
-  }));
+  return (links || []).map((link) => {
+    const path = cablePaths?.[link.id];
+    const stored = Array.isArray(path?.intermediates) ? path.intermediates : [];
+    const published = Array.isArray(link.vertices) ? link.vertices : [];
+    return {
+      ...link,
+      vertices: stored.length ? stored : published,
+      segments: Array.isArray(path?.segments) ? path.segments : [],
+      fromCoords: coords.get(link.child) || null,
+      toCoords: coords.get(link.parent) || null,
+    };
+  });
 }
