@@ -242,8 +242,17 @@ function allowance(value, name) {
 }
 
 function cleanExtra(extra = {}) {
+  const dropGiven = !(extra.vertical_drop_m == null || extra.vertical_drop_m === "");
+  const riseGiven = !(extra.vertical_rise_m == null || extra.vertical_rise_m === "");
+  const drop = allowance(dropGiven ? extra.vertical_drop_m : extra.vertical_rise_m, "Vertical drop");
+  if (dropGiven && riseGiven && allowance(extra.vertical_rise_m, "Vertical drop") !== drop) {
+    const error = new Error("Vertical drop and vertical rise disagree");
+    error.code = "SEGMENT";
+    throw error;
+  }
   return {
-    vertical_rise_m: allowance(extra.vertical_rise_m, "Rise"),
+    vertical_drop_m: drop,
+    slope_rise_m: allowance(extra.slope_rise_m, "Slope rise"),
     slack_m: allowance(extra.slack_m, "Slack"),
     service_loop_m: allowance(extra.service_loop_m, "Service loop"),
   };
@@ -276,7 +285,12 @@ export function setSegmentExtra(plan, linkId, index, patch) {
   const count = current.intermediates.length + 1;
   const segments = Array.from({ length: count }, (_, segmentIndex) => cleanExtra(current.segments[segmentIndex]));
   if (index < 0 || index >= segments.length) throw new Error("Segment index out of range");
-  segments[index] = cleanExtra({ ...segments[index], ...patch });
+  const merged = { ...segments[index], ...patch };
+  if (Object.prototype.hasOwnProperty.call(patch, "vertical_rise_m") && !Object.prototype.hasOwnProperty.call(patch, "vertical_drop_m")) {
+    delete merged.vertical_drop_m;
+  }
+  if (Object.prototype.hasOwnProperty.call(patch, "vertical_drop_m")) delete merged.vertical_rise_m;
+  segments[index] = cleanExtra(merged);
   next.cable_paths[linkId] = { intermediates: current.intermediates, segments };
   return next;
 }
@@ -364,6 +378,8 @@ export function validateImport(doc) {
     if (!Array.isArray(doc.asbuilt?.devices) || !Array.isArray(doc.asbuilt?.links)) failImport("Local plan is missing as-built records");
     assertDevices(doc.asbuilt.devices);
     assertLinks(doc.asbuilt.links, endpointIds(doc));
+    for (const cable of Object.values(doc.cable_paths || {})) assertSegmentExtras(cable?.segments);
+    for (const route of doc.planned_routes || []) assertSegmentExtras(route?.segments);
     return doc;
   }
   if (doc.schema === "mountaindale.asbuilt_public") {
@@ -392,6 +408,30 @@ function endpointIds(plan) {
     ...(plan.devices || []).map((device) => device.id),
     ...(plan.wan || []).map((entry) => entry.id),
   ]);
+}
+
+function assertAllowance(value, name) {
+  if (value == null || value === "") return;
+  const number = Number(value);
+  if (!Number.isFinite(number) || number < 0) failImport(`${name} must be zero or positive`, "SEGMENT");
+}
+
+function assertSegmentExtras(segments) {
+  if (segments == null) return;
+  if (!Array.isArray(segments)) failImport("Segment allowances must be an array", "SEGMENT");
+  for (const extra of segments) {
+    if (!extra || typeof extra !== "object" || Array.isArray(extra)) failImport("Segment allowance must be an object", "SEGMENT");
+    assertAllowance(extra.vertical_drop_m, "Vertical drop");
+    assertAllowance(extra.vertical_rise_m, "Vertical drop");
+    assertAllowance(extra.slope_rise_m, "Slope rise");
+    assertAllowance(extra.slack_m, "Slack");
+    assertAllowance(extra.service_loop_m, "Service loop");
+    const dropGiven = !(extra.vertical_drop_m == null || extra.vertical_drop_m === "");
+    const riseGiven = !(extra.vertical_rise_m == null || extra.vertical_rise_m === "");
+    if (dropGiven && riseGiven && Number(extra.vertical_drop_m) !== Number(extra.vertical_rise_m)) {
+      failImport("Vertical drop and vertical rise disagree", "SEGMENT");
+    }
+  }
 }
 
 function assertDevices(devices) {

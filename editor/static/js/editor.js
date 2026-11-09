@@ -281,16 +281,18 @@ function pathTools(plan) {
   if (metrics) {
     metrics.segments.forEach((segment, index) => {
       const rise = numberField(`Segment ${index + 1} vertical drop m, added`, segment.vertical_drop_m ?? segment.vertical_rise_m, index === 0 ? "segment-rise-0" : "");
+      const slope = numberField(`Segment ${index + 1} slope rise m, hypotenuse`, segment.slope_rise_m, index === 0 ? "segment-slope-0" : "");
       const slack = numberField("Slack m", segment.slack_m, "");
       const loop = numberField("Service loop m", segment.service_loop_m, "");
       const apply = el("button", null, "Apply allowances");
       apply.type = "button";
       apply.addEventListener("click", () => tryUpdate((current) => setSegmentExtra(current, link.id, index, {
-        vertical_rise_m: readNum(rise),
+        vertical_drop_m: readNum(rise),
+        slope_rise_m: readNum(slope),
         slack_m: readNum(slack),
         service_loop_m: readNum(loop),
       })));
-      box.append(rise.label, slack.label, loop.label, apply);
+      box.append(rise.label, slope.label, slack.label, loop.label, apply);
     });
     const list = el("div", "distances");
     fillDistanceList(list, metrics, link.id);

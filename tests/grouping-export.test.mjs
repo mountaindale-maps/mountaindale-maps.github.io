@@ -129,7 +129,8 @@ test("segment allowances do not alter topology and undo restores the note", () =
   plan = setSegmentExtra(plan, linkId, 0, { vertical_rise_m: 3, slack_m: 1, service_loop_m: 0.5 });
   const metrics = measureLink(plan, plan.asbuilt.links.find((link) => link.id === linkId), evaluateCalibration(metadata));
   assert.equal(metrics.segments.length, 1);
-  assert.ok(metrics.segments[0].physical_cable_m > metrics.segments[0].horizontal_ellipsoidal_m);
+  assert.equal(metrics.segments[0].terrain_slope_m, metrics.segments[0].horizontal_ellipsoidal_m);
+  assert.ok(Math.abs(metrics.segments[0].physical_cable_m - (metrics.segments[0].horizontal_ellipsoidal_m + 4.5)) < 1e-6);
   assert.equal(linksUnchanged(planFromPublic(asbuilt, metadata), plan), true);
   plan = addNote(plan, { text: "Ask for a surveyed slack figure", id: "n1" });
   let history = createHistory(planFromPublic(asbuilt, metadata));

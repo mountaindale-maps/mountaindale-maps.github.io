@@ -26,7 +26,7 @@ The package contains the public baseline, the map code, and the image tiles. It 
 
 - Group gear that shares a place. Groups do not change links.
 - Drag a marker or type longitude/latitude or an image pixel. The candidate affine is unverified.
-- Draw extra vertices on a cable and set vertical rise, slack, and service loop per segment. Lengths update immediately and stay marked unverified.
+- Draw extra vertices on a cable and set a vertical pole drop, an explicit slope rise, slack, and a service loop per segment. The drop, slack, and loop are added. Only the slope rise is a hypotenuse. Lengths update immediately and stay marked unverified.
 - Add planned devices and planned routes. They draw in a separate style.
 - Edit a public summary or replace a LAN parent on purpose. A second LAN parent is rejected.
 - Write change-request notes.

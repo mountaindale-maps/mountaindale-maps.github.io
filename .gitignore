@@ -4,5 +4,6 @@ playwright-report/
 blob-report/
 dist/
 *.zip
+!packages/*.zip
 .mountaindale-network/
 editor-data/

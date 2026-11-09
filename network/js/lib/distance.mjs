@@ -5,9 +5,9 @@
  * Horizontal ellipsoidal metres use the WGS84 inverse. Grid metres are the
  * straight UTM zone 13N length of the same segment and are labelled as grid,
  * not ground. A vertical pole drop is added to the horizontal length. An explicit
- * slope rise is the only allowance combined as a hypotenuse.
- * quadrature, then slack and service loop as extra cable. None of these
- * numbers become surveyed just because they are numerically consistent.
+ * slope rise is the only allowance combined as a hypotenuse. Slack and a service
+ * loop are added after that. None of these numbers become surveyed just because
+ * they are numerically consistent.
  */
 
 import { lonLatToUtm13n } from "./projection.mjs";
@@ -85,8 +85,12 @@ export function gridDistanceM(lon1, lat1, lon2, lat2) {
   return Math.hypot(e2 - e1, n2 - n1);
 }
 
+function given(value) {
+  return !(value == null || value === "");
+}
+
 function allowance(value, name) {
-  if (value == null || value === "") return 0;
+  if (!given(value)) return 0;
   const number = Number(value);
   if (!Number.isFinite(number) || number < 0) {
     const error = new Error(`${name} must be zero or positive`);
@@ -104,7 +108,12 @@ function allowance(value, name) {
 export function composeSegment(input) {
   const horizontal = allowance(input.horizontal_ellipsoidal_m, "Horizontal");
   const grid = allowance(input.horizontal_grid_utm_m, "Grid");
-  const drop = allowance(input.vertical_drop_m ?? input.vertical_rise_m, "Vertical drop");
+  const drop = allowance(given(input.vertical_drop_m) ? input.vertical_drop_m : input.vertical_rise_m, "Vertical drop");
+  if (given(input.vertical_drop_m) && given(input.vertical_rise_m) && allowance(input.vertical_rise_m, "Vertical drop") !== drop) {
+    const error = new Error("Vertical drop and vertical rise disagree");
+    error.code = "SEGMENT";
+    throw error;
+  }
   const slope = allowance(input.slope_rise_m, "Slope rise");
   const slack = allowance(input.slack_m, "Slack");
   const loop = allowance(input.service_loop_m, "Service loop");
@@ -155,7 +164,9 @@ export function measureRoute(vertices, extras = [], claim = null) {
     segments.push(composeSegment({
       horizontal_ellipsoidal_m: ellipsoidalDistanceM(a.lon, a.lat, b.lon, b.lat),
       horizontal_grid_utm_m: gridDistanceM(a.lon, a.lat, b.lon, b.lat),
+      vertical_drop_m: extra.vertical_drop_m,
       vertical_rise_m: extra.vertical_rise_m,
+      slope_rise_m: extra.slope_rise_m,
       slack_m: extra.slack_m,
       service_loop_m: extra.service_loop_m,
     }));

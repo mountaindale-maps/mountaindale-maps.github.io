@@ -104,7 +104,9 @@ test("local editor saves, reloads, undoes, and refuses to publish plans", async 
   await page.locator("[data-device-id='098-UAP-M']").click();
   await page.getByRole("button", { name: "lnk:NanoSwitch>098-UAP-M" }).click();
   await page.locator("#segment-rise-0").fill("3");
+  await page.locator("#segment-slope-0").fill("4");
   await page.getByRole("button", { name: "Apply allowances" }).click();
-  await expect(page.locator(".segment-row").first()).toContainText("3.00 m");
+  await expect(page.locator(".segment-row").first()).toContainText("Vertical drop added 3.00 m");
+  await expect(page.locator(".segment-row").first()).toContainText("Slope rise hypotenuse 4.00 m");
   await expect(page.locator(".distance-total").first()).toContainText("ground accuracy unverified");
 });

@@ -1,15 +1,16 @@
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
-import { mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
+import { watch } from "node:fs";
+import { lstat, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import http from "node:http";
 import { editorRoots, startEditorServer } from "../editor/server.mjs";
-import { resolveAllowedDataDir, savePlan } from "../editor/store.mjs";
-import { importCalibration } from "../network/js/lib/calibration.mjs";
+import { loadPlan, resolveAllowedDataDir, savePlan } from "../editor/store.mjs";
+import { evaluateCalibration, importCalibration } from "../network/js/lib/calibration.mjs";
 import { createHistory, undo } from "../network/js/lib/history.mjs";
-import { addLink, addPlannedDevice, importDocument, linksUnchanged, planFromPublic, setSegmentExtra, ungroupDevice, validateImport } from "../network/js/lib/plan.mjs";
+import { addLink, addPlannedDevice, importDocument, linksUnchanged, measureLink, planFromPublic, setSegmentExtra, ungroupDevice, validateImport } from "../network/js/lib/plan.mjs";
 import { buildPublicSnapshot, scanPublicTree } from "../network/js/lib/sanitize.mjs";
 import { readFileSync } from "node:fs";
 
@@ -133,6 +134,129 @@ test("a backups symlink cannot receive a saved plan outside the allowed director
   }
 });
 
+test("a dangling temp symlink cannot receive a saved plan", async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), "md-tmp-"));
+  const outside = await mkdtemp(path.join(tmpdir(), "md-tmp-out-"));
+  const plan = planFromPublic(asbuilt, metadata);
+  const dangling = path.join(outside, "missing", "plan.json");
+  const victim = path.join(outside, "victim.json");
+  await writeFile(victim, "original");
+  try {
+    await symlink(dangling, path.join(dir, "current.json.tmp"));
+    await savePlan(dir, plan, forbidden);
+    assert.equal(existsSync(dangling), false);
+    assert.equal(await readFile(victim, "utf8"), "original");
+    assert.equal((await lstat(path.join(dir, "current.json.tmp"))).isSymbolicLink(), true);
+    assert.equal((await lstat(path.join(dir, "current.json"))).isSymbolicLink(), false);
+    assert.match(await readFile(path.join(dir, "current.json"), "utf8"), /mountaindale.local_plan/);
+    await rm(path.join(dir, "current.json.tmp"));
+    await symlink(victim, path.join(dir, "current.json.tmp"));
+    plan.notes.push({ id: "n-tmp", kind: "change-request", text: "still inside", created: "2026-11-09T00:00:00Z", device_ids: [] });
+    await savePlan(dir, plan, forbidden);
+    assert.equal(await readFile(victim, "utf8"), "original");
+    assert.match(await readFile(path.join(dir, "current.json"), "utf8"), /still inside/);
+    await rm(path.join(dir, "current.json"));
+    await symlink(dangling, path.join(dir, "current.json"));
+    await savePlan(dir, plan, forbidden);
+    assert.equal(existsSync(dangling), false);
+    assert.equal((await lstat(path.join(dir, "current.json"))).isFile(), true);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+    await rm(outside, { recursive: true, force: true });
+  }
+});
+
+test("replacing the temp file with a symlink during save does not write outside", async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), "md-race-"));
+  const outside = await mkdtemp(path.join(tmpdir(), "md-race-out-"));
+  const plan = planFromPublic(asbuilt, metadata);
+  const victim = path.join(outside, "victim.json");
+  const leak = path.join(outside, "leak.json");
+  await writeFile(victim, "original");
+  await savePlan(dir, plan, forbidden);
+  let armed = true;
+  const watcher = watch(dir, (event, filename) => {
+    if (!armed || !filename || !String(filename).endsWith(".tmp")) return;
+    const full = path.join(dir, String(filename));
+    symlink(leak, full).catch(async () => {
+      await rm(full, { force: true }).catch(() => {});
+      await symlink(leak, full).catch(() => {});
+    });
+  });
+  try {
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      plan.notes.push({ id: `race-${attempt}`, kind: "change-request", text: "race", created: "2026-11-09T00:00:00Z", device_ids: [] });
+      try {
+        await savePlan(dir, plan, forbidden);
+      } catch (error) {
+        assert.equal(error.code, "DATA_DIR");
+      }
+      assert.equal(existsSync(leak), false);
+      assert.equal(await readFile(victim, "utf8"), "original");
+    }
+  } finally {
+    armed = false;
+    watcher.close();
+  }
+  await new Promise((resolve) => setTimeout(resolve, 30));
+  await savePlan(dir, plan, forbidden);
+  assert.equal(existsSync(leak), false);
+  assert.equal((await lstat(path.join(dir, "current.json"))).isFile(), true);
+  assert.match(await readFile(path.join(dir, "current.json"), "utf8"), /mountaindale.local_plan/);
+  await rm(dir, { recursive: true, force: true });
+  await rm(outside, { recursive: true, force: true });
+});
+
+test("an explicit slope survives edit, save, reload, and the API, and negatives are refused", async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), "md-slope-"));
+  const started = await startEditorServer({ port: 0, dataDir: dir, roots: { kind: "repo", publicDir: null, baselineDir: path.resolve("network/data"), forbidden } });
+  try {
+    let plan = planFromPublic(asbuilt, metadata);
+    const link = plan.asbuilt.links.find((item) => item.medium !== "wan");
+    plan = setSegmentExtra(plan, link.id, 0, { vertical_drop_m: 2, slope_rise_m: 3, slack_m: 1, service_loop_m: 0.5 });
+    const claim = evaluateCalibration(metadata);
+    const segment = measureLink(plan, link, claim).segments[0];
+    const sloped = Math.hypot(segment.horizontal_ellipsoidal_m, 3);
+    assert.ok(Math.abs(segment.terrain_slope_m - sloped) < 1e-6);
+    assert.ok(Math.abs(segment.physical_cable_m - (sloped + 3.5)) < 1e-6);
+    plan = setSegmentExtra(plan, link.id, 0, { slack_m: 1 });
+    assert.equal(plan.cable_paths[link.id].segments[0].slope_rise_m, 3);
+    assert.equal(plan.cable_paths[link.id].segments[0].vertical_drop_m, 2);
+    assert.throws(() => setSegmentExtra(plan, link.id, 0, { slope_rise_m: -4 }), /Slope rise/);
+    assert.throws(() => setSegmentExtra(plan, link.id, 0, { vertical_drop_m: -1 }), /Vertical drop/);
+    const legacy = setSegmentExtra(planFromPublic(asbuilt, metadata), link.id, 0, { vertical_rise_m: 3 });
+    const legacySegment = measureLink(legacy, link, claim).segments[0];
+    assert.equal(legacySegment.vertical_drop_m, 3);
+    assert.equal(legacySegment.terrain_slope_m, legacySegment.horizontal_ellipsoidal_m);
+    assert.equal(legacy.cable_paths[link.id].segments[0].slope_rise_m, 0);
+    const rejected = structuredClone(plan);
+    rejected.cable_paths[link.id].segments[0].slope_rise_m = -2;
+    const refused = await fetch(`http://127.0.0.1:${started.port}/api/state`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(rejected),
+    });
+    const refusedBody = await refused.json();
+    assert.equal(refused.status, 400);
+    assert.match(refusedBody.error, /Slope rise/);
+    assert.equal(await loadPlan(dir), null);
+    const saved = await fetch(`http://127.0.0.1:${started.port}/api/state`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(plan),
+    });
+    assert.equal(saved.status, 200);
+    const loaded = await (await fetch(`http://127.0.0.1:${started.port}/api/state`)).json();
+    assert.equal(loaded.plan.cable_paths[link.id].segments[0].slope_rise_m, 3);
+    const again = measureLink(loaded.plan, link, claim).segments[0];
+    assert.ok(Math.abs(again.terrain_slope_m - Math.hypot(again.horizontal_ellipsoidal_m, 3)) < 1e-6);
+    assert.ok(Math.abs(again.physical_cable_m - (again.terrain_slope_m + 3.5)) < 1e-6);
+  } finally {
+    await new Promise((resolve) => started.server.close(resolve));
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
 test("a corrupt plan is reported with its backups and is not overwritten", async () => {
   const dir = await mkdtemp(path.join(tmpdir(), "md-corrupt-"));
   const plan = planFromPublic(asbuilt, metadata);
@@ -253,7 +377,8 @@ test("negative rise and slack are refused", () => {
   const plan = planFromPublic(asbuilt, metadata);
   const linkId = plan.asbuilt.links.find((link) => link.medium !== "wan").id;
   assert.throws(() => setSegmentExtra(plan, linkId, 0, { slack_m: -1 }), /Slack/);
-  assert.throws(() => setSegmentExtra(plan, linkId, 0, { vertical_rise_m: -0.2 }), /Rise/);
+  assert.throws(() => setSegmentExtra(plan, linkId, 0, { vertical_rise_m: -0.2 }), /Vertical drop/);
+  assert.throws(() => setSegmentExtra(plan, linkId, 0, { slope_rise_m: -0.2 }), /Slope rise/);
   const kept = setSegmentExtra(plan, linkId, 0, { slack_m: 1.5, vertical_rise_m: 0 });
   assert.equal(kept.cable_paths[linkId].segments[0].slack_m, 1.5);
 });
