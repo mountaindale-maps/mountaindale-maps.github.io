@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mountaindale network map</title>
+<meta name="description" content="Public as-built network map for Mountaindale on the October 31 aerial. Horizontal distances are approximate; ground accuracy is unverified.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#detail">Skip to equipment details</a>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <a class="home" href="../">Mountaindale</a>
+      <h1>Network map</h1>
+    </div>
+    <p id="calib" class="calib" role="status">Approximate horizontal distance; ground accuracy unverified. The sampled image transform is validated. This is not a survey.</p>
+    <form id="search-form" class="search" role="search">
+      <label class="sr" for="q">Search equipment</label>
+      <input id="q" name="q" type="search" placeholder="Search id, model, role, or group" autocomplete="off" enterkeyhint="search">
+      <div id="results" class="results" hidden></div>
+    </form>
+    <div class="tools">
+      <button type="button" id="zoom-out" aria-label="Zoom out">−</button>
+      <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
+      <button type="button" id="fit">Fit</button>
+      <button type="button" id="legend-btn" aria-expanded="false" aria-controls="legend">Legend</button>
+    </div>
+  </header>
+  <aside id="detail" class="panel" aria-live="polite">
+    <p class="muted">Loading the as-built network…</p>
+  </aside>
+  <div id="map" class="map" aria-label="Aerial map with network equipment"></div>
+  <section id="topology" class="topology" aria-label="Network topology">
+    <header class="topo-head">
+      <h2>Topology</h2>
+      <button type="button" id="topo-collapse" aria-expanded="true">Hide</button>
+    </header>
+    <ul class="link-key" aria-label="How links are drawn">
+      <li><i class="line solid"></i> Ethernet</li>
+      <li><i class="line dashed"></i> PtP radio</li>
+      <li><i class="line dotted"></i> PtMP radio</li>
+      <li><i class="line wan"></i> WAN</li>
+    </ul>
+    <div id="topo-body"></div>
+  </section>
+  <div id="legend" class="legend" hidden>
+    <h2>Legend</h2>
+    <ul>
+      <li><i class="swatch role-router"></i> Router</li>
+      <li><i class="swatch role-switch"></i> Switch</li>
+      <li><i class="swatch role-ap"></i> Access point</li>
+      <li><i class="swatch role-radio"></i> airMAX radio</li>
+      <li><i class="swatch status-inactive"></i> Inactive, no uplink</li>
+      <li><i class="line solid"></i> Wired Ethernet</li>
+      <li><i class="line dashed"></i> airMAX PtP</li>
+      <li><i class="line dotted"></i> airMAX PtMP</li>
+      <li><i class="line wan"></i> SECOM WAN, where a pin exists</li>
+      <li><i class="swatch flag"></i> Uncertain placement or tentative tag</li>
+    </ul>
+    <p>Overlapping markers stack only on screen. Spreading them does not move the stored coordinates or the connections. A location group is a hover cluster, not a circuit.</p>
+    <p>Distances sum every segment in international feet (metres ÷ 0.3048). Horizontal distance is the WGS84 geodesic between the original longitude and latitude of each vertex. The validated affine only places those markers on the image. Ground accuracy is unverified. This is not a survey and it does not state a ground-error bound. Grid UTM length is separate. A vertical pole drop is not part of that horizontal figure: enter it as rise or slack. Rise is combined with the horizontal length as a hypotenuse, then slack and service loops are added.</p>
+    <button type="button" id="legend-close">Close</button>
+  </div>
+</div>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

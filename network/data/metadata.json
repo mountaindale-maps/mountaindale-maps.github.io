@@ -1,0 +1,142 @@
+{
+  "schema": "mountaindale-atlas-assets-v1",
+  "calibration_status": "IMAGE_TRANSFORM_VALIDATED_BY_SAMPLED_PC_LOCAL_REGISTRATION_NOT_SURVEY",
+  "safe_for_authoritative_measurement": false,
+  "imagery": {
+    "file": "oct31_sharp.jpg",
+    "width": 8000,
+    "height": 10592,
+    "source_sha256": "0d4567a7ff0a6009b42c8c43fc8c5e588dabc903ae7ad17a20070bfe78bad8ad",
+    "flight_identity": "Oct31 per supplied source identity; not independently EXIF-dated",
+    "preferred_crop_available": false,
+    "accessible_attachment_pixel_identical_to_source": true,
+    "public_file": "orthophoto_8000px.jpg"
+  },
+  "original_geotiff_header": {
+    "width": 16623,
+    "height": 22008,
+    "model_pixel_scale": [
+      0.03999779337797848,
+      0.039999547268190196,
+      0
+    ],
+    "model_tiepoint": [
+      0,
+      0,
+      0,
+      504080.16032596945,
+      4271568.686183937,
+      0
+    ],
+    "raster_type": "PixelIsArea",
+    "crs_epsg": 32613,
+    "crs_name": "WGS 84 / UTM zone 13N",
+    "horizontal_datum": "WGS 84 (realization/epoch not specified in tags)",
+    "units": "metre",
+    "vertical_datum": "not specified; 2D orthophoto only",
+    "source": "Original ODM GeoTIFF header, EPSG:32613. The local filesystem path is omitted."
+  },
+  "candidate_georeferencing": {
+    "assumption": "Whole-frame resize supported by 32 accepted distributed image patches, including 16 holdouts. The deterministic full-frame scale is kept. This is sampled image-transform evidence, not a ground survey.",
+    "crs_epsg": 32613,
+    "pixel_convention": "upper-left outer corner is (0,0); u right, v down; centers at (i+0.5,j+0.5)",
+    "gdal_geotransform": [
+      504080.16032596945,
+      0.08311041491526702,
+      0,
+      4271568.686183937,
+      0,
+      -0.08311084179364896
+    ],
+    "affine_2x3": [
+      [
+        0.08311041491526702,
+        0,
+        504080.16032596945
+      ],
+      [
+        0,
+        -0.08311084179364896,
+        4271568.686183937
+      ]
+    ],
+    "bounds_utm_west_south_east_north": [
+      504080.16032596945,
+      4270688.376147659,
+      504745.0436452916,
+      4271568.686183937
+    ],
+    "footprint_outer_corners_lon_lat": [
+      [
+        -104.9531531457857,
+        38.58465851705501
+      ],
+      [
+        -104.94551921052481,
+        38.58465521262227
+      ],
+      [
+        -104.9455132153748,
+        38.59258855730581
+      ],
+      [
+        -104.95314799068488,
+        38.592591862671185
+      ]
+    ],
+    "geographic_crs_epsg": 4326,
+    "coordinate_order_geographic": "longitude,latitude",
+    "coordinate_order_projected": "easting,northing",
+    "native_preview_m_per_pixel": [
+      0.08311041491526702,
+      0.08311084179364896
+    ],
+    "original_m_per_pixel": [
+      0.03999779337797848,
+      0.039999547268190196
+    ],
+    "status": "sampled image-transform validation; not ground/survey validation"
+  },
+  "tiles": {
+    "type": "IMAGE_LOCAL_NOT_GEOGRAPHIC_XYZ",
+    "template": "tiles/{z}/{x}/{y}.jpg",
+    "tile_size": 256,
+    "min_zoom": 0,
+    "max_zoom": 6,
+    "native_zoom": 6,
+    "tile_count": 1801,
+    "source_pixels_per_tile_pixel": "2^(6-z)",
+    "origin": "top-left of full JPEG; x right,y down",
+    "padded_pixels": "white outside image extent; do not place features beyond [0,8000] x [0,10592]"
+  },
+  "accuracy": {
+    "image_attachment_registration": "4000/4000 SIFT matches, 0 px residual; pixel-identical images, not independent control",
+    "absolute_horizontal_ground_accuracy_m": null,
+    "relative_ground_accuracy_m": null,
+    "jpeg_to_geotiff_registration_residual_px": {
+      "n": 16,
+      "rmse": 0.053177874850218784,
+      "p50": 0.025674429512227377,
+      "p95": 0.09285425792115694,
+      "max": 0.1436337986253142
+    },
+    "coverage_mask": "none; original alpha/coverage mask not obtained; JPEG white areas may be nodata",
+    "registration_residual_interpretation": "Observed correlation residuals at quarter JPEG resolution, not a ground-error bound or guarantee for every pixel."
+  },
+  "blockers": [
+    "Preferred cropped attachment remains unavailable; this validation covers full sharp JPEG only.",
+    "No surveyed/check-measured controls or ODM accuracy report: authoritative/survey measurements remain unvalidated.",
+    "No reliable coverage mask obtained; one low-NCC rejected check and unsampled boundary areas remain unverified."
+  ],
+  "readiness": "READY_FOR_APPROXIMATE_HORIZONTAL_CABLE_ESTIMATES_NOT_SURVEY",
+  "image_transform_validated": true,
+  "horizontal_estimates_ready": true,
+  "survey_accuracy_validated": false,
+  "provenance": {
+    "image_comparison": "Independent read-only comparison of the original GeoTIFF and the hash-identical JPEG. Local paths are omitted from this public file.",
+    "jpeg_sha256": "0d4567a7ff0a6009b42c8c43fc8c5e588dabc903ae7ad17a20070bfe78bad8ad",
+    "accepted_patches": 32,
+    "holdout_patches": 16,
+    "rejected_patches": 1
+  }
+}

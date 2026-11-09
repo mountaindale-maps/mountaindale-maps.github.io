@@ -1,0 +1,24 @@
+.local-banner {
+  margin: 0; padding: 8px 12px; background: #3d2a12; color: #f8e7c4;
+  font-size: 14px;
+}
+.editor-app { height: calc(100dvh - 38px); }
+.editor-app .top { position: relative; z-index: 8; }
+.modes { display: flex; flex-wrap: wrap; gap: 4px; }
+.modes button { min-height: 40px; padding: 0 10px; background: #243028; border: 1px solid rgba(232,224,204,0.16); border-radius: 999px; }
+.modes button.is-on { background: #e2b15a; color: #241a0a; }
+.save-state { position: absolute; left: 12px; bottom: 12px; margin: 0; z-index: 4; color: #d5dece; font-size: 13px; }
+.tool-block { display: grid; gap: 8px; margin: 12px 0; padding: 10px; border: 1px solid rgba(232,224,204,0.16); border-radius: 12px; }
+.tool-block label { display: grid; gap: 4px; font-size: 13px; color: #b7c0b4; }
+.tool-block input, .tool-block select, .tool-block textarea { background: #101614; color: #f3f0e6; border: 1px solid rgba(232,224,204,0.2); border-radius: 8px; padding: 8px; min-height: 40px; }
+.row-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.row-actions button, .dialog-actions button { min-height: 40px; padding: 0 10px; background: #243028; color: #f3f0e6; border: 1px solid rgba(232,224,204,0.16); border-radius: 8px; }
+button:disabled { opacity: 0.38; filter: grayscale(0.7); cursor: not-allowed; }
+dialog { background: #18211c; color: #f3f0e6; border: 1px solid rgba(232,224,204,0.2); border-radius: 16px; width: min(640px, calc(100% - 24px)); }
+dialog::backdrop { background: rgba(0,0,0,0.55); }
+.check { display: flex; gap: 8px; align-items: flex-start; }
+.planned-item, .note-item { padding: 6px 0; border-top: 1px solid rgba(232,224,204,0.12); }
+@media (max-width: 800px) {
+  .editor-app { height: calc(100dvh - 64px); }
+  .save-state { bottom: calc(34vh + 8px); }
+}

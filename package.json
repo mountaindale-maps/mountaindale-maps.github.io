@@ -1,0 +1,16 @@
+{
+  "name": "mountaindale",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "test:browser": "playwright test",
+    "tiles": "python3 scripts/build_tiles.py",
+    "preview": "python3 -m http.server 8765 --bind 127.0.0.1",
+    "editor": "node editor/server.mjs",
+    "package:editor": "node scripts/package_editor.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1"
+  }
+}

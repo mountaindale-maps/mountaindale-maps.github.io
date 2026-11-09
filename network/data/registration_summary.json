@@ -1,0 +1,190 @@
+{
+  "readiness": "READY_FOR_APPROXIMATE_HORIZONTAL_CABLE_ESTIMATES_NOT_SURVEY",
+  "method": "Read-only in-memory comparison of the original GeoTIFF and the hash-identical JPEG, downsampled to 2000x2648. Normalized cross-correlation on distributed patches, with a holdout split. No image was transferred and local filesystem paths are omitted.",
+  "tiff_sha256": "eb99c1659fefe0633a29b7ba3b2b659da25b64c6f85772cad6c0a4678ea4ac73",
+  "jpeg_sha256": "0d4567a7ff0a6009b42c8c43fc8c5e588dabc903ae7ad17a20070bfe78bad8ad",
+  "analysis_size": [
+    2000,
+    2648
+  ],
+  "accepted": 32,
+  "rejected": 1,
+  "accepted_strata": [
+    [
+      0,
+      0
+    ],
+    [
+      0,
+      1
+    ],
+    [
+      0,
+      2
+    ],
+    [
+      0,
+      3
+    ],
+    [
+      0,
+      4
+    ],
+    [
+      1,
+      0
+    ],
+    [
+      1,
+      1
+    ],
+    [
+      1,
+      2
+    ],
+    [
+      1,
+      3
+    ],
+    [
+      1,
+      4
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      2,
+      2
+    ],
+    [
+      2,
+      3
+    ],
+    [
+      2,
+      4
+    ],
+    [
+      3,
+      2
+    ],
+    [
+      3,
+      3
+    ],
+    [
+      3,
+      4
+    ]
+  ],
+  "minimum_accepted_ncc": 0.9997890591621399,
+  "accepted_jpeg_xy_extent": [
+    [
+      402,
+      1362
+    ],
+    [
+      6742,
+      10174
+    ]
+  ],
+  "fitted_tiff_corner_to_jpeg_corner_2x3": [
+    [
+      0.48125780693688014,
+      -1.2830420999657198e-07,
+      0.01629257979212571
+    ],
+    [
+      2.7752684249798105e-07,
+      0.4812793721310311,
+      0.0008531163010323411
+    ]
+  ],
+  "expected_tiff_corner_to_jpeg_corner_2x3": [
+    [
+      0.48126090356734647,
+      0,
+      0
+    ],
+    [
+      0,
+      0.48127953471464924,
+      0
+    ]
+  ],
+  "train_fitted_residual_jpeg_px": {
+    "n": 16,
+    "rmse": 0.03989986431665448,
+    "p50": 0.02413874492137249,
+    "p95": 0.0739185527831032,
+    "max": 0.07441352500448044
+  },
+  "holdout_fitted_residual_jpeg_px": {
+    "n": 16,
+    "rmse": 0.05567416439336327,
+    "p50": 0.030493421906113316,
+    "p95": 0.10553489029031898,
+    "max": 0.13436910245686334
+  },
+  "all_expected_resize_residual_jpeg_px": {
+    "n": 32,
+    "rmse": 0.048185836507192735,
+    "p50": 0.025674429512227377,
+    "p95": 0.08397340867220618,
+    "max": 0.1436337986253142
+  },
+  "holdout_expected_resize_residual_jpeg_px": {
+    "n": 16,
+    "rmse": 0.053177874850218784,
+    "p50": 0.025674429512227377,
+    "p95": 0.09285425792115694,
+    "max": 0.1436337986253142
+  },
+  "fitted_vs_expected_corner_displacements_jpeg_px": [
+    0.016314900051973048,
+    0.035604845103311245,
+    0.03805330769242014,
+    0.01374175990229956
+  ],
+  "edge_band_expected_max_residual_jpeg_px": {
+    "west_outer_quarter": {
+      "n": 8,
+      "max": 0.1436337986253762
+    },
+    "east_outer_quarter": {
+      "n": 6,
+      "max": 0.09380699839534737
+    },
+    "north_outer_fifth": {
+      "n": 4,
+      "max": 0.07535871809940126
+    },
+    "south_outer_fifth": {
+      "n": 7,
+      "max": 0.07035215462300239
+    }
+  },
+  "rejected_check": {
+    "stratum": [
+      0,
+      3
+    ],
+    "split": "train",
+    "jpeg_xy": [
+      762,
+      7094
+    ],
+    "ncc": 0.8193023800849915,
+    "expected_resize_residual_jpeg_px": 4.689480637163951,
+    "cause": "not established; failed preregistered NCC>=0.9 acceptance threshold; retained as disclosed mismatch"
+  },
+  "interpretation": "Strong sampled visual support for whole-frame resize; no material global crop, rotation or warp evidenced by accepted distributed matches. Retain deterministic full-frame transform rather than fitting resampling noise. One rejected patch remains unexplained; no guarantee at every pixel or nodata boundary.",
+  "limits": [
+    "Analysis resolution is 4 native JPEG pixels; fitted subpixel residuals are numerical correlation results, not a hard pixel-accuracy guarantee.",
+    "Not an independent surveyed control test: comparison validates image derivation, not ODM absolute geolocation or local photogrammetric ground scale.",
+    "No absolute or relative ground-accuracy confidence interval can be established.",
+    "Coverage outer boundary/nodata extremes not comprehensively tested; original footprint mask still unavailable."
+  ]
+}
