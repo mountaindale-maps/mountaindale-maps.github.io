@@ -10,6 +10,12 @@ node editor/server.mjs
 
 Open http://127.0.0.1:8766/ . The process refuses any bind address other than loopback. Saves go to `~/.mountaindale-network/` unless you set `MOUNTAINDALE_DATA_DIR`. That folder must sit outside `network/` and `dist/`.
 
+## Who can read a saved plan
+
+The editor will not follow a symlink out of the plan directory, and it will not write a plan into the public site tree. The directory is created mode 0700 and the plan files mode 0600, so other accounts on the computer cannot list or read them.
+
+A second program running as the same user can read `current.json`, copy it, or add another name for the temporary file while a save is in progress. That program has the same access as the person using the editor. If the temporary file already has another name, the editor leaves the previous `current.json` in place. The extra name already has the bytes, and a plain copy does not change the link count. Keeping the plan on this computer does not hide it from other programs running as this user.
+
 ## Run the packaged copy
 
 Unzip `mountaindale-local-editor.zip`, install Node.js 18 or newer, then:

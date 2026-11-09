@@ -3,6 +3,24 @@ import { constants } from "node:fs";
 import { mkdir, readFile, readdir, realpath, open, rename, lstat, unlink } from "node:fs/promises";
 import path from "node:path";
 
+/**
+ * Threat model for the plan directory.
+ *
+ * Configured paths are a boundary the editor enforces. A save must not follow
+ * a symlink or a path that resolves into the public site tree. The data
+ * directory is mode 0700 and the plan files are mode 0600 so other Unix
+ * accounts cannot list or read them.
+ *
+ * Another process running as this same user can read current.json, copy those
+ * bytes, or hardlink a temporary file while it is still linked in the
+ * directory. That process has the same access as the person using the editor.
+ * Refusing to install a temporary inode that already has a second name keeps
+ * the previous current.json in place, and the extra name already holds the
+ * bytes. A plain copy never changes the link count. This directory is not a
+ * boundary against other programs running as this user.
+ */
+export const LOCAL_PLAN_THREAT_MODEL = "same-user processes can read or copy the plan directory; other users are excluded by mode 0700 and 0600; symlinks and public-tree paths are refused";
+
 const NOFOLLOW = constants.O_NOFOLLOW ?? 0;
 const CREATE_FLAGS = constants.O_CREAT | constants.O_EXCL | constants.O_WRONLY | NOFOLLOW;
 const READ_FLAGS = constants.O_RDONLY | NOFOLLOW;
@@ -34,6 +52,20 @@ function backupError() {
   const error = new Error("Unknown backup");
   error.code = "BACKUP";
   return error;
+}
+
+function aliasedError() {
+  const error = new Error("The new plan file already had another name, so it was not installed and the previous plan was left in place. Another program running as this same user can read the plan directory.");
+  error.code = "PLAN_ALIASED";
+  return error;
+}
+
+async function restrict(handle, mode) {
+  await handle.chmod(mode);
+  if (process.platform === "linux") {
+    const info = await handle.stat();
+    if ((info.mode & 0o777) !== mode) throw dataDirError();
+  }
 }
 
 async function resolveReal(target) {
@@ -98,6 +130,7 @@ async function openAllowedDir(root) {
       const listed = await lstat(root);
       if (listed.isSymbolicLink() || listed.ino !== info.ino || listed.dev !== info.dev) throw dataDirError();
     }
+    await restrict(handle, 0o700);
     return handle;
   } catch (error) {
     await handle.close();
@@ -142,6 +175,7 @@ async function createExclusive(dirHandle, root, name) {
     throw error;
   }
   try {
+    await restrict(handle, 0o600);
     await assertSameFile(dirHandle, root, name, handle);
     return handle;
   } catch (error) {
@@ -166,11 +200,11 @@ async function ensureRealSubdir(dirHandle, root, name) {
   const existing = await lstatEntry(dirHandle, root, name);
   if (existing?.isSymbolicLink() || (existing && !existing.isDirectory())) throw dataDirError();
   if (!existing) {
-    try {
-      await mkdir(entryPath(dirHandle, root, name));
-    } catch (error) {
-      if (error.code !== "EEXIST") throw error;
-    }
+      try {
+    await mkdir(entryPath(dirHandle, root, name), { mode: 0o700 });
+  } catch (error) {
+    if (error.code !== "EEXIST") throw error;
+  }
   }
   const info = await lstatEntry(dirHandle, root, name);
   if (!info || info.isSymbolicLink() || !info.isDirectory()) throw dataDirError();
@@ -182,6 +216,7 @@ async function ensureRealSubdir(dirHandle, root, name) {
       const via = await realpath(`/proc/self/fd/${sub.fd}`);
       if (via !== path.join(root, name)) throw dataDirError();
     }
+    await restrict(sub, 0o700);
   } finally {
     await sub.close();
   }
@@ -238,7 +273,7 @@ async function ensureDataDir(root) {
   const parentReal = await realpath(parent);
   if (path.join(parentReal, name) !== root) throw dataDirError();
   try {
-    await mkdir(root);
+    await mkdir(root, { mode: 0o700 });
   } catch (error) {
     if (error.code !== "EEXIST") throw error;
   }
@@ -283,16 +318,21 @@ export async function savePlan(dataDir, plan, forbiddenRoots) {
     }
 
     let installedOk = false;
+    let lastError = null;
     for (let attempt = 0; attempt < 5 && !installedOk; attempt += 1) {
       const tmpName = `current.json.${randomBytes(16).toString("hex")}.tmp`;
       let installed = null;
       try {
         installed = await writeExclusive(dir, root, tmpName, payload);
       } catch (error) {
-        if (error.code !== "DATA_DIR") throw error;
+        lastError = error;
+        if (error.code !== "DATA_DIR" && error.code !== "PLAN_ALIASED") throw error;
         continue;
       }
       try {
+        const ready = await installed.stat();
+        if (ready.nlink > 1) throw aliasedError();
+        if (!ready.isFile() || ready.nlink !== 1) throw dataDirError();
         try {
           await rename(entryPath(dir, root, tmpName), entryPath(dir, root, "current.json"));
         } catch (error) {
@@ -300,16 +340,18 @@ export async function savePlan(dataDir, plan, forbiddenRoots) {
           throw error;
         }
         await assertSameFile(dir, root, "current.json", installed);
+        await restrict(installed, 0o600);
         await dir.sync();
         installedOk = true;
       } catch (error) {
+        lastError = error;
         await discardIfOurs(dir, root, tmpName, installed);
-        if (error.code !== "DATA_DIR" && error.code !== "ENOENT") throw error;
+        if (error.code !== "DATA_DIR" && error.code !== "ENOENT" && error.code !== "PLAN_ALIASED") throw error;
       } finally {
         await installed.close();
       }
     }
-    if (!installedOk) throw dataDirError();
+    if (!installedOk) throw lastError || dataDirError();
     return { dataDir: root, backup, file: path.join(root, "current.json") };
   } finally {
     await dir.close();

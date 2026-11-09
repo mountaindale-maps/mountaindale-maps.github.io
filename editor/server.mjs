@@ -183,7 +183,7 @@ export async function startEditorServer(options = {}) {
       const bytes = await readFile(file);
       send(response, 200, bytes, type);
     } catch (error) {
-      const known = new Set(["SANITIZER", "REVIEW_REQUIRED", "SCHEMA", "DUAL_UPLINK", "CYCLE", "IMPORT", "PLANNED_EXCLUDED", "SEGMENT"]);
+      const known = new Set(["SANITIZER", "REVIEW_REQUIRED", "SCHEMA", "DUAL_UPLINK", "CYCLE", "IMPORT", "PLANNED_EXCLUDED", "SEGMENT", "PLAN_ALIASED"]);
       if (error.code === "PLAN_CORRUPT") {
         return send(response, 409, {
           error: error.message,

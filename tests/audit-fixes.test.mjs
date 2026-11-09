@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { watch } from "node:fs";
-import { lstat, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
+import { link, lstat, mkdtemp, readFile, readdir, rm, stat, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import http from "node:http";
 import { editorRoots, startEditorServer } from "../editor/server.mjs";
-import { loadPlan, resolveAllowedDataDir, savePlan } from "../editor/store.mjs";
+import { LOCAL_PLAN_THREAT_MODEL, loadPlan, resolveAllowedDataDir, savePlan } from "../editor/store.mjs";
 import { evaluateCalibration, importCalibration } from "../network/js/lib/calibration.mjs";
 import { createHistory, undo } from "../network/js/lib/history.mjs";
 import { addLink, addPlannedDevice, importDocument, linksUnchanged, measureLink, planFromPublic, setSegmentExtra, ungroupDevice, validateImport } from "../network/js/lib/plan.mjs";
@@ -205,6 +205,74 @@ test("replacing the temp file with a symlink during save does not write outside"
   assert.match(await readFile(path.join(dir, "current.json"), "utf8"), /mountaindale.local_plan/);
   await rm(dir, { recursive: true, force: true });
   await rm(outside, { recursive: true, force: true });
+});
+
+test("same-user code can read a plan by hardlink or copy; modes exclude other accounts", async () => {
+  assert.match(LOCAL_PLAN_THREAT_MODEL, /same-user/);
+  assert.match(LOCAL_PLAN_THREAT_MODEL, /0700/);
+  const dir = await mkdtemp(path.join(tmpdir(), "md-owner-"));
+  const outside = await mkdtemp(path.join(tmpdir(), "md-owner-out-"));
+  const plan = planFromPublic(asbuilt, metadata);
+  plan.notes.push({ id: "kept", kind: "change-request", text: "previous plan stays", created: "2026-11-09T00:00:00Z", device_ids: [] });
+  try {
+    await savePlan(dir, plan, forbidden);
+    const directory = await stat(dir);
+    const current = await stat(path.join(dir, "current.json"));
+    const backups = await stat(path.join(dir, "backups"));
+    assert.equal(directory.mode & 0o777, 0o700);
+    assert.equal(backups.mode & 0o777, 0o700);
+    assert.equal(current.mode & 0o777, 0o600);
+    assert.equal(current.nlink, 1);
+    const alias = path.join(outside, "hardlink.json");
+    await link(path.join(dir, "current.json"), alias);
+    assert.equal((await stat(path.join(dir, "current.json"))).nlink, 2);
+    assert.match(await readFile(alias, "utf8"), /previous plan stays/);
+    await rm(alias);
+    const copied = path.join(outside, "copied.json");
+    await writeFile(copied, await readFile(path.join(dir, "current.json")));
+    assert.equal((await stat(path.join(dir, "current.json"))).nlink, 1);
+    assert.match(await readFile(copied, "utf8"), /previous plan stays/);
+
+    const captures = [];
+    let serial = 0;
+    const watcher = watch(dir, (event, filename) => {
+      if (!filename || !String(filename).endsWith(".tmp")) return;
+      const dest = path.join(outside, `linked-${serial += 1}.json`);
+      link(path.join(dir, String(filename)), dest).then(() => captures.push(dest), () => {});
+    });
+    let refused = 0;
+    let installed = 0;
+    try {
+      for (let attempt = 0; attempt < 12; attempt += 1) {
+        plan.notes.push({ id: `alias-${attempt}`, kind: "change-request", text: `alias-marker-${attempt}`, created: "2026-11-09T00:00:00Z", device_ids: [] });
+        try {
+          await savePlan(dir, plan, forbidden);
+          installed += 1;
+        } catch (error) {
+          assert.equal(error.code, "PLAN_ALIASED");
+          refused += 1;
+        }
+      }
+    } finally {
+      watcher.close();
+    }
+    await new Promise((resolve) => setTimeout(resolve, 40));
+    const held = [];
+    for (const name of await readdir(outside)) {
+      if (!name.startsWith("linked-")) continue;
+      const text = await readFile(path.join(outside, name), "utf8");
+      if (text.includes("alias-marker-")) held.push(name);
+    }
+    assert.ok(held.length > 0, "a same-user hardlink of the temp file received the plan bytes");
+    const saved = await readFile(path.join(dir, "current.json"), "utf8");
+    assert.match(saved, /previous plan stays|alias-marker-/);
+    assert.equal((await lstat(path.join(dir, "current.json"))).isSymbolicLink(), false);
+    assert.ok(refused + installed === 12);
+    assert.ok(refused > 0, "an already-linked temp inode was not installed over the previous plan");
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+    await rm(outside, { recursive: true, force: true });
+  }
 });
 
 test("an explicit slope survives edit, save, reload, and the API, and negatives are refused", async () => {
