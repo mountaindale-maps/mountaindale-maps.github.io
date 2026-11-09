@@ -1,4 +1,5 @@
 import { evaluateCalibration, importCalibration, proposeCalibration } from "/js/lib/calibration.mjs";
+import { feetToMeters, formatFeet, metersToFeet } from "/js/lib/distance.mjs";
 import { imageToLonLat, lonLatToImage, JPEG_CANDIDATE_GEOTRANSFORM } from "/js/lib/projection.mjs";
 import { tileUrl } from "/js/lib/tiles.mjs";
 import { commit, createHistory, redo, undo } from "/js/lib/history.mjs";
@@ -20,6 +21,7 @@ import {
   removeLink,
   removePlanned,
   restoreBaselineCoords,
+  resetCablePath,
   setCablePath,
   setPublicProfile,
   setSegmentExtra,
@@ -172,7 +174,7 @@ function render() {
       medium: link.medium,
       hop: wirelessHop.get(link.id) || "",
       hot: hot.has(link.id) || link.id === selectedLinkId,
-      editable: mode === "path" && link.id === selectedLinkId,
+      editable: mode === "path" && link.id === selectedLinkId && link.medium === "wired-ethernet",
       points: vertices.map((vertex) => pixelOf(vertex)).filter(Boolean),
     });
   }
@@ -282,10 +284,16 @@ function moveTools(plan) {
   return box;
 }
 
+function feetFieldValue(meters) {
+  const number = Number(meters);
+  if (!Number.isFinite(number)) return "";
+  return String(Math.round(metersToFeet(number) * 100) / 100);
+}
+
 function pathTools(plan) {
   const box = el("div", null);
   const device = deviceById(plan, selectedId);
-  box.append(el("p", null, "Cable vertices are geometry. They do not add or remove network links. Click the map to add a vertex on the selected link."));
+  box.append(el("p", null, "Ethernet cable bends follow the real route. Drag a midpoint to add a bend, drag a bend to move it, and double-tap or right-click a bend to remove it. Wireless links stay straight. Lengths are whole feet. The saved numbers stay metres."));
   if (!device) return box;
   const related = plan.asbuilt.links.filter((link) => link.parent === device.id || link.child === device.id);
   for (const link of related) {
@@ -297,33 +305,43 @@ function pathTools(plan) {
   if (!selectedLinkId) return box;
   const link = plan.asbuilt.links.find((item) => item.id === selectedLinkId);
   if (!link) return box;
+  if (link.medium !== "wired-ethernet") {
+    box.append(el("p", null, "This wireless link stays a straight line."));
+    return box;
+  }
   const path = plan.cable_paths[link.id] || { intermediates: [], segments: [] };
+  const reset = el("button", null, "Reset to straight");
+  reset.type = "button";
+  reset.id = "reset-cable";
+  reset.addEventListener("click", () => tryUpdate((current) => resetCablePath(current, link.id)));
+  box.append(reset);
   path.intermediates.forEach((vertex, index) => {
     const row = el("div", "row-actions");
-    row.append(el("span", null, `Vertex ${index + 1}: ${vertex.lon.toFixed(6)}, ${vertex.lat.toFixed(6)}`));
+    row.append(el("span", null, `Bend ${index + 1}: ${vertex.lon.toFixed(6)}, ${vertex.lat.toFixed(6)}`));
     const remove = el("button", null, "Delete vertex");
     remove.type = "button";
-    remove.addEventListener("click", () => {
-      const next = path.intermediates.filter((_, item) => item !== index);
-      tryUpdate((current) => setCablePath(current, link.id, next, path.segments));
-    });
+    remove.addEventListener("click", () => removeCableBend(link.id, index));
     row.append(remove);
     box.append(row);
   });
   const metrics = measureLink(plan, link, claim());
   if (metrics) {
+    const length = el("p", "path-length");
+    length.id = "path-length";
+    length.textContent = `Ethernet cable ${formatFeet(metrics.totals.physical_cable_m)}.`;
+    box.append(length);
     metrics.segments.forEach((segment, index) => {
-      const rise = numberField(`Segment ${index + 1} vertical drop m, added`, segment.vertical_drop_m ?? segment.vertical_rise_m, index === 0 ? "segment-rise-0" : "");
-      const slope = numberField(`Segment ${index + 1} slope rise m, hypotenuse`, segment.slope_rise_m, index === 0 ? "segment-slope-0" : "");
-      const slack = numberField("Slack m", segment.slack_m, "");
-      const loop = numberField("Service loop m", segment.service_loop_m, "");
+      const rise = numberField(`Segment ${index + 1} vertical drop ft, added`, feetFieldValue(segment.vertical_drop_m ?? segment.vertical_rise_m), index === 0 ? "segment-rise-0" : "");
+      const slope = numberField(`Segment ${index + 1} slope rise ft, hypotenuse`, feetFieldValue(segment.slope_rise_m), index === 0 ? "segment-slope-0" : "");
+      const slack = numberField("Slack ft", feetFieldValue(segment.slack_m), "");
+      const loop = numberField("Service loop ft", feetFieldValue(segment.service_loop_m), "");
       const apply = el("button", null, "Apply allowances");
       apply.type = "button";
       apply.addEventListener("click", () => tryUpdate((current) => setSegmentExtra(current, link.id, index, {
-        vertical_drop_m: readNum(rise),
-        slope_rise_m: readNum(slope),
-        slack_m: readNum(slack),
-        service_loop_m: readNum(loop),
+        vertical_drop_m: feetToMeters(readNum(rise)),
+        slope_rise_m: feetToMeters(readNum(slope)),
+        slack_m: feetToMeters(readNum(slack)),
+        service_loop_m: feetToMeters(readNum(loop)),
       })));
       box.append(rise.label, slope.label, slack.label, loop.label, apply);
     });
@@ -332,6 +350,25 @@ function pathTools(plan) {
     box.append(list);
   }
   return box;
+}
+
+function removeCableBend(linkId, index) {
+  tryUpdate((current) => {
+    const path = current.cable_paths[linkId] || { intermediates: [], segments: [] };
+    const intermediates = path.intermediates.filter((_, item) => item !== index);
+    const segments = path.segments.map((extra) => ({ ...extra }));
+    if (segments[index] && segments[index + 1]) {
+      const next = segments[index + 1];
+      segments[index] = {
+        vertical_drop_m: (Number(segments[index].vertical_drop_m) || 0) + (Number(next.vertical_drop_m) || 0),
+        slope_rise_m: (Number(segments[index].slope_rise_m) || 0) + (Number(next.slope_rise_m) || 0),
+        slack_m: (Number(segments[index].slack_m) || 0) + (Number(next.slack_m) || 0),
+        service_loop_m: (Number(segments[index].service_loop_m) || 0) + (Number(next.service_loop_m) || 0),
+      };
+      segments.splice(index + 1, 1);
+    }
+    return setCablePath(current, linkId, intermediates, segments);
+  });
 }
 
 function groupTools(plan) {
@@ -663,17 +700,30 @@ map.on("vertexdrag", ({ linkId, index, u, v }) => {
   history = { ...history, present: setCablePath(dragOrigin, linkId, intermediates, path.segments) };
   render();
 });
-map.on("vertexdragend", () => {
+map.on("benddrag", ({ linkId, index, u, v }) => {
+  if (!dragOrigin) dragOrigin = present();
+  const [lon, lat] = imageToLonLat(u, v, gt());
+  const path = dragOrigin.cable_paths[linkId] || { intermediates: [], segments: [] };
+  const intermediates = path.intermediates.slice();
+  intermediates.splice(index, 0, { lon, lat });
+  const segments = path.segments.slice();
+  segments.splice(index + 1, 0, {});
+  history = { ...history, present: setCablePath(dragOrigin, linkId, intermediates, segments) };
+  render();
+});
+map.on("vertexdragend", ({ moved, inserted } = {}) => {
   if (!dragOrigin) return;
+  if (!moved && !inserted) {
+    dragOrigin = null;
+    return;
+  }
   const dragged = present();
   history = commit({ past: history.past, present: dragOrigin, future: [] }, dragged);
   dragOrigin = null;
 });
-map.on("mapclick", ({ u, v }) => {
-  if (mode !== "path" || !selectedLinkId) return;
-  const [lon, lat] = imageToLonLat(u, v, gt());
-  const path = present().cable_paths[selectedLinkId] || { intermediates: [], segments: [] };
-  tryUpdate((current) => setCablePath(current, selectedLinkId, [...path.intermediates, { lon, lat }], path.segments));
+map.on("vertexremove", ({ linkId, index }) => {
+  dragOrigin = null;
+  removeCableBend(linkId, index);
 });
 
 document.querySelector("#modes").addEventListener("click", (event) => {

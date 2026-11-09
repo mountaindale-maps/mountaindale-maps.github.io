@@ -135,9 +135,81 @@ test("local editor saves, reloads, undoes, and refuses to publish plans", async 
   await page.locator("#segment-rise-0").fill("3");
   await page.locator("#segment-slope-0").fill("4");
   await page.getByRole("button", { name: "Apply allowances" }).click();
-  await expect(page.locator(".segment-row").first()).toContainText("Vertical drop added 3.00 m");
-  await expect(page.locator(".segment-row").first()).toContainText("Slope rise hypotenuse 4.00 m");
+  await expect(page.locator(".segment-row").first()).toContainText("Vertical drop added 3 ft");
+  await expect(page.locator(".segment-row").first()).toContainText("Slope rise hypotenuse 4 ft");
   await expect(page.locator(".distance-total").first()).toContainText("ground accuracy unverified");
+});
+
+test("a cable bend can be added, moved, removed, and reset", async ({ page }) => {
+  await page.goto("/");
+  await page.locator("#modes [data-mode='path']").click();
+  const device = page.locator("[data-device-id='098-UAP-M']");
+  if (!(await device.count())) await page.locator("[data-members*='098-UAP-M']").click();
+  await device.click();
+  await page.getByRole("button", { name: "lnk:NanoSwitch>098-UAP-M" }).click();
+  const midpoint = page.locator(".midpoint").first();
+  await expect(midpoint).toBeVisible();
+  const box = await midpoint.boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 + 48, box.y + box.height / 2 + 36, { steps: 6 });
+  await page.mouse.up();
+  await expect(page.locator(".vertex")).toHaveCount(1);
+  await expect(page.locator("#path-length")).toContainText(/\d+ ft/);
+  const bend = await page.getByText(/Bend 1:/).textContent();
+  await page.locator(".vertex").evaluate((node) => {
+    const rect = node.getBoundingClientRect();
+    const fire = (type, x, y) => node.dispatchEvent(new PointerEvent(type, {
+      bubbles: true, cancelable: true, pointerId: 8, pointerType: "mouse", clientX: x, clientY: y, buttons: 1,
+    }));
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    fire("pointerdown", x, y);
+    fire("pointermove", x + 120, y - 90);
+    fire("pointerup", x + 120, y - 90);
+  });
+  await expect(page.getByText(/Bend 1:/)).not.toHaveText(bend);
+  await page.locator(".vertex").evaluate((node) => node.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, cancelable: true })));
+  await expect(page.locator(".vertex")).toHaveCount(0);
+  const again = await page.locator(".midpoint").first().boundingBox();
+  await page.mouse.move(again.x + again.width / 2, again.y + again.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(again.x + again.width / 2 + 28, again.y + again.height / 2 - 22, { steps: 4 });
+  await page.mouse.up();
+  await expect(page.locator(".vertex")).toHaveCount(1);
+  await page.locator("#reset-cable").click();
+  await expect(page.locator(".vertex")).toHaveCount(0);
+  await page.locator("#undo").click();
+  await expect(page.locator(".vertex")).toHaveCount(1);
+});
+
+test("a touch drag on a midpoint bends the cable and does not pan", async ({ browser }) => {
+  const context = await browser.newContext({ viewport: { width: 1280, height: 800 }, hasTouch: true });
+  const page = await context.newPage();
+  await page.goto("/");
+  await page.locator("#modes [data-mode='path']").click();
+  const device = page.locator("[data-device-id='098-UAP-M']");
+  if (!(await device.count())) await page.locator("[data-members*='098-UAP-M']").click();
+  await device.tap();
+  await page.getByRole("button", { name: "lnk:NanoSwitch>098-UAP-M" }).tap();
+  const before = await page.locator("#map").getAttribute("data-view-u");
+  await page.evaluate(() => {
+    const handle = document.querySelector(".midpoint");
+    const rect = handle.getBoundingClientRect();
+    const fire = (type, x, y) => handle.dispatchEvent(new PointerEvent(type, {
+      bubbles: true, cancelable: true, pointerId: 4, pointerType: "touch", clientX: x, clientY: y,
+    }));
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    fire("pointerdown", x, y);
+    fire("pointermove", x + 36, y + 28);
+    fire("pointerup", x + 36, y + 28);
+  });
+  await expect(page.locator(".vertex")).toHaveCount(1);
+  await expect(page.locator("#path-length")).toContainText("ft");
+  const after = await page.locator("#map").getAttribute("data-view-u");
+  expect(Math.abs(Number(after) - Number(before))).toBeLessThan(1);
+  await context.close();
 });
 
 test("one touch opens the editor card without a second tap", async ({ browser }) => {

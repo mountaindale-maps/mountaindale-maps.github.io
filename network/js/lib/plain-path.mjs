@@ -172,7 +172,7 @@ export function pathRows(route) {
   return route.deviceIds.map((id, index) => {
     if (index === 0) return { via: "This device", id, extra: "" };
     const hop = route.hops[index - 1];
-    const via = hop?.connection === "wireless" ? "Wireless" : "Cable";
+    const via = hop?.connection === "wireless" ? "Wireless" : "Ethernet cable";
     const extra = hop?.interfaceName === "SFP+" ? "SFP+ port" : "";
     return { via, id, extra };
   });

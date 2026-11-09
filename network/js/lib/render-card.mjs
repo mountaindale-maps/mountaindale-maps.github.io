@@ -1,4 +1,4 @@
-import { measureRoute } from "./distance.mjs";
+import { formatFeet, measureRoute } from "./distance.mjs";
 import { lonLatToImage } from "./projection.mjs";
 import { pathRows, publicCard, verifiedRoute } from "./plain-path.mjs";
 import { fillDistanceList } from "../format-distance.js";
@@ -49,13 +49,13 @@ export function renderDeviceStory(container, {
   if (device.status === "inactive") {
     story.appendChild(el("p", "flag-note", "Inactive, no uplink is recorded, and no path is drawn."));
   }
-  story.appendChild(renderRoute(route));
+  story.appendChild(renderRoute(route, links, claim));
   story.appendChild(renderDetails({ device, card, route, claim, links, geotransform, image, nearEdgeIds }));
   container.appendChild(story);
   return story;
 }
 
-function renderRoute(route) {
+function renderRoute(route, links, claim) {
   const block = el("section", "route-block");
   block.appendChild(el("h3", null, "Path back to the main router"));
   if (!route.reachesRouter) {
@@ -76,9 +76,8 @@ function renderRoute(route) {
     list.appendChild(item);
   }
   block.appendChild(list);
-  if (route.hops.some((hop) => hop.connection === "cable")) {
-    block.appendChild(el("p", "path-note", "Cable type is not recorded."));
-  }
+  const length = cableLengthMeters(route, links, claim);
+  if (length != null) block.appendChild(el("p", "path-length", `Ethernet cable length ${formatFeet(length)}.`));
   return block;
 }
 
@@ -119,18 +118,33 @@ function renderDetails({ device, card, route, claim, links, geotransform, image,
     });
     if (pieces.length) {
       const sum = pieces.reduce((total, piece) => total + piece.metrics.totals.horizontal_ellipsoidal_m, 0);
-      technical.appendChild(el("p", "distance-total", `Path horizontal sum ${sum.toFixed(2)} m · ${(sum / 0.3048).toFixed(2)} ft. ${claim.distanceLabel}.`));
+      technical.appendChild(el("p", "distance-total", `Path length ${formatFeet(sum)}. ${claim.distanceLabel}.`));
     }
   }
   return technical;
 }
 
+function cableLengthMeters(route, links, claim) {
+  const pieces = (route?.hops || []).filter((hop) => hop.connection === "cable");
+  if (!pieces.length) return null;
+  let sum = 0;
+  let any = false;
+  for (const hop of pieces) {
+    const metrics = measureHop(hop, links, claim);
+    if (!metrics) continue;
+    sum += metrics.totals.horizontal_ellipsoidal_m;
+    any = true;
+  }
+  return any ? sum : null;
+}
+
 function measureHop(hop, links, claim) {
   const link = (links || []).find((item) => item.id === hop.linkId);
   if (!link?.fromCoords || !link?.toCoords) return null;
+  const bends = link.medium === "wired-ethernet" && Array.isArray(link.vertices) ? link.vertices : [];
   return measureRoute(
-    [link.fromCoords, link.toCoords],
-    [{ vertical_rise_m: 0, slack_m: 0, service_loop_m: 0 }],
+    [link.toCoords, ...bends, link.fromCoords],
+    [],
     claim,
   );
 }

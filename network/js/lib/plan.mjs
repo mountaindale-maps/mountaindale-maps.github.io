@@ -9,6 +9,7 @@ import { rebuildHierarchy } from "./topology-model.mjs";
 
 const ROLES = new Set(["router", "switch", "ap", "radio"]);
 const MEDIA = new Set(["wired-ethernet", "airmax-ptp", "airmax-ptmp", "wan"]);
+export const MAX_CABLE_BENDS = 24;
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -24,20 +25,21 @@ export function planFromPublic(asbuilt, metadata) {
     error.code = "SCHEMA";
     throw error;
   }
+  const links = clone(asbuilt.links);
   return {
     schema: "mountaindale.local_plan",
     schema_version: "1.0.0",
     baseline_generated: asbuilt.generated,
     asbuilt: {
       devices: clone(asbuilt.devices),
-      links: clone(asbuilt.links),
+      links,
       location_groups: clone(asbuilt.location_groups),
       landmarks: clone(asbuilt.landmarks),
       wan: clone(asbuilt.wan),
     },
     planned_devices: [],
     planned_routes: [],
-    cable_paths: {},
+    cable_paths: cablePathsFromLinks(links),
     notes: [],
     calibration: metadata ? clone(metadata) : null,
   };
@@ -270,11 +272,59 @@ export function setCablePath(plan, linkId, intermediates, segments) {
   const next = clone(plan);
   const link = next.asbuilt.links.find((item) => item.id === linkId);
   if (!link) throw new Error(`Unknown link ${linkId}`);
-  const mids = (intermediates || []).map((vertex) => ({ lon: vertex.lon, lat: vertex.lat }));
+  if (link.medium !== "wired-ethernet") {
+    const error = new Error("Only an Ethernet cable can bend");
+    error.code = "SEGMENT";
+    throw error;
+  }
+  const mids = (intermediates || []).map((vertex) => cleanVertex(vertex));
+  if (mids.length > MAX_CABLE_BENDS) {
+    const error = new Error("Too many cable bends");
+    error.code = "SEGMENT";
+    throw error;
+  }
   const count = mids.length + 1;
   const extras = Array.from({ length: count }, (_, index) => cleanExtra((segments || [])[index]));
-  next.cable_paths[linkId] = { intermediates: mids, segments: extras };
+  if (mids.length) next.cable_paths[linkId] = { intermediates: mids, segments: extras };
+  else if (extras.some((extra) => extra.vertical_drop_m || extra.slope_rise_m || extra.slack_m || extra.service_loop_m)) {
+    next.cable_paths[linkId] = { intermediates: [], segments: extras };
+  } else delete next.cable_paths[linkId];
   return next;
+}
+
+export function resetCablePath(plan, linkId) {
+  const current = plan.cable_paths?.[linkId];
+  const summed = (current?.segments || []).reduce((total, extra) => ({
+    vertical_drop_m: total.vertical_drop_m + (Number(extra?.vertical_drop_m) || Number(extra?.vertical_rise_m) || 0),
+    slope_rise_m: total.slope_rise_m + (Number(extra?.slope_rise_m) || 0),
+    slack_m: total.slack_m + (Number(extra?.slack_m) || 0),
+    service_loop_m: total.service_loop_m + (Number(extra?.service_loop_m) || 0),
+  }), { vertical_drop_m: 0, slope_rise_m: 0, slack_m: 0, service_loop_m: 0 });
+  return setCablePath(plan, linkId, [], [summed]);
+}
+
+function cleanVertex(vertex) {
+  const lon = Number(vertex?.lon);
+  const lat = Number(vertex?.lat);
+  if (!Number.isFinite(lon) || !Number.isFinite(lat) || lon < -180 || lon > 180 || lat < -90 || lat > 90) {
+    const error = new Error("A cable bend must be longitude and latitude");
+    error.code = "SEGMENT";
+    throw error;
+  }
+  return { lon, lat };
+}
+
+function cablePathsFromLinks(links) {
+  const paths = {};
+  for (const link of links || []) {
+    if (link?.medium !== "wired-ethernet" || !Array.isArray(link.vertices) || !link.vertices.length) continue;
+    paths[link.id] = {
+      intermediates: link.vertices.map((vertex) => ({ lon: vertex.lon, lat: vertex.lat })),
+      segments: Array.from({ length: link.vertices.length + 1 }, () => cleanExtra({})),
+    };
+    delete link.vertices;
+  }
+  return paths;
 }
 
 export function setSegmentExtra(plan, linkId, index, patch) {
@@ -434,6 +484,7 @@ export function validateImport(doc) {
     if (!Array.isArray(doc.asbuilt?.devices) || !Array.isArray(doc.asbuilt?.links)) failImport("Local plan is missing as-built records");
     assertDevices(doc.asbuilt.devices);
     assertLinks(doc.asbuilt.links, endpointIds(doc));
+    assertCablePaths(doc);
     for (const cable of Object.values(doc.cable_paths || {})) assertSegmentExtras(cable?.segments);
     for (const route of doc.planned_routes || []) assertSegmentExtras(route?.segments);
     return doc;
@@ -470,6 +521,28 @@ function assertAllowance(value, name) {
   if (value == null || value === "") return;
   const number = Number(value);
   if (!Number.isFinite(number) || number < 0) failImport(`${name} must be zero or positive`, "SEGMENT");
+}
+
+function assertCablePaths(doc) {
+  const paths = doc.cable_paths;
+  if (paths == null) return;
+  if (typeof paths !== "object" || Array.isArray(paths)) failImport("Cable paths must be an object", "SEGMENT");
+  const links = new Map((doc.asbuilt?.links || []).map((link) => [link.id, link]));
+  for (const [id, cable] of Object.entries(paths)) {
+    const link = links.get(id);
+    if (!link || link.medium !== "wired-ethernet") failImport("Only an Ethernet cable can bend", "SEGMENT");
+    if (!cable || typeof cable !== "object" || !Array.isArray(cable.intermediates)) failImport("Cable bends must be an array", "SEGMENT");
+    if (cable.intermediates.length > MAX_CABLE_BENDS) failImport("Too many cable bends", "SEGMENT");
+    for (const vertex of cable.intermediates) {
+      if (!vertex || typeof vertex !== "object" || Array.isArray(vertex)) failImport("A cable bend must be longitude and latitude", "SEGMENT");
+      if (Object.keys(vertex).some((key) => key !== "lon" && key !== "lat")) failImport("A cable bend can only contain longitude and latitude", "SEGMENT");
+      const lon = vertex.lon;
+      const lat = vertex.lat;
+      if (!Number.isFinite(lon) || !Number.isFinite(lat) || lon < -180 || lon > 180 || lat < -90 || lat > 90) {
+        failImport("A cable bend is outside the geographic range", "SEGMENT");
+      }
+    }
+  }
 }
 
 function assertSegmentExtras(segments) {
@@ -525,6 +598,8 @@ function assertLinks(links, known) {
     if (!MEDIA.has(link.medium)) failImport(`Link ${link.id} has an unknown medium`);
     if (!known.has(link.parent) || !known.has(link.child)) failImport(`Link ${link.id} endpoint is missing`);
     if (link.parent === link.child) failImport(`Link ${link.id} endpoint is missing`);
+    if (link.vertices != null && link.medium !== "wired-ethernet") failImport("Only an Ethernet cable can bend", "SEGMENT");
+    if (Array.isArray(link.vertices) && link.vertices.length > MAX_CABLE_BENDS) failImport("Too many cable bends", "SEGMENT");
     if (link.medium === "wan") continue;
     if (parents.has(link.child) && parents.get(link.child) !== link.parent) {
       failImport(`DUAL UPLINK ${link.child}`, "DUAL_UPLINK");

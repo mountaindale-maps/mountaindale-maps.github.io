@@ -1,15 +1,15 @@
-import { formatMetersFeet } from "./lib/distance.mjs";
+import { formatFeet } from "./lib/distance.mjs";
 
 export function segmentRows(metrics) {
   return metrics.segments.map((segment, index) => ({
     index,
-    horizontal: formatMetersFeet(segment.horizontal_ellipsoidal_m),
-    grid: formatMetersFeet(segment.horizontal_grid_utm_m),
-    terrain: formatMetersFeet(segment.terrain_slope_m),
-    physical: formatMetersFeet(segment.physical_cable_m),
-    rise: formatMetersFeet(segment.vertical_rise_m),
-    slack: formatMetersFeet(segment.slack_m),
-    loop: formatMetersFeet(segment.service_loop_m),
+    horizontal: formatFeet(segment.horizontal_ellipsoidal_m),
+    grid: formatFeet(segment.horizontal_grid_utm_m),
+    terrain: formatFeet(segment.terrain_slope_m),
+    physical: formatFeet(segment.physical_cable_m),
+    rise: formatFeet(segment.vertical_rise_m),
+    slack: formatFeet(segment.slack_m),
+    loop: formatFeet(segment.service_loop_m),
     label: metrics.label,
   }));
 }
@@ -31,19 +31,19 @@ export function fillDistanceList(container, metrics, heading) {
     name.textContent = `Segment ${index + 1}`;
     const body = document.createElement("p");
     body.textContent = [
-      `Horizontal mapped ${formatMetersFeet(segment.horizontal_ellipsoidal_m)}`,
-      `Grid UTM ${formatMetersFeet(segment.horizontal_grid_utm_m)}`,
-      `Vertical drop added ${formatMetersFeet(segment.vertical_drop_m ?? segment.vertical_rise_m)}`,
-      segment.slope_rise_m > 0 ? `Slope rise hypotenuse ${formatMetersFeet(segment.slope_rise_m)}` : null,
-      `Terrain/physical cable ${formatMetersFeet(segment.physical_cable_m)}`,
-      `Slack ${formatMetersFeet(segment.slack_m)}`,
-      `Service loop ${formatMetersFeet(segment.service_loop_m)}`,
+      `Horizontal mapped ${formatFeet(segment.horizontal_ellipsoidal_m)}`,
+      `Grid UTM ${formatFeet(segment.horizontal_grid_utm_m)}`,
+      `Vertical drop added ${formatFeet(segment.vertical_drop_m ?? segment.vertical_rise_m)}`,
+      segment.slope_rise_m > 0 ? `Slope rise hypotenuse ${formatFeet(segment.slope_rise_m)}` : null,
+      `Ethernet cable ${formatFeet(segment.physical_cable_m)}`,
+      `Slack ${formatFeet(segment.slack_m)}`,
+      `Service loop ${formatFeet(segment.service_loop_m)}`,
     ].filter(Boolean).join(" · ");
     row.append(name, body);
     container.appendChild(row);
   });
   const total = document.createElement("p");
   total.className = "distance-total";
-  total.textContent = `Sum of every segment: horizontal ${formatMetersFeet(metrics.totals.horizontal_ellipsoidal_m)}; terrain/physical ${formatMetersFeet(metrics.totals.physical_cable_m)}. Straight chord ${formatMetersFeet(metrics.chord_ellipsoidal_m)}. ${metrics.label}.`;
+  total.textContent = `Sum of every segment: horizontal ${formatFeet(metrics.totals.horizontal_ellipsoidal_m)}; Ethernet cable ${formatFeet(metrics.totals.physical_cable_m)}. Straight chord ${formatFeet(metrics.chord_ellipsoidal_m)}. ${metrics.label}.`;
   container.appendChild(total);
 }

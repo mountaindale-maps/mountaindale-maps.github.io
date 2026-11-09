@@ -123,6 +123,15 @@ function flagOf(device) {
   return "";
 }
 
+function linkPoints(link) {
+  const start = pixelOf(endpoint(link.parent));
+  const end = pixelOf(endpoint(link.child));
+  if (!start || !end) return null;
+  if (link.medium !== "wired-ethernet" || !Array.isArray(link.vertices)) return [start, end];
+  const bends = link.vertices.map((vertex) => pixelOf(vertex)).filter(Boolean);
+  return [start, ...bends, end];
+}
+
 function iconFields(id) {
   const icon = iconById[id];
   if (!icon?.file) return {};
@@ -143,10 +152,9 @@ function paint() {
   const hotLinks = new Set(highlight.linkIds);
   const wirelessHop = classifyWirelessHops(links).hop;
   map.setPolylines(links.filter(shownOnMap).flatMap((link) => {
-    const a = pixelOf(endpoint(link.parent));
-    const b = pixelOf(endpoint(link.child));
-    if (!a || !b) return [];
-    return [{ id: link.id, medium: link.medium, hop: wirelessHop.get(link.id) || "", hot: hotLinks.has(link.id), points: [a, b] }];
+    const points = linkPoints(link);
+    if (!points) return [];
+    return [{ id: link.id, medium: link.medium, hop: wirelessHop.get(link.id) || "", hot: hotLinks.has(link.id), points }];
   }));
   map.setMarkers(devices.map((item) => {
     const point = pixelOf(item.coords);

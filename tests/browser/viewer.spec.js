@@ -109,11 +109,11 @@ test("real clicks expand ancestor branches and show inactive gear without a path
   await expect(page.locator("#device-path")).toContainText("089-USW-Flex-David");
   await expect(page.locator("#device-path")).toContainText("NSL5AC-AP-89");
   await expect(page.locator("#device-path")).toContainText("0000-MD-UDM-Pro-2");
-  await expect(page.locator("#device-path")).toContainText("Cable");
   await expect(page.locator("#device-path")).toContainText("Wireless");
   await expect(page.locator("#device-path")).toContainText("SFP+ port");
+  await expect(page.locator("#device-path")).toContainText("Ethernet cable");
   await expect(page.locator("#device-path")).not.toContainText("Cable type");
-  await expect(page.locator(".path-note")).toHaveCount(1);
+  await expect(page.locator(".path-note")).toHaveCount(0);
   await expect(page.locator("[data-field='mounting']")).toHaveText("Not recorded");
   await expect(page.locator("[data-field='power']")).toHaveText("Not recorded");
   await expect(page.locator("#device-details")).toContainText("Not a coverage survey");
@@ -204,6 +204,21 @@ test("one pointer-up opens the card on a phone without a click", async ({ browse
     expect(opened).toBe(memberId);
     await context.close();
   }
+});
+
+test("a published cable bend is drawn as more than a straight line", async ({ page }) => {
+  await page.route("**/data/asbuilt_public.json", async (route) => {
+    const response = await route.fetch();
+    const body = await response.json();
+    const link = body.links.find((item) => item.id === "lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE");
+    const parent = body.devices.find((item) => item.id === link.parent).coords;
+    const child = body.devices.find((item) => item.id === link.child).coords;
+    link.vertices = [{ lon: parent.lon + 0.00035, lat: (parent.lat + child.lat) / 2 }];
+    await route.fulfill({ json: body });
+  });
+  await page.goto("/network/");
+  const points = await page.locator("[data-link-id='lnk:0000-MD-UDM-Pro-2>000-USW-24-PoE']").getAttribute("points");
+  expect(points.trim().split(/\s+/).length).toBeGreaterThan(2);
 });
 
 test("the editor legend lists the same entries as the public viewer", async ({ page }) => {

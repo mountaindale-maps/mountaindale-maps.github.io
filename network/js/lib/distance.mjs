@@ -2,6 +2,9 @@
  * Route lengths. Every consecutive segment is measured. Endpoint-only chords
  * are reported separately and are never substituted for the segment sum.
  *
+ * Stored lengths and allowances are metres. The screen shows whole
+ * international feet (metres / 0.3048).
+ *
  * Horizontal ellipsoidal metres use the WGS84 inverse. Grid metres are the
  * straight UTM zone 13N length of the same segment and are labelled as grid,
  * not ground. A vertical pole drop is added to the horizontal length. An explicit
@@ -196,4 +199,10 @@ export function formatMetersFeet(meters) {
   const feet = metersToFeet(meters);
   const digits = Math.abs(meters) >= 100 ? 1 : 2;
   return `${meters.toFixed(digits)} m · ${feet.toFixed(digits)} ft`;
+}
+
+/** Whole feet for every length shown on screen. */
+export function formatFeet(meters) {
+  if (!Number.isFinite(meters)) return "—";
+  return `${Math.round(metersToFeet(meters))} ft`;
 }

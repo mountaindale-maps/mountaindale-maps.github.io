@@ -20,7 +20,8 @@ export const DEVICE_PUBLIC_KEYS = Object.freeze([
 
 export const COORDS_PUBLIC_KEYS = Object.freeze(["lon", "lat", "alt_m", "alt_source"]);
 
-export const LINK_PUBLIC_KEYS = Object.freeze(["id", "parent", "child", "medium", "wan_role"]);
+export const LINK_PUBLIC_KEYS = Object.freeze(["id", "parent", "child", "medium", "wan_role", "vertices"]);
+export const MAX_PUBLIC_VERTICES = 24;
 
 export const GROUP_PUBLIC_KEYS = Object.freeze([
   "id",
@@ -359,7 +360,47 @@ export function sanitizeLink(link) {
     const role = publicText(link.wan_role, 40);
     if (role) out.wan_role = role;
   }
+  if (link.vertices != null) {
+    if (link.medium !== "wired-ethernet") {
+      const error = new Error("Only an Ethernet cable can publish bend points");
+      error.code = "VERTICES";
+      throw error;
+    }
+    const vertices = sanitizeVertices(link.vertices);
+    if (vertices.length) out.vertices = vertices;
+  }
   return out;
+}
+
+export function sanitizeVertices(list) {
+  if (!Array.isArray(list)) {
+    const error = new Error("Cable vertices must be an array of longitude and latitude");
+    error.code = "VERTICES";
+    throw error;
+  }
+  if (list.length > MAX_PUBLIC_VERTICES) {
+    const error = new Error("Too many cable vertices");
+    error.code = "VERTICES";
+    throw error;
+  }
+  return list.map((vertex) => {
+    if (!vertex || typeof vertex !== "object" || Array.isArray(vertex)) {
+      const error = new Error("A cable vertex must be longitude and latitude");
+      error.code = "VERTICES";
+      throw error;
+    }
+    if (Object.keys(vertex).some((key) => key !== "lon" && key !== "lat")) {
+      const error = new Error("A cable vertex can only contain longitude and latitude");
+      error.code = "VERTICES";
+      throw error;
+    }
+    if (!finiteNumber(vertex.lon) || !finiteNumber(vertex.lat) || vertex.lon < -180 || vertex.lon > 180 || vertex.lat < -90 || vertex.lat > 90) {
+      const error = new Error("A cable vertex is outside the geographic range");
+      error.code = "VERTICES";
+      throw error;
+    }
+    return { lon: vertex.lon, lat: vertex.lat };
+  });
 }
 
 function sanitizeWan(entry) {
@@ -396,7 +437,8 @@ function cloneJson(value) {
 /**
  * Build a sanitized public snapshot from the baseline plus an explicit selection.
  * selection.confirmed must be true. Planned devices, planned routes, notes,
- * cable allowances, and private fields are never copied.
+ * cable allowances, and private fields are never copied. Ethernet bend
+ * points are copied as longitude and latitude only.
  */
 export function buildPublicSnapshot(baseline, plan, selection) {
   if (!selection || selection.confirmed !== true) {
@@ -450,7 +492,12 @@ export function buildPublicSnapshot(baseline, plan, selection) {
       return [];
     }
     const sanitized = sanitizeLink(link);
-    return sanitized ? [sanitized] : [];
+    if (!sanitized) return [];
+    const bends = plan?.cable_paths?.[link.id]?.intermediates;
+    if (sanitized.medium === "wired-ethernet" && Array.isArray(bends) && bends.length) {
+      sanitized.vertices = sanitizeVertices(bends);
+    }
+    return [sanitized];
   });
   snapshot.wan = (baseline.wan || []).map((entry) => sanitizeWan(entry)).filter(Boolean);
   snapshot.pending_review = (baseline.pending_review || []).map((item) => sanitizeReview(item)).filter(Boolean);

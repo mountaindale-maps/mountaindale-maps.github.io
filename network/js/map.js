@@ -205,12 +205,22 @@ export function createMap(container, options) {
       if (line.hop) path.dataset.hop = line.hop;
       svg.appendChild(path);
       if (line.editable) {
+        for (let index = 0; index < points.length - 1; index += 1) {
+          const handle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          handle.setAttribute("cx", (points[index].x + points[index + 1].x) / 2);
+          handle.setAttribute("cy", (points[index].y + points[index + 1].y) / 2);
+          handle.setAttribute("r", 16);
+          handle.setAttribute("class", "midpoint");
+          handle.dataset.linkId = line.id;
+          handle.dataset.insertAt = String(index);
+          svg.appendChild(handle);
+        }
         points.forEach((point, index) => {
           if (index === 0 || index === points.length - 1) return;
           const handle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
           handle.setAttribute("cx", point.x);
           handle.setAttribute("cy", point.y);
-          handle.setAttribute("r", 6);
+          handle.setAttribute("r", 16);
           handle.setAttribute("class", "vertex");
           handle.dataset.linkId = line.id;
           handle.dataset.vertex = String(index - 1);
@@ -438,15 +448,30 @@ export function createMap(container, options) {
       return;
     }
     const vertex = event.target.closest?.(".vertex");
-    if (vertex) {
+    const midpoint = event.target.closest?.(".midpoint");
+    if (vertex || midpoint) {
       event.preventDefault();
       event.stopPropagation();
-      drag = {
-        kind: "vertex",
-        linkId: vertex.dataset.linkId,
-        index: Number(vertex.dataset.vertex),
-        pointer: event.pointerId,
-      };
+      drag = vertex
+        ? {
+          kind: "vertex",
+          linkId: vertex.dataset.linkId,
+          index: Number(vertex.dataset.vertex),
+          pointer: event.pointerId,
+          moved: false,
+          x: event.clientX,
+          y: event.clientY,
+        }
+        : {
+          kind: "midpoint",
+          linkId: midpoint.dataset.linkId,
+          index: Number(midpoint.dataset.insertAt),
+          pointer: event.pointerId,
+          moved: false,
+          x: event.clientX,
+          y: event.clientY,
+        };
+      if (vertex) emit("vertexdragstart", { linkId: drag.linkId, index: drag.index });
       return;
     }
     if (event.target.closest?.(".marker, .cluster, .map-label")) return;
@@ -473,8 +498,12 @@ export function createMap(container, options) {
       emit("markerdrag", { id: drag.id, ...sourceFromEvent(event) });
       return;
     }
-    if (drag.kind === "vertex") {
-      emit("vertexdrag", { linkId: drag.linkId, index: drag.index, ...sourceFromEvent(event) });
+    if (drag.kind === "vertex" || drag.kind === "midpoint") {
+      if (Math.hypot(event.clientX - drag.x, event.clientY - drag.y) > 4) drag.moved = true;
+      if (!drag.moved) return;
+      const source = sourceFromEvent(event);
+      if (drag.kind === "midpoint") emit("benddrag", { linkId: drag.linkId, index: drag.index, ...source });
+      else emit("vertexdrag", { linkId: drag.linkId, index: drag.index, ...source });
       return;
     }
     if (drag.kind === "pan") {
@@ -494,13 +523,31 @@ export function createMap(container, options) {
     const finished = drag;
     drag = null;
     if (finished.kind === "marker") emit("markerdragend", { id: finished.id });
-    if (finished.kind === "vertex") emit("vertexdragend", { linkId: finished.linkId, index: finished.index });
+    if (finished.kind === "vertex" || finished.kind === "midpoint") {
+      emit("vertexdragend", { linkId: finished.linkId, index: finished.index, moved: finished.moved, inserted: finished.kind === "midpoint" && finished.moved });
+    }
     return finished;
   }
+  let lastVertexTap = null;
+  container.addEventListener("contextmenu", (event) => {
+    const vertex = event.target.closest?.(".vertex");
+    if (!vertex) return;
+    event.preventDefault();
+    emit("vertexremove", { linkId: vertex.dataset.linkId, index: Number(vertex.dataset.vertex) });
+  });
   window.addEventListener("pointerup", (event) => {
     const finished = endPointer(event);
+    if (finished?.kind === "vertex" && !finished.moved) {
+      const now = performance.now();
+      if (lastVertexTap && lastVertexTap.linkId === finished.linkId && lastVertexTap.index === finished.index && now - lastVertexTap.time < 450) {
+        emit("vertexremove", { linkId: finished.linkId, index: finished.index });
+        lastVertexTap = null;
+      } else {
+        lastVertexTap = { linkId: finished.linkId, index: finished.index, time: now };
+      }
+    }
     if (!finished || finished.kind !== "pan" || finished.moved) return;
-    if (event.target.closest?.(".marker, .cluster, .map-label, .vertex")) return;
+    if (event.target.closest?.(".marker, .cluster, .map-label, .vertex, .midpoint")) return;
     const source = sourceFromEvent(event);
     if (source.u >= 0 && source.v >= 0 && source.u <= imageWidth && source.v <= imageHeight) emit("mapclick", source);
   });
