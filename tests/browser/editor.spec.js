@@ -13,6 +13,26 @@ test("local editor saves, reloads, undoes, and refuses to publish plans", async 
   await page.locator("#save-public-details").click();
   await expect(page.locator("#public-preview")).toContainText("Outdoor Wi-Fi for the recorded place group.");
   await expect(page.locator("#public-preview")).toContainText("source record is unchanged");
+  const previewText = (await page.locator("#public-preview .device-story").innerText()).replace(/\s+/g, " ").trim();
+  await page.locator("#review-export").click();
+  await page.locator("[data-export-device='045-UAP-U7O']").check();
+  await page.locator("#confirm-review").check();
+  await page.locator("#validate-export").click();
+  await expect(page.locator("#export-result")).toContainText("Valid public snapshot");
+  const previewSnapshot = await page.locator("#download-snapshot").getAttribute("data-snapshot");
+  const viewer = await page.context().newPage();
+  await viewer.route("**/network/data/asbuilt_public.json", (route) => route.fulfill({
+    status: 200,
+    contentType: "application/json",
+    body: previewSnapshot,
+  }));
+  await viewer.goto("http://127.0.0.1:8765/network/");
+  await viewer.locator("#q").fill("045-UAP-U7O");
+  await viewer.locator("[data-result='045-UAP-U7O']").click();
+  const viewedText = (await viewer.locator("#detail .device-story").innerText()).replace(/\s+/g, " ").trim();
+  expect(viewedText).toBe(previewText);
+  await viewer.close();
+  await page.locator("#export-dialog").getByRole("button", { name: "Close" }).click();
   await page.locator("#undo").click();
   await expect(page.locator("#public-preview")).not.toContainText("Outdoor Wi-Fi for the recorded place group.");
   const health = await page.request.get("/api/health");

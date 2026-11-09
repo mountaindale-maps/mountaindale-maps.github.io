@@ -25,7 +25,7 @@ import {
   setSegmentExtra,
   verticesForLink,
 } from "/js/lib/plan.mjs";
-import { publicCard, verifiedRoute } from "/js/lib/plain-path.mjs";
+import { linksWithCoords, renderDeviceStory } from "/js/lib/render-card.mjs";
 import { buildPublicSnapshot, describePublicEdits } from "/js/lib/sanitize.mjs";
 import { applyFocus, defaultExpandedKeys, highlightForDevice } from "/js/lib/topology-model.mjs";
 import { fillDistanceList } from "/js/format-distance.js";
@@ -515,21 +515,18 @@ function deviceCard(plan, hier) {
   card.append(el("h2", null, device.id), el("p", null, `${device.role} · ${device.model || "model unset"} · ${device.status}`));
   if (device.local_private) card.append(el("p", "flag-note", "Private fields stay on this computer and are not part of the public description."));
   card.append(el("p", null, "Private notes stay under Change requests. They are not published with these details."));
-  const source = friendlyById[device.id] || null;
-  const cardLines = publicCard(device, source, device.public_profile);
   const preview = el("div", "public-preview");
   preview.id = "public-preview";
-  for (const item of [cardLines.purpose, cardLines.location, cardLines.mounting, cardLines.height, cardLines.power]) {
-    preview.append(el("p", null, `${item.label}: ${item.text}`));
-    if (item.note) preview.append(el("p", "muted", item.note));
-  }
-  const route = verifiedRoute(source, plan.asbuilt.links);
-  if (!route.reachesRouter) preview.append(el("p", null, route.text));
-  else if (route.reason === "router") preview.append(el("p", null, route.text));
-  else {
-    const pathText = route.hops.map((hop) => `${hop.connection === "wireless" ? "Wireless" : "Cable"} to ${hop.to}`).join(", then ");
-    preview.append(el("p", null, `Path: ${route.deviceIds[0]}, then ${pathText}.`));
-  }
+  renderDeviceStory(preview, {
+    device,
+    detail: friendlyById[device.id] || null,
+    links: linksWithCoords(plan.asbuilt.links, plan.asbuilt.devices, plan.asbuilt.wan),
+    groupLabel: plan.asbuilt.location_groups.find((group) => group.id === device.location_group)?.label || device.location_group,
+    claim: claim(),
+    geotransform: gt(),
+    image: metadata.imagery,
+    nearEdgeIds: metadata.near_edge_device_ids || [],
+  });
   card.append(el("h3", null, "Public preview"), preview);
   const profile = device.public_profile || {};
   const purpose = textField("What it does, public wording", "purpose-input");
@@ -571,17 +568,6 @@ function deviceCard(plan, hier) {
     supply: { description: "", device_id: "", outlet: "" },
   })));
   card.append(purpose.label, location.label, mounting.label, power.label, supplyDevice.label, outlet.label, connection.label, saveDetails, clearDetails);
-  const link = plan.asbuilt.links.find((item) => item.child === device.id && item.medium !== "wan");
-  if (link) {
-    const metrics = measureLink(plan, link, claim());
-    if (metrics) {
-      const list = el("div", "distances");
-      fillDistanceList(list, metrics, "Uplink");
-      card.append(list);
-    }
-  } else if (device.status === "inactive" || !hier.path_links?.[device.id]) {
-    card.append(el("p", null, "No uplink is drawn for this device."));
-  }
   return card;
 }
 

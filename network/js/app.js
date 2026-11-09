@@ -1,5 +1,4 @@
 import { evaluateCalibration } from "./lib/calibration.mjs";
-import { measureRoute } from "./lib/distance.mjs";
 import { JPEG_CANDIDATE_GEOTRANSFORM, lonLatToImage } from "./lib/projection.mjs";
 import { tileUrl } from "./lib/tiles.mjs";
 import {
@@ -8,8 +7,7 @@ import {
   highlightForDevice,
   highlightForGroup,
 } from "./lib/topology-model.mjs";
-import { hopCaption, publicCard, verifiedRoute } from "./lib/plain-path.mjs";
-import { fillDistanceList } from "./format-distance.js";
+import { linksWithCoords, renderDeviceStory } from "./lib/render-card.mjs";
 import { createMap, insetsAround } from "./map.js";
 import { mountTopology } from "./topology-view.js";
 
@@ -212,23 +210,6 @@ function armTouch(id) {
   showHover(id);
 }
 
-function pathMetrics(device) {
-  if (!device || device.status === "inactive") return [];
-  return (hierarchy.path_links[device.id] || []).flatMap((linkId) => {
-    const link = links.find((item) => item.id === linkId);
-    if (!link) return [];
-    const a = endpoint(link.parent);
-    const b = endpoint(link.child);
-    if (!a || !b) return [];
-    const metrics = measureRoute(
-      [{ lon: a.lon, lat: a.lat }, { lon: b.lon, lat: b.lat }],
-      [{ vertical_rise_m: 0, slack_m: 0, service_loop_m: 0 }],
-      claim,
-    );
-    return [{ link, metrics }];
-  });
-}
-
 function showGroup(label) {
   if (!label?.groupId) return;
   groupHover = groups.get(label.groupId) || null;
@@ -302,82 +283,19 @@ function renderDetail(device) {
     detail.appendChild(about);
     return;
   }
-  const source = friendlyById[device.id] || null;
-  const card = publicCard(device, source, device.public_profile);
-  const route = verifiedRoute(source, links);
-  detail.append(
-    el("p", "kicker", selectedId === device.id ? "Selected" : "Highlighted"),
-    title(device.id),
-    el("p", null, `${device.model} · ${device.status === "inactive" ? "Inactive" : "In service"}`),
-    el("p", null, `Place group ${groups.get(device.location_group)?.label || device.location_group || "not recorded"}. A place group is not a connection.`),
-  );
-  const facts = el("dl", "facts");
-  for (const item of [card.purpose, card.location, card.mounting, card.height, card.power]) {
-    addFact(facts, item.label, item.text);
-    if (item.note) addFact(facts, "", item.note);
-  }
-  detail.appendChild(facts);
-  if (card.connection) detail.appendChild(el("p", null, card.connection));
-  if (device.status === "inactive") {
-    detail.appendChild(el("p", "flag-note", "Inactive, no uplink is recorded, and no path is drawn."));
-  }
-  renderRoute(route);
-  const technical = document.createElement("details");
-  technical.className = "about";
-  const technicalSummary = document.createElement("summary");
-  technicalSummary.textContent = "Map position and distance estimate";
-  technical.appendChild(technicalSummary);
-  const point = pixelOf(device.coords);
-  const place = canvasPlace(device);
-  technical.appendChild(el("p", null, `Longitude ${device.coords.lon}, latitude ${device.coords.lat}.`));
-  if (point) technical.appendChild(el("p", null, `Image pixel ${point.u.toFixed(1)}, ${point.v.toFixed(1)}.`));
-  technical.appendChild(el("p", null, device.coords.alt_m == null
-    ? "No aerial altitude is recorded. Altitude is not a mounting height."
-    : `Aerial altitude ${device.coords.alt_m} m is unvalidated and is not a mounting height.`));
-  if (place === "outside") technical.appendChild(el("p", "flag-note", "Outside the crop canvas. The stored longitude and latitude were not moved."));
-  else if (place === "near-edge") technical.appendChild(el("p", "flag-note", "Near the crop edge. Shown at the source coordinates."));
-  if (device.status !== "inactive" && route.reachesRouter && route.hops.length) {
-    const pieces = pathMetrics(device);
-    pieces.forEach(({ link, metrics }) => {
-      const list = el("div", null);
-      fillDistanceList(list, metrics, `${link.parent} to ${link.child}`);
-      technical.appendChild(list);
-    });
-    const sum = pieces.reduce((total, piece) => total + piece.metrics.totals.horizontal_ellipsoidal_m, 0);
-    technical.appendChild(el("p", "distance-total", `Path horizontal sum ${sum.toFixed(2)} m · ${(sum / 0.3048).toFixed(2)} ft. ${claim.distanceLabel}.`));
-  }
-  detail.appendChild(technical);
-}
-
-function renderRoute(route) {
-  const block = el("section", "route-block");
-  block.appendChild(el("h3", null, "Path back to the main router"));
-  if (!route.reachesRouter) {
-    block.appendChild(el("p", "flag-note", route.text || "No recorded path to the main router."));
-    detail.appendChild(block);
-    return;
-  }
-  if (route.reason === "router") {
-    block.appendChild(el("p", null, route.text));
-    block.appendChild(el("p", "muted", "Internet connections are separate from the resort equipment path. Private family networks stay separate and are not this path."));
-    detail.appendChild(block);
-    return;
-  }
-  const list = el("ol", "route");
-  list.id = "device-path";
-  route.deviceIds.forEach((id, index) => {
-    const item = document.createElement("li");
-    if (index === 0) {
-      item.append(el("span", "via", "This device"), document.createTextNode(id));
-    } else {
-      const hop = route.hops[index - 1];
-      const word = hop?.connection === "wireless" ? "Wireless" : "Cable";
-      item.append(el("span", "via", word), document.createTextNode(`${id}. ${hopCaption(hop)}`));
-    }
-    list.appendChild(item);
+  detail.append(el("p", "kicker", selectedId === device.id ? "Selected" : "Highlighted"));
+  const story = el("div");
+  renderDeviceStory(story, {
+    device,
+    detail: friendlyById[device.id] || null,
+    links: linksWithCoords(links, devices, asbuilt.wan),
+    groupLabel: groups.get(device.location_group)?.label || device.location_group,
+    claim,
+    geotransform,
+    image,
+    nearEdgeIds: NEAR_EDGE,
   });
-  block.append(list, el("p", "muted", "This path stops at the main router. Private family networks are separate connections and are not added here. Cable material is not recorded."));
-  detail.appendChild(block);
+  detail.append(story);
 }
 
 function title(text) {

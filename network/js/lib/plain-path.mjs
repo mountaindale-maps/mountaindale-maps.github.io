@@ -105,12 +105,22 @@ export function publicCard(device, detail, profile = null) {
 
 function line(label, field, override, shortenUnknown) {
   if (override) {
-    return { label, text: override, status: field?.status || null, edited: true, note: "Your wording. The source record is unchanged." };
+    return {
+      label,
+      text: override,
+      status: field?.status || null,
+      mark: "Edited",
+      detail: "Your wording. The source record is unchanged.",
+    };
   }
-  if (!field || (shortenUnknown && field.status === "unknown")) {
-    return { label, text: "Not recorded", status: field?.status || "unknown", edited: false, note: statusNote(field?.status || "unknown") };
+  if (!field || field.status === "unknown" || (shortenUnknown && field.status === "unknown")) {
+    return { label, text: "Not recorded", status: field?.status || "unknown", mark: null, detail: null };
   }
-  return { label, text: field.text, status: field.status, edited: false, note: statusNote(field.status) };
+  const mark = field.status === "tentative" ? "Tentative" : field.status === "unresolved" ? "Unresolved" : null;
+  const detail = field.status === "map-group-only" || field.status === "tentative" || field.status === "unresolved"
+    ? null
+    : statusNote(field.status);
+  return { label, text: field.text, status: field.status, mark, detail };
 }
 
 function heightLine(device, field) {
@@ -120,7 +130,8 @@ function heightLine(device, field) {
       text: device.mount_height,
       status: "recorded",
       edited: false,
-      note: "Labelled height from the source. Not the aerial altitude.",
+      mark: null,
+      detail: "Labelled height from the source. Not the aerial altitude.",
     };
   }
   if (field?.status === "recorded-in-narrative") {
@@ -128,11 +139,11 @@ function heightLine(device, field) {
       label: "Height",
       text: field.text,
       status: field.status,
-      edited: false,
-      note: statusNote(field.status),
+      mark: null,
+      detail: statusNote(field.status),
     };
   }
-  return { label: "Height", text: "Not recorded", status: "unknown", edited: false, note: statusNote("unknown") };
+  return { label: "Height", text: "Not recorded", status: "unknown", mark: null, detail: null };
 }
 
 function powerLine(field, supply) {
@@ -146,18 +157,23 @@ function powerLine(field, supply) {
       text: parts.join(". "),
       status: field?.status || null,
       edited: true,
-      note: "Your wording. The source record is unchanged.",
+      mark: "Edited",
+      detail: "Your wording. The source record is unchanged.",
     };
   }
   if (field?.status === "recorded") {
-    return { label: "Power", text: field.text, status: "recorded", edited: false, note: statusNote("recorded") };
+    return { label: "Power", text: field.text, status: "recorded", mark: null, detail: statusNote("recorded") };
   }
-  return { label: "Power", text: "Not recorded", status: "unknown", edited: false, note: statusNote("unknown") };
+  return { label: "Power", text: "Not recorded", status: "unknown", mark: null, detail: null };
 }
 
-export function hopCaption(hop) {
-  if (!hop) return "";
-  if (hop.connection === "wireless") return hop.label || "Wireless link.";
-  const port = hop.interfaceName ? `${hop.interfaceName} port. ` : "";
-  return `${port}Cable type not recorded.`.trim();
+export function pathRows(route) {
+  if (!route?.reachesRouter || route.reason === "router" || !route.deviceIds?.length) return [];
+  return route.deviceIds.map((id, index) => {
+    if (index === 0) return { via: "This device", id, extra: "" };
+    const hop = route.hops[index - 1];
+    const via = hop?.connection === "wireless" ? "Wireless" : "Cable";
+    const extra = hop?.interfaceName === "SFP+" ? "SFP+ port" : "";
+    return { via, id, extra };
+  });
 }

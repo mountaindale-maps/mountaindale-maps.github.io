@@ -109,8 +109,12 @@ test("real clicks expand ancestor branches and show inactive gear without a path
   await expect(page.locator("#device-path")).toContainText("0000-MD-UDM-Pro-2");
   await expect(page.locator("#device-path")).toContainText("Cable");
   await expect(page.locator("#device-path")).toContainText("Wireless");
-  await expect(page.locator("#detail")).toContainText("Power");
-  await expect(page.locator("#detail")).toContainText("Not recorded");
+  await expect(page.locator("#device-path")).toContainText("SFP+ port");
+  await expect(page.locator("#device-path")).not.toContainText("Cable type");
+  await expect(page.locator(".path-note")).toHaveCount(1);
+  await expect(page.locator("[data-field='mounting']")).toHaveText("Not recorded");
+  await expect(page.locator("[data-field='power']")).toHaveText("Not recorded");
+  await expect(page.locator("#device-details")).toContainText("Not a coverage survey");
   await expect(page.locator("#device-path")).not.toContainText("fiber");
 });
 

@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { createHistory, redo, undo } from "../network/js/lib/history.mjs";
 import { addNote, planFromPublic, setPublicProfile } from "../network/js/lib/plan.mjs";
-import { publicCard, verifiedRoute } from "../network/js/lib/plain-path.mjs";
+import { pathRows, publicCard, verifiedRoute } from "../network/js/lib/plain-path.mjs";
 import { buildPublicSnapshot } from "../network/js/lib/sanitize.mjs";
 
 const asbuilt = JSON.parse(readFileSync(new URL("../network/data/asbuilt_public.json", import.meta.url)));
@@ -72,12 +72,17 @@ test("paths use the recorded links, and wired cable type stays unknown", () => {
     "0000-MD-UDM-Pro-2",
   ]);
   assert.deepEqual(inwallRoute.hops.map((hop) => hop.connection), ["cable", "cable", "wireless", "cable", "cable", "cable"]);
+  const rows = pathRows(inwallRoute);
+  assert.equal(rows.filter((row) => row.extra.includes("SFP+")).length, 1);
+  assert.equal(rows.some((row) => /cable type/i.test(row.extra)), false);
   const card = publicCard(asbuilt.devices.find((device) => device.id === "089-UAP-IW-ROCHSTAR"), inwall, null);
   assert.equal(card.power.text, "Not recorded");
   assert.equal(card.mounting.text, "Not recorded");
   assert.match(card.location.text, /Map group: Site 89/);
   assert.equal(/cabin|wall fastening|electrical feed/i.test(card.location.text + card.mounting.text + card.power.text), false);
-  assert.match(card.height.note, /not the labelled height/);
+  assert.match(card.height.detail, /not the labelled height/);
+  assert.equal(card.mounting.detail, null);
+  assert.equal(card.power.detail, null);
   const inactive = publicCard(asbuilt.devices.find((device) => device.id === "088-UAP-M"), friendly.devices_by_id["088-UAP-M"], null);
   assert.match(inactive.mounting.text, /6×6 post/);
   assert.equal(inactive.power.text, "Not recorded");
@@ -118,7 +123,8 @@ test("a public wording edit is separate from source evidence and does not leak n
   assert.equal(published.public_profile.evidence, undefined);
   const shown = publicCard(published, friendly.devices_by_id[id], published.public_profile);
   assert.equal(shown.purpose.text, published.public_profile.purpose);
-  assert.match(shown.purpose.note, /source record is unchanged/);
+  assert.equal(shown.purpose.mark, "Edited");
+  assert.match(shown.purpose.detail, /source record is unchanged/);
   assert.equal(JSON.stringify(exported.snapshot).includes("Private shed key"), false);
   assert.equal(JSON.stringify(exported.snapshot).includes("management_ip"), false);
   const cleared = setPublicProfile(plan, id, {
