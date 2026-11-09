@@ -95,6 +95,7 @@ const map = createMap(document.querySelector("#map"), {
   imageWidth: metadata.imagery.width,
   imageHeight: metadata.imagery.height,
   tileUrl: (z, x, y) => tileUrl(z, x, y).replace("tiles/", "/tiles/"),
+  bendCables: true,
 });
 
 function present() { return history.present; }
@@ -174,7 +175,7 @@ function render() {
       medium: link.medium,
       hop: wirelessHop.get(link.id) || "",
       hot: hot.has(link.id) || link.id === selectedLinkId,
-      editable: mode === "path" && link.id === selectedLinkId && link.medium === "wired-ethernet",
+      editable: link.medium === "wired-ethernet" && link.id === selectedLinkId,
       points: vertices.map((vertex) => pixelOf(vertex)).filter(Boolean),
     });
   }
@@ -700,7 +701,12 @@ map.on("vertexdrag", ({ linkId, index, u, v }) => {
   history = { ...history, present: setCablePath(dragOrigin, linkId, intermediates, path.segments) };
   render();
 });
+map.on("cableselect", ({ linkId }) => {
+  selectedLinkId = linkId;
+  render();
+});
 map.on("benddrag", ({ linkId, index, u, v }) => {
+  selectedLinkId = linkId;
   if (!dragOrigin) dragOrigin = present();
   const [lon, lat] = imageToLonLat(u, v, gt());
   const path = dragOrigin.cable_paths[linkId] || { intermediates: [], segments: [] };

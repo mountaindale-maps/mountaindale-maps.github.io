@@ -77,9 +77,17 @@ button { cursor: pointer; }
 .map-links { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
 .map-overlay { position: absolute; inset: 0; pointer-events: none; }
 .marker, .cluster, .map-label { pointer-events: auto; touch-action: none; }
-.vertex, .midpoint { stroke: #1a1408; stroke-width: 2; pointer-events: auto; }
-.vertex { fill: var(--brass); }
-.midpoint { fill: rgba(247, 241, 228, 0.35); }
+.vertex, .midpoint { stroke: #1a1408; stroke-width: 2.5; pointer-events: auto; }
+.vertex { fill: #ffe08a; }
+.midpoint { fill: #ffffff; }
+.cable-hit {
+  fill: none;
+  stroke: rgba(255, 244, 204, 0.02);
+  stroke-width: 14;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: stroke;
+}
 .link { fill: none; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; }
 .medium-wired-ethernet, .medium-wired { stroke: #f7f1e4; }
 .medium-airmax-ptp { stroke: #b9dcff; stroke-dasharray: 9 6; stroke-width: 3.2; }

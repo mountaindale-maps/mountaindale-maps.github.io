@@ -40,6 +40,7 @@ export function createMap(container, options) {
   const imageWidth = options.imageWidth;
   const imageHeight = options.imageHeight;
   const tileUrl = options.tileUrl;
+  const bendCables = options.bendCables === true;
   container.classList.add("map-root");
   const world = element("div", "map-world");
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -198,29 +199,40 @@ export function createMap(container, options) {
     for (const line of polylines) {
       const points = line.points.map((point) => screenPoint(point.u, point.v));
       if (points.length < 2) continue;
+      const coords = points.map((point) => `${point.x},${point.y}`).join(" ");
       const path = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
-      path.setAttribute("points", points.map((point) => `${point.x},${point.y}`).join(" "));
+      path.setAttribute("points", coords);
       path.setAttribute("class", `link medium-${line.medium || "wired"}${line.hop === "secondary" ? " is-relay" : ""}${line.hot ? " is-hot" : ""}${line.planned ? " is-planned" : ""}`);
       path.dataset.linkId = line.id || "";
       if (line.hop) path.dataset.hop = line.hop;
       svg.appendChild(path);
+      if (bendCables && line.medium === "wired-ethernet") {
+        const hit = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+        hit.setAttribute("points", coords);
+        hit.setAttribute("class", "cable-hit");
+        hit.dataset.linkId = line.id || "";
+        svg.appendChild(hit);
+      }
+      const showVertices = bendCables && line.medium === "wired-ethernet" && (line.editable || points.length > 2);
       if (line.editable) {
         for (let index = 0; index < points.length - 1; index += 1) {
           const handle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
           handle.setAttribute("cx", (points[index].x + points[index + 1].x) / 2);
           handle.setAttribute("cy", (points[index].y + points[index + 1].y) / 2);
-          handle.setAttribute("r", 16);
+          handle.setAttribute("r", "8");
           handle.setAttribute("class", "midpoint");
           handle.dataset.linkId = line.id;
           handle.dataset.insertAt = String(index);
           svg.appendChild(handle);
         }
+      }
+      if (showVertices) {
         points.forEach((point, index) => {
           if (index === 0 || index === points.length - 1) return;
           const handle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
           handle.setAttribute("cx", point.x);
           handle.setAttribute("cy", point.y);
-          handle.setAttribute("r", 16);
+          handle.setAttribute("r", "8");
           handle.setAttribute("class", "vertex");
           handle.dataset.linkId = line.id;
           handle.dataset.vertex = String(index - 1);
@@ -439,6 +451,91 @@ export function createMap(container, options) {
     const factor = target / view.scale;
     if (Math.abs(factor - 1) > 0.001) zoomAt(factor, midX, midY);
   }
+  function svgLocal(event) {
+    const rect = svg.getBoundingClientRect();
+    return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+  }
+  function parsedPoints(node) {
+    return (node.getAttribute("points") || "").trim().split(/\s+/).filter(Boolean).map((pair) => {
+      const [x, y] = pair.split(",").map(Number);
+      return { x, y };
+    });
+  }
+  function nearestSegment(points, x, y) {
+    let best = 0;
+    let bestDistance = Infinity;
+    for (let index = 0; index < points.length - 1; index += 1) {
+      const start = points[index];
+      const end = points[index + 1];
+      const dx = end.x - start.x;
+      const dy = end.y - start.y;
+      const length = Math.hypot(dx, dy) || 1;
+      const t = Math.max(0, Math.min(1, ((x - start.x) * dx + (y - start.y) * dy) / (length * length)));
+      const distance = Math.hypot(x - (start.x + dx * t), y - (start.y + dy * t));
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        best = index;
+      }
+    }
+    return best;
+  }
+  function beginHandleDrag(event, handle) {
+    event.preventDefault();
+    event.stopPropagation();
+    const vertex = handle.closest?.(".vertex");
+    const midpoint = handle.closest?.(".midpoint");
+    const stroke = handle.closest?.(".cable-hit");
+    if (vertex) {
+      drag = {
+        kind: "vertex",
+        linkId: vertex.dataset.linkId,
+        index: Number(vertex.dataset.vertex),
+        pointer: event.pointerId,
+        moved: false,
+        x: event.clientX,
+        y: event.clientY,
+      };
+      emit("vertexdragstart", { linkId: drag.linkId, index: drag.index });
+      return;
+    }
+    if (midpoint) {
+      drag = {
+        kind: "midpoint",
+        linkId: midpoint.dataset.linkId,
+        index: Number(midpoint.dataset.insertAt),
+        pointer: event.pointerId,
+        moved: false,
+        x: event.clientX,
+        y: event.clientY,
+      };
+      return;
+    }
+    if (stroke) {
+      const local = svgLocal(event);
+      drag = {
+        kind: "stroke",
+        linkId: stroke.dataset.linkId,
+        index: nearestSegment(parsedPoints(stroke), local.x, local.y),
+        pointer: event.pointerId,
+        moved: false,
+        x: event.clientX,
+        y: event.clientY,
+      };
+    }
+  }
+  container.addEventListener("pointerdown", (event) => {
+    const handle = event.target.closest?.(".vertex, .midpoint, .cable-hit");
+    if (bendCables && handle) {
+      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY, type: event.pointerType });
+      if ([...pointers.values()].filter((point) => point.type === "touch").length >= 2) {
+        multiTouch = true;
+        drag = null;
+        return;
+      }
+      beginHandleDrag(event, handle);
+      return;
+    }
+  }, true);
   container.addEventListener("pointerdown", (event) => {
     pointers.set(event.pointerId, { x: event.clientX, y: event.clientY, type: event.pointerType });
     if (touchPoints().length >= 2) {
@@ -447,6 +544,7 @@ export function createMap(container, options) {
       syncPinch(true);
       return;
     }
+    if (event.target.closest?.(".vertex, .midpoint, .cable-hit")) return;
     const vertex = event.target.closest?.(".vertex");
     const midpoint = event.target.closest?.(".midpoint");
     if (vertex || midpoint) {
@@ -498,12 +596,12 @@ export function createMap(container, options) {
       emit("markerdrag", { id: drag.id, ...sourceFromEvent(event) });
       return;
     }
-    if (drag.kind === "vertex" || drag.kind === "midpoint") {
+    if (drag.kind === "vertex" || drag.kind === "midpoint" || drag.kind === "stroke") {
       if (Math.hypot(event.clientX - drag.x, event.clientY - drag.y) > 4) drag.moved = true;
       if (!drag.moved) return;
       const source = sourceFromEvent(event);
-      if (drag.kind === "midpoint") emit("benddrag", { linkId: drag.linkId, index: drag.index, ...source });
-      else emit("vertexdrag", { linkId: drag.linkId, index: drag.index, ...source });
+      if (drag.kind === "vertex") emit("vertexdrag", { linkId: drag.linkId, index: drag.index, ...source });
+      else emit("benddrag", { linkId: drag.linkId, index: drag.index, ...source });
       return;
     }
     if (drag.kind === "pan") {
@@ -523,8 +621,14 @@ export function createMap(container, options) {
     const finished = drag;
     drag = null;
     if (finished.kind === "marker") emit("markerdragend", { id: finished.id });
-    if (finished.kind === "vertex" || finished.kind === "midpoint") {
-      emit("vertexdragend", { linkId: finished.linkId, index: finished.index, moved: finished.moved, inserted: finished.kind === "midpoint" && finished.moved });
+    if (finished.kind === "vertex" || finished.kind === "midpoint" || finished.kind === "stroke") {
+      emit("vertexdragend", {
+        linkId: finished.linkId,
+        index: finished.index,
+        moved: finished.moved,
+        inserted: finished.kind !== "vertex" && finished.moved,
+      });
+      if (finished.kind === "stroke" && !finished.moved) emit("cableselect", { linkId: finished.linkId });
     }
     return finished;
   }

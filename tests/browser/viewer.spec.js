@@ -206,6 +206,20 @@ test("one pointer-up opens the card on a phone without a click", async ({ browse
   }
 });
 
+test("a device marker uses its Google Earth icon at a tappable size", async ({ page }) => {
+  await page.goto("/network/");
+  const marker = page.locator("[data-device-id='045-UAP-U7O']");
+  const icon = marker.locator("img.device-icon");
+  await expect(icon).toBeVisible();
+  const markerBox = await marker.boundingBox();
+  const iconBox = await icon.boundingBox();
+  expect(markerBox.width).toBeGreaterThanOrEqual(32);
+  expect(iconBox.width).toBeGreaterThanOrEqual(20);
+  expect(iconBox.width).toBeLessThanOrEqual(36);
+  await page.locator("#legend-btn").click();
+  await expect(page.locator("#legend-items img.legend-icon").first()).toBeVisible();
+});
+
 test("a published cable bend is drawn as more than a straight line", async ({ page }) => {
   await page.route("**/data/asbuilt_public.json", async (route) => {
     const response = await route.fetch();
