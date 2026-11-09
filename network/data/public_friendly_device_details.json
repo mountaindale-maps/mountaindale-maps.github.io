@@ -12737,7 +12737,7 @@
       "id": "099-USW-Flex",
       "status": "active",
       "purpose": {
-        "text": "Shares the wired network connection with 2 directly connected downstream devices.",
+        "text": "Shares the wired network connection with 3 directly connected downstream devices.",
         "status": "derived-from-role-and-topology",
         "evidence": [
           {
@@ -13000,7 +13000,7 @@
         ]
       },
       "uncertainties": [],
-      "initial_description": "Shares the wired network connection with 2 directly connected downstream devices. On the north exterior wall of the shed; the public map groups it with Site 99. Mounted to the north exterior wall of the shed. Recorded height: 5 ft. Power: Flex Utility power adapter plugged in inside the shed."
+      "initial_description": "Shares the wired network connection with 3 directly connected downstream devices. On the north exterior wall of the shed; the public map groups it with Site 99. Mounted to the north exterior wall of the shed. Recorded height: 5 ft. Power: Flex Utility power adapter plugged in inside the shed."
     },
     "099-UAP-U7O": {
       "id": "099-UAP-U7O",
@@ -13086,6 +13086,7 @@
         "router_id": "0000-MD-UDM-Pro-2",
         "device_ids": [
           "099-UAP-U7O",
+          "099-USW-Flex",
           "098-USW-Flex-Getaway",
           "NB5AC-STA-98",
           "NSL5AC-AP-57-75-98",
@@ -13098,8 +13099,26 @@
         ],
         "hops": [
           {
-            "link_id": "lnk:098-USW-Flex-Getaway>099-UAP-U7O",
+            "link_id": "lnk:099-USW-Flex>099-UAP-U7O",
             "from_device": "099-UAP-U7O",
+            "to_device": "099-USW-Flex",
+            "medium": "wired-ethernet",
+            "connection": "cable",
+            "label": "Wired cable (type unrecorded).",
+            "cable_type": null,
+            "cable_type_status": "unknown",
+            "interface": null,
+            "evidence": [
+              {
+                "source": "asbuilt-public",
+                "record": "lnk:099-USW-Flex>099-UAP-U7O",
+                "field": "links"
+              }
+            ]
+          },
+          {
+            "link_id": "lnk:098-USW-Flex-Getaway>099-USW-Flex",
+            "from_device": "099-USW-Flex",
             "to_device": "098-USW-Flex-Getaway",
             "medium": "wired-ethernet",
             "connection": "cable",
@@ -13110,7 +13129,7 @@
             "evidence": [
               {
                 "source": "asbuilt-public",
-                "record": "lnk:098-USW-Flex-Getaway>099-UAP-U7O",
+                "record": "lnk:098-USW-Flex-Getaway>099-USW-Flex",
                 "field": "links"
               }
             ]
@@ -13259,7 +13278,7 @@
             ]
           }
         ],
-        "text": "099-UAP-U7O → 098-USW-Flex-Getaway → NB5AC-STA-98 → NSL5AC-AP-57-75-98 → 096-USW-Flex-East → NB5AC-STA-96 → NB5AC-AP-96 → 000-USW-Flex-Roof → 000-USW-24-PoE → 0000-MD-UDM-Pro-2",
+        "text": "099-UAP-U7O → 099-USW-Flex → 098-USW-Flex-Getaway → NB5AC-STA-98 → NSL5AC-AP-57-75-98 → 096-USW-Flex-East → NB5AC-STA-96 → NB5AC-AP-96 → 000-USW-Flex-Roof → 000-USW-24-PoE → 0000-MD-UDM-Pro-2",
         "evidence": [
           {
             "source": "asbuilt-public",

@@ -86,7 +86,7 @@ test("inactive 088 has no path highlight and a selected device exposes ancestors
   const inactive = highlightForDevice(hierarchy, asbuilt.devices.find((device) => device.id === "088-UAP-M"));
   assert.deepEqual(inactive.linkIds, []);
   const office = highlightForDevice(hierarchy, asbuilt.devices.find((device) => device.id === "000-UAP-IW"));
-  assert.ok(office.ancestors.includes("branch:office"));
+  assert.deepEqual(office.ancestors, ["wan:internet", "0000-MD-UDM-Pro-2", "000-USW-24-PoE"]);
   assert.ok(office.linkIds.includes(hierarchy.primary_wan_link_id));
   assert.ok(office.linkIds.includes("lnk:000-USW-24-PoE>000-UAP-IW"));
 });

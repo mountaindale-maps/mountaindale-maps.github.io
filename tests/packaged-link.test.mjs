@@ -7,8 +7,7 @@ import test from "node:test";
 import { chromium, firefox } from "@playwright/test";
 
 const zipPath = path.resolve("packages/mountaindale-local-editor.zip");
-const removedId = "lnk:098-USW-Flex-Getaway>099-UAP-U7O";
-const addedId = "lnk:099-USW-Flex>099-UAP-U7O";
+const linkId = "lnk:099-USW-Flex>099-UAP-U7O";
 
 async function withPackagedEditor(port, run) {
   const root = await mkdtemp(path.join(tmpdir(), "md-packaged-link-"));
@@ -43,25 +42,21 @@ async function withPackagedEditor(port, run) {
   }
 }
 
-async function clickDevice(page, id) {
-  const marker = page.locator(`[data-device-id="${id}"]`);
-  if (!(await marker.count())) {
-    const cluster = page.locator(`[data-members*="${id}"]`).first();
-    const box = await cluster.boundingBox();
-    await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+async function selectDeviceFromTree(page, id) {
+  const ancestors = [
+    "000-USW-Flex-Roof",
+    "NB5AC-AP-96",
+    "NB5AC-STA-96",
+    "096-USW-Flex-East",
+    "NSL5AC-AP-57-75-98",
+    "NB5AC-STA-98",
+    "098-USW-Flex-Getaway",
+    "099-USW-Flex",
+  ];
+  for (const key of ancestors) {
+    await page.locator(`#topo-body [data-key="${key}"] [aria-expanded="false"]`).click();
   }
-  let box = await page.locator(`[data-device-id="${id}"]`).boundingBox();
-  const covered = await page.evaluate(({ x, y, id }) => document.elementFromPoint(x, y)?.dataset?.deviceId !== id, {
-    x: box.x + box.width / 2,
-    y: box.y + box.height / 2,
-    id,
-  });
-  if (covered) {
-    const cluster = page.locator(`[data-members*="${id}"]`).first();
-    const clusterBox = await cluster.boundingBox();
-    await page.mouse.click(clusterBox.x + clusterBox.width / 2, clusterBox.y + clusterBox.height / 2);
-  }
-  await page.locator(`[data-device-id="${id}"]`).click();
+  await page.locator(`#topo-body [data-key="${id}"] .topo-label`).click();
 }
 
 async function pickDevice(page, inputId, typed, canonical) {
@@ -85,30 +80,28 @@ for (const [name, browserType, port] of [["chromium", chromium, 8793], ["firefox
         await page.locator("#add-link").click();
         await page.locator("#link-message").waitFor();
         assert.match(await page.locator("#link-message").innerText(), /Pick a parent device/);
-        assert.equal(await page.locator(`polyline[data-link-id="${addedId}"]`).count(), 0);
+        assert.equal(await page.locator(`polyline[data-link-id="${linkId}"]`).count(), 2);
 
         await page.locator("#modes [data-mode='path']").click();
-        await page.locator(".marker, .cluster").first().waitFor();
-        await clickDevice(page, "099-UAP-U7O");
-        await page.getByRole("button", { name: removedId }).click();
+        await selectDeviceFromTree(page, "099-UAP-U7O");
+        await page.getByRole("button", { name: linkId }).click();
         await page.locator("#modes [data-mode='connect']").click();
         await page.locator("#remove-link").click();
         await page.locator("#remove-link").click();
-        assert.match(await page.locator("#link-message").innerText(), new RegExp(`Removed ${removedId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
-        assert.equal(await page.locator(`polyline[data-link-id="${removedId}"]`).count(), 0);
+        assert.match(await page.locator("#link-message").innerText(), new RegExp(`Removed ${linkId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
+        assert.equal(await page.locator(`polyline[data-link-id="${linkId}"]`).count(), 0);
 
         assert.equal(await page.locator("#link-medium").inputValue(), "wired-ethernet");
         await pickDevice(page, "link-parent", "099-usw-flex", "099-USW-Flex");
         await pickDevice(page, "link-child", "099-uap-u7o", "099-UAP-U7O");
         await page.locator("#add-link").click();
         assert.match(await page.locator("#link-message").innerText(), /Added Ethernet cable 099-USW-Flex → 099-UAP-U7O/);
-        await page.locator(`polyline.link.is-hot.medium-wired-ethernet[data-link-id="${addedId}"]`).waitFor();
+        await page.locator(`polyline.link.is-hot.medium-wired-ethernet[data-link-id="${linkId}"]`).waitFor();
 
         await page.locator("#save").click();
         await page.locator("#save-state").filter({ hasText: "Saved locally" }).waitFor();
         await page.reload({ waitUntil: "domcontentloaded" });
-        await page.locator(`polyline.medium-wired-ethernet[data-link-id="${addedId}"]`).waitFor();
-        assert.equal(await page.locator(`polyline[data-link-id="${removedId}"]`).count(), 0);
+        await page.locator(`polyline.medium-wired-ethernet[data-link-id="${linkId}"]`).waitFor();
       } finally {
         await browser.close();
       }

@@ -498,6 +498,21 @@ export function describePublicEdits(baseline, plan) {
   }
   const groups = JSON.stringify(baseline.location_groups) !== JSON.stringify(plan.asbuilt.location_groups)
     || baseline.devices.some((device) => device.location_group !== planDevices.get(device.id)?.location_group);
-  const connectivity = JSON.stringify(baseline.links) !== JSON.stringify(plan.asbuilt.links);
+  const connectivity = linksDiffer(baseline.links, plan.asbuilt.links, plan.cable_paths);
   return { coordinates, metadata, groups, connectivity };
+}
+
+function linksDiffer(baselineLinks, planLinks, cablePaths) {
+  const topology = (links) => (links || []).map((link) => {
+    const copy = { ...link };
+    delete copy.vertices;
+    return copy;
+  });
+  const bends = (links, paths) => (links || []).map((link) => {
+    const path = paths?.[link.id];
+    const source = path ? (path.intermediates || []) : (link.vertices || []);
+    return source.map((vertex) => ({ lon: vertex.lon, lat: vertex.lat }));
+  });
+  return JSON.stringify(topology(baselineLinks)) !== JSON.stringify(topology(planLinks))
+    || JSON.stringify(bends(baselineLinks, null)) !== JSON.stringify(bends(planLinks, cablePaths));
 }

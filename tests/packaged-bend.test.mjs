@@ -80,15 +80,26 @@ for (const [name, browserType, port] of [["chromium", chromium, 8791], ["firefox
         await page.goto(url, { waitUntil: "domcontentloaded" });
         await page.locator("#bend-hint").waitFor();
         await page.locator("polyline.link").first().waitFor();
-        const before = await page.locator("#map").getAttribute("data-view-u");
-        const target = await strokePoint(page);
-        assert.ok(target, "no Ethernet stroke pixel was hittable at default zoom");
+        let target = await strokePoint(page);
+        const box = await page.locator("#map").boundingBox();
+        for (let step = 0; !target && step < 6; step += 1) {
+          await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+          await page.mouse.wheel(0, -400);
+          target = await strokePoint(page);
+        }
+        assert.ok(target, "no Ethernet stroke pixel was hittable");
         await page.mouse.click(target.x, target.y);
         await page.locator(`polyline.link.is-hot[data-link-id="${target.id}"]`).waitFor();
         const handles = await page.locator(".midpoint").count();
         assert.ok(handles > 0, "selecting a cable did not show handles");
-        const dragFrom = await strokePoint(page);
+        let dragFrom = await strokePoint(page);
+        for (let step = 0; !dragFrom && step < 4; step += 1) {
+          await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+          await page.mouse.wheel(0, -400);
+          dragFrom = await strokePoint(page);
+        }
         assert.ok(dragFrom, "the selected cable stroke was not hittable");
+        const before = await page.locator("#map").getAttribute("data-view-u");
         await page.mouse.move(dragFrom.x, dragFrom.y);
         await page.mouse.down();
         await page.mouse.move(dragFrom.x + 48, dragFrom.y + 32, { steps: 6 });

@@ -71,5 +71,5 @@ test("a bend, slope, drop, and slack change that run to the editor length", () =
   assert.equal(ethernetRunFeet(row.hop, links, null), feet);
   assert.equal(row.text, `Ethernet cable, ${feet}. ${row.hop.to}`);
   assert.equal(lines.some((line) => /total/i.test(line.text)), false);
-  assert.equal(JSON.stringify(base.cable_paths[id] || null), "null");
+  assert.deepEqual(base.cable_paths[id].intermediates, asbuilt.links.find((item) => item.id === id).vertices.map((vertex) => ({ lon: vertex.lon, lat: vertex.lat })));
 });
