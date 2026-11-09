@@ -7,6 +7,7 @@ import {
   highlightForDevice,
   highlightForGroup,
 } from "./lib/topology-model.mjs";
+import { shownOnMap } from "./lib/map-links.mjs";
 import { linksWithCoords, renderDeviceStory } from "./lib/render-card.mjs";
 import { createMap, insetsAround } from "./map.js";
 import { mountTopology } from "./topology-view.js";
@@ -129,7 +130,7 @@ function paint() {
   const { device, highlight, members } = activeHighlight();
   const memberSet = new Set(members);
   const hotLinks = new Set(highlight.linkIds);
-  map.setPolylines(links.flatMap((link) => {
+  map.setPolylines(links.filter(shownOnMap).flatMap((link) => {
     const a = pixelOf(endpoint(link.parent));
     const b = pixelOf(endpoint(link.child));
     if (!a || !b) return [];

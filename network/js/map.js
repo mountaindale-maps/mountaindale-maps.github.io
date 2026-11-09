@@ -340,6 +340,9 @@ export function createMap(container, options) {
 
   function render() {
     measure();
+    container.dataset.scale = String(view.scale);
+    container.dataset.viewU = String(view.u);
+    container.dataset.viewV = String(view.v);
     renderTiles();
     renderOverlays();
     emit("viewchange", { ...view });
@@ -358,7 +361,34 @@ export function createMap(container, options) {
   }
 
   const pointers = new Map();
+  let pinch = null;
+  function touchPoints() {
+    return [...pointers.values()].filter((point) => point.type === "touch");
+  }
+  function syncPinch(reset) {
+    const points = touchPoints();
+    if (points.length < 2) {
+      pinch = null;
+      return;
+    }
+    const distance = Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y) || 1;
+    const midX = (points[0].x + points[1].x) / 2;
+    const midY = (points[0].y + points[1].y) / 2;
+    if (reset || !pinch) {
+      pinch = { dist: distance, scale: view.scale };
+      return;
+    }
+    const target = clampScale(pinch.scale * (distance / pinch.dist));
+    const factor = target / view.scale;
+    if (Math.abs(factor - 1) > 0.001) zoomAt(factor, midX, midY);
+  }
   container.addEventListener("pointerdown", (event) => {
+    pointers.set(event.pointerId, { x: event.clientX, y: event.clientY, type: event.pointerType });
+    if (touchPoints().length >= 2) {
+      drag = null;
+      syncPinch(true);
+      return;
+    }
     const vertex = event.target.closest?.(".vertex");
     if (vertex) {
       event.preventDefault();
@@ -372,10 +402,23 @@ export function createMap(container, options) {
       return;
     }
     if (event.target.closest?.(".marker, .cluster, .map-label")) return;
-    pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
     drag = { kind: "pan", x: event.clientX, y: event.clientY, u: view.u, v: view.v, moved: false, pointer: event.pointerId };
   });
+  container.addEventListener("touchmove", (event) => {
+    if (event.touches.length >= 2) event.preventDefault();
+  }, { passive: false });
+  container.addEventListener("gesturestart", (event) => event.preventDefault());
+  container.addEventListener("gesturechange", (event) => event.preventDefault());
   window.addEventListener("pointermove", (event) => {
+    if (pointers.has(event.pointerId)) {
+      const current = pointers.get(event.pointerId);
+      pointers.set(event.pointerId, { ...current, x: event.clientX, y: event.clientY });
+    }
+    if (touchPoints().length >= 2) {
+      drag = null;
+      syncPinch(false);
+      return;
+    }
     if (!drag || event.pointerId !== drag.pointer) return;
     if (drag.kind === "marker") {
       emit("markerdrag", { id: drag.id, ...sourceFromEvent(event) });
@@ -396,6 +439,7 @@ export function createMap(container, options) {
   });
   function endPointer(event) {
     pointers.delete(event.pointerId);
+    if (touchPoints().length < 2) pinch = null;
     if (!drag || event.pointerId !== drag.pointer) return false;
     const finished = drag;
     drag = null;

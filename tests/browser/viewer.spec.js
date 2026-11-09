@@ -45,6 +45,8 @@ test("loads the real network, low-resolution tiles first, then a real marker cli
   expect(visibleStatus).not.toMatch(/calibration gate/i);
   expect(visibleStatus).not.toMatch(/Open review/);
   await expect(page.locator("#map .link").first()).toBeVisible();
+  await expect(page.locator("#map [data-link-id='lnk:SECOM>0000-MD-UDM-Pro-2']")).toHaveCount(0);
+  await expect(page.locator("#legend")).not.toContainText("SECOM WAN");
   await expect(page.locator("#topology")).toBeHidden();
   await page.locator("#show-network").click();
   await expect(page.locator(".uplink").first()).toBeVisible();
@@ -178,4 +180,62 @@ test("a real touch tap highlights before a second tap zooms, and the phone layou
   await expect(page.locator("#legend")).toContainText("airMAX");
   await expect(page.locator("#legend")).toContainText("unverified");
   await context.close();
+});
+
+test("two-finger pinch zooms the map around the pinch midpoint", async ({ page }) => {
+  await page.goto("/network/");
+  await expect(page.locator("#map")).toHaveAttribute("data-scale", /.+/);
+  const sourceAt = () => page.evaluate(() => {
+    const map = document.querySelector("#map");
+    const rect = map.getBoundingClientRect();
+    const scale = Number(map.dataset.scale);
+    const sx = rect.width / 2;
+    const sy = rect.height / 2;
+    return {
+      scale,
+      u: Number(map.dataset.viewU) + (sx - rect.width / 2) / scale,
+      v: Number(map.dataset.viewV) + (sy - rect.height / 2) / scale,
+    };
+  });
+  const before = await sourceAt();
+  async function pinch(spread) {
+    await page.evaluate((grow) => {
+      const map = document.querySelector("#map");
+      const rect = map.getBoundingClientRect();
+      const midX = rect.left + rect.width / 2;
+      const midY = rect.top + rect.height / 2;
+      const fire = (type, id, x, y) => {
+        map.dispatchEvent(new PointerEvent(type, {
+          pointerId: id,
+          pointerType: "touch",
+          clientX: x,
+          clientY: y,
+          bubbles: true,
+          cancelable: true,
+        }));
+      };
+      fire("pointerdown", 11, midX - 40, midY);
+      fire("pointerdown", 12, midX + 40, midY);
+      const steps = 8;
+      for (let step = 1; step <= steps; step += 1) {
+        const gap = 40 + ((40 * grow - 40) * step) / steps;
+        fire("pointermove", 11, midX - gap, midY);
+        fire("pointermove", 12, midX + gap, midY);
+      }
+      fire("pointerup", 11, midX - 40 * grow, midY);
+      fire("pointerup", 12, midX + 40 * grow, midY);
+    }, spread);
+  }
+  await pinch(2.2);
+  const zoomedIn = await sourceAt();
+  expect(zoomedIn.scale).toBeGreaterThan(before.scale * 1.4);
+  expect(Math.abs(zoomedIn.u - before.u)).toBeLessThan(24);
+  expect(Math.abs(zoomedIn.v - before.v)).toBeLessThan(24);
+  await pinch(0.45);
+  const zoomedOut = await sourceAt();
+  expect(zoomedOut.scale).toBeLessThan(zoomedIn.scale * 0.7);
+  expect(Math.abs(zoomedOut.u - zoomedIn.u)).toBeLessThan(24);
+  expect(Math.abs(zoomedOut.v - zoomedIn.v)).toBeLessThan(24);
+  const outside = await page.evaluate(() => getComputedStyle(document.body).touchAction);
+  expect(outside).not.toBe("none");
 });

@@ -25,6 +25,7 @@ import {
   setSegmentExtra,
   verticesForLink,
 } from "/js/lib/plan.mjs";
+import { shownOnMap } from "/js/lib/map-links.mjs";
 import { linksWithCoords, renderDeviceStory } from "/js/lib/render-card.mjs";
 import { buildPublicSnapshot, describePublicEdits } from "/js/lib/sanitize.mjs";
 import { applyFocus, defaultExpandedKeys, highlightForDevice } from "/js/lib/topology-model.mjs";
@@ -138,7 +139,7 @@ function render() {
   const highlight = highlightForDevice(hier, active && active.status !== "planned" ? active : null);
   const hot = new Set(highlight.linkIds);
   const lines = [];
-  for (const link of plan.asbuilt.links) {
+  for (const link of plan.asbuilt.links.filter(shownOnMap)) {
     const vertices = verticesForLink(plan, link);
     if (!vertices) continue;
     lines.push({
