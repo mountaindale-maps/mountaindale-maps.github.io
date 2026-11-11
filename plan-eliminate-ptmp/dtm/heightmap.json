@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "crs": "EPSG:32613",
+  "utm_offset": [
+    504403.0,
+    4271036.0,
+    0
+  ],
+  "geotransform": [
+    504305.588,
+    0.2,
+    0.0,
+    4271133.447,
+    0.0,
+    -0.2
+  ],
+  "origin_utm_upper_left": [
+    504305.588,
+    4271133.447
+  ],
+  "bounds_utm": [
+    504305.588,
+    4270926.147,
+    504510.18799999997,
+    4271133.447
+  ],
+  "width": 1023,
+  "height": 1037,
+  "pixel_size_m": 0.2,
+  "z_min": -15.543999671936035,
+  "z_max": -0.518016517162323,
+  "z_offset": -15.793999671936035,
+  "z_scale": 0.00023691493201656716,
+  "nodata": 65535,
+  "encoding": "uint16_le",
+  "data": "heightmap.u16",
+  "source_dtm": "/datasets/flight_20261110/odm_dem/dtm.tif",
+  "source_resolution_m": 0.15,
+  "valid_fraction": 0.9990356798457087,
+  "mesh_frame": "world.x = utm.x - offset_x; world.y = z; world.z = -(utm.y - offset_y)"
+}

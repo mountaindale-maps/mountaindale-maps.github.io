@@ -1,0 +1,17 @@
+/* Safari 15 uses --app-height; newer browsers use dvh. Never rely on color for state. */
+html,body{height:100%;height:var(--app-height,100vh);overscroll-behavior:none;position:fixed;width:100%;-webkit-text-size-adjust:100%}
+body{height:100dvh}body>canvas{position:absolute;inset:0;touch-action:none;user-select:none;-webkit-user-select:none}
+button,a.btn,.site-label,input,label{touch-action:manipulation}
+button,a.btn{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+button:focus-visible,a:focus-visible,.site-label:focus-visible{outline:3px solid white;outline-offset:2px}
+#top{padding:calc(8px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 8px max(12px,env(safe-area-inset-left,0px));gap:6px}
+#top .t{min-width:0}#top small{font-size:12px}#quality[hidden]{display:none!important}#quality a[aria-current=true]{outline:2px solid white;text-decoration:underline}
+.panel,#infoPanel,#vbPanel{top:calc(var(--toolbar-bottom,112px) + 8px);bottom:auto;left:max(12px,env(safe-area-inset-left,0px));right:auto;width:calc(100% - 24px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px));max-width:400px;max-height:calc(var(--app-height,100vh) - var(--toolbar-bottom,112px) - 48px - env(safe-area-inset-bottom,0px));overscroll-behavior:contain;-webkit-overflow-scrolling:touch;overflow-x:hidden;overflow-wrap:anywhere}
+.panel h2{position:sticky;top:-14px;padding:8px 0;background:#10212b;z-index:1}.panel label{min-height:44px;color:white!important}.panel li{min-height:44px}.panel li>span{min-width:0}input[type=checkbox]{flex-shrink:0}
+.site-label{font-size:12px;min-width:44px;min-height:44px;max-width:240px;white-space:normal;text-align:center;display:flex;align-items:center;justify-content:center;padding:6px;line-height:1.2}
+.site-label::before{content:''}#help{padding:5px max(8px,env(safe-area-inset-left,0px)) calc(5px + env(safe-area-inset-bottom,0px));font-size:12px}
+#error{color:white;border:2px solid white}#error p{line-height:1.5}#loading{pointer-events:none}
+@media(max-width:600px){#top .t{width:100%;font-size:14px}#top>button{flex:1 1 auto;padding:8px;white-space:nowrap}#labelsToggle{min-width:0}#top small{font-size:11px}#help{font-size:11px}.panel{padding:12px}.panel h2{top:-12px}}
+@media(max-height:500px) and (orientation:landscape){#top .t{width:auto;flex:1 1 150px;font-size:12px}#top small{font-size:10px}#top>button{flex:0 1 auto}#help{display:none}.panel,#infoPanel,#vbPanel{max-height:calc(var(--app-height,100vh) - var(--toolbar-bottom,100px) - 18px - env(safe-area-inset-bottom,0px))}}
+
+.site-label{transform:none;max-width:180px;z-index:1}.label-leader{position:absolute;height:2px;background:white;box-shadow:0 0 2px #000;transform-origin:left center;pointer-events:none;z-index:0}
